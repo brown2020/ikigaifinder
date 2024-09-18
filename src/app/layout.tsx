@@ -3,7 +3,7 @@ import "./globals.css";
 import Navbar from "@/components/Navbar";
 
 export const metadata: Metadata = {
-  title: "Find Your Ikigai",
+  title: "Ikigai Finder",
   description: "Find your Ikigai by answering a series of questions.",
 };
 
