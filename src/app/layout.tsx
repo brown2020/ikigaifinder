@@ -3,8 +3,8 @@ import "./globals.css";
 import Navbar from "@/components/Navbar";
 
 export const metadata: Metadata = {
-  title: "Find Your Purpose",
-  description: "Find your purpose by answering a series of questions.",
+  title: "Find Your Ikigai",
+  description: "Find your Ikigai by answering a series of questions.",
 };
 
 export default function RootLayout({
