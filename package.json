@@ -9,9 +9,9 @@
     "lint": "next lint"
   },
   "dependencies": {
-    "@ai-sdk/google": "^0.0.48",
-    "@ai-sdk/openai": "^0.0.61",
-    "ai": "^3.3.44",
+    "@ai-sdk/google": "^0.0.49",
+    "@ai-sdk/openai": "^0.0.62",
+    "ai": "^3.4.4",
     "axios": "^1.7.7",
     "dotenv": "^16.4.5",
     "firebase": "^10.13.2",
@@ -23,13 +23,13 @@
     "react-textarea-autosize": "^8.5.3"
   },
   "devDependencies": {
-    "@types/node": "^22.5.5",
-    "@types/react": "^18.3.8",
+    "@types/node": "^22.7.3",
+    "@types/react": "^18.3.9",
     "@types/react-dom": "^18",
     "eslint": "^8.57.1",
     "eslint-config-next": "^14.2.13",
     "postcss": "^8.4.47",
-    "tailwindcss": "^3.4.12",
+    "tailwindcss": "^3.4.13",
     "typescript": "^5.6.2"
   }
 }
