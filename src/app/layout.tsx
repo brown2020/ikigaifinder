@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import Navbar from "@/components/Navbar";
+import { ClientProvider } from "@/components/ClientProvider";
 
 export const metadata: Metadata = {
   title: "Ikigai Finder",
@@ -15,8 +16,12 @@ export default function RootLayout({
   return (
     <html lang="en" className="h-full">
       <body className="flex flex-col h-full">
-        <Navbar />
-        <div className="flex-grow">{children}</div>
+        <ClientProvider>
+          <div className="fixed top-0 z-50 w-full">
+            <Navbar />
+          </div>
+          <div className="flex-grow">{children}</div>
+        </ClientProvider>
       </body>
     </html>
   );

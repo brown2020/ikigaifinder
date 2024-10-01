@@ -1,5 +1,6 @@
-import PurposeSurvey from "@/components/PurposeSurvey";
-
+// import PurposeSurvey from "@/components/PurposeSurvey";
+import HomePage from "@/componentPages/HomePage";
 export default function page() {
-  return <PurposeSurvey />;
+  return <HomePage />;
+  // return <PurposeSurvey />;
 }
