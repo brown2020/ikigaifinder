@@ -9,8 +9,8 @@
     "lint": "next lint"
   },
   "dependencies": {
-    "@ai-sdk/google": "^0.0.48",
-    "@ai-sdk/openai": "^0.0.61",
+    "@ai-sdk/google": "^0.0.51",
+    "@ai-sdk/openai": "^0.0.63",
     "ai": "^3.3.44",
     "axios": "^1.7.7",
     "cookies-next": "^4.2.1",
@@ -18,7 +18,7 @@
     "firebase": "^10.13.2",
     "firebase-admin": "^12.5.0",
     "lodash": "^4.17.21",
-    "lucide-react": "^0.446.0",
+    "lucide-react": "^0.447.0",
     "next": "^14.2.13",
     "react": "^18",
     "react-cookie-consent": "^9.0.0",
