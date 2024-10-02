@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
-import Image from "next/image";
+import { ChevronDown } from "lucide-react";
 
 interface CustomMultiTagProps {
   options: string[];
@@ -119,10 +119,11 @@ const CustomMultiTag: React.FC<CustomMultiTagProps> = ({
           onFocus={() => setIsOpen(true)}
         />
         <div
-          className={`mr-2 transition-transform duration-300 ${isOpen ? "rotate-180" : "rotate-0"
-            } absolute right-0`}
+          className={`mr-2 transition-transform duration-300 ${
+            isOpen ? "rotate-180" : "rotate-0"
+          } absolute right-0`}
         >
-          <Image src="/assets/arrow.svg" width={25} height={25} alt="arrow" className="min-w-5" />
+          <ChevronDown className="min-w-5" />
         </div>
       </div>
       {isOpen && (
@@ -130,8 +131,9 @@ const CustomMultiTag: React.FC<CustomMultiTagProps> = ({
           {filteredOptions.map((option) => (
             <li
               key={option}
-              className={`px-3 py-2 hover:bg-blue-50 cursor-pointer ${value.includes(option) ? "bg-blue-50" : ""
-                }`}
+              className={`px-3 py-2 hover:bg-blue-50 cursor-pointer ${
+                value.includes(option) ? "bg-blue-50" : ""
+              }`}
               onClick={() => addTag(option)}
             >
               {option}

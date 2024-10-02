@@ -2,9 +2,10 @@ import { QuestionStepper } from "./question";
 
 export interface navItemType {
   label: string;
-  icon: React.ReactNode;
-  path: string;
+  icon: React.ElementType;
+  path?: string;
   surveySet?: "ikigai";
+  subItems?: navItemType[];
 }
 
 export interface questionStepT {

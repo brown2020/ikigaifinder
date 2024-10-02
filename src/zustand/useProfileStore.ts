@@ -46,10 +46,7 @@ const useProfileStore = create<ProfileState>((set) => ({
   profile: defaultProfile,
 
   fetchProfile: async () => {
-    console.log("fetchProfile", useAuthStore.getState(), ":>>>>>>>>>>>   useAuthStore.getState()")
     const uid = useAuthStore.getState().uid;
-
-    console.log(uid, "test   uid")
     if (!uid) return;
     try {
       const authEmail = useAuthStore.getState().authEmail;

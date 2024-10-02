@@ -1,21 +1,23 @@
 "use client";
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { useForm, SubmitHandler, FieldValues } from "react-hook-form";
 import FormField from "./FormField";
 import { STEPPER_QUESTIONS_JSON } from "@/constants/questions";
 import { questionStepT } from "@/types/interface";
 import { readStreamableValue } from "ai/rsc";
 import { generateIkigai } from "@/lib/generateIkigai";
+import { useIkigaiStore } from "@/zustand";
 
 interface ikigaiDataT {
   ikigai: string;
-  Passion: number;
-  Profession: number;
-  Mission: number;
-  Vocation: number;
+  PassionProfession: number;
+  ProfessionVocation: number;
+  MissionVocation: number;
+  MissionPassion: number;
+  OverallCompatibility: number;
 }
 
-const StepperForm: React.FC = () => {
+const IkigaiStepperForm: React.FC = () => {
   const {
     control,
     register,
@@ -23,30 +25,51 @@ const StepperForm: React.FC = () => {
     formState: { errors },
     watch,
     setError,
-    // setValue,
+    setValue,
   } = useForm<FieldValues>();
-
+  const fetchIkigaiData = useIkigaiStore((s) => s.ikigaiData);
+  const updateIkigai = useIkigaiStore((s) => s.updateIkigai);
   const [step, setStep] = useState<number>(1);
-  const [formData, setFormData] = useState<questionStepT[]>(STEPPER_QUESTIONS_JSON);
+  const [formData, setFormData] = useState<questionStepT[]>(
+    STEPPER_QUESTIONS_JSON
+  );
   const [ikigaiData, setIkigaiData] = useState<ikigaiDataT[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const currentStep = useMemo(() => {
     return formData.find((_, index) => index + 1 === step);
   }, [formData, step]);
 
+  console.log("fetchIkigaiData", fetchIkigaiData?.answers);
+
+  useEffect(() => {
+    const defaultValues = fetchIkigaiData?.answers?.reduce<
+      Record<string, string | string[]>
+    >((acc, step) => {
+      step.questions.forEach((question) => {
+        acc[question.id] = question?.answer || [];
+      });
+      return acc;
+    }, {});
+    setFormData(fetchIkigaiData?.answers);
+    Object.entries(defaultValues).forEach(([key, value]) => {
+      setValue(key, value);
+    });
+  }, [fetchIkigaiData?.answers, setValue]);
+
   const extractIkigaiData = (text: string) => {
     const ikigaiArray = [];
-    const pattern =
-      /(\*\*(.*?)\*\*)\s+-\s+Passion:\s+(\d+)\s+-\s+Profession:\s+(\d+)\s+-\s+Mission:\s+(\d+)\s+-\s+Vocation:\s+(\d+)/g;
-    let match;
+    const regex =
+      /(\d+)\.\s*(.*?)\n\s*-\s*Passion & Profession:\s*(\d+(?:\.\d+)?)%\s*-\s*Profession & Vocation:\s*(\d+(?:\.\d+)?)%\s*-\s*Vocation & Mission:\s*(\d+(?:\.\d+)?)%\s*-\s*Passion & Mission:\s*(\d+(?:\.\d+)?)%\s*-\s*Overall Compatibility:\s*(\d+(?:\.\d+)?)%/g;
 
-    while ((match = pattern.exec(text)) !== null) {
+    let match;
+    while ((match = regex.exec(text)) !== null) {
       ikigaiArray.push({
         ikigai: match[2].trim(),
-        Passion: parseInt(match[3], 10),
-        Profession: parseInt(match[4], 10),
-        Mission: parseInt(match[5], 10),
-        Vocation: parseInt(match[6], 10),
+        PassionProfession: parseFloat(match[3]),
+        ProfessionVocation: parseFloat(match[4]),
+        MissionVocation: parseFloat(match[5]),
+        MissionPassion: parseFloat(match[6]),
+        OverallCompatibility: parseFloat(match[7]),
       });
     }
 
@@ -57,22 +80,26 @@ const StepperForm: React.FC = () => {
     updatedStepperData: questionStepT[]
   ) => {
     setIsLoading(true);
-    const questionData = updatedStepperData
-      .map((item) =>
-        item.questions.map((q) => {
-          return {
-            question: q.label,
-            answer: q.answer || [],
-          };
-        })
-      )
-      .flat();
+    const questionData = updatedStepperData.map((item) => {
+      const questions = item.questions.map((q) => {
+        return {
+          question: q.label,
+          answer: q.answer || [],
+        };
+      });
+      return {
+        id: item.id,
+        questions,
+      };
+    });
     const result = await generateIkigai(questionData);
 
     for await (const content of readStreamableValue(result)) {
       if (content) {
+        console.log("content", content);
         const ikigaiList = extractIkigaiData(content);
-        if(ikigaiList.length === 10){ 
+        console.log("ikigaiList", ikigaiList);
+        if (ikigaiList.length === 10) {
           setIsLoading(false);
         }
         setIkigaiData(ikigaiList);
@@ -100,7 +127,7 @@ const StepperForm: React.FC = () => {
     );
 
     setFormData(updatedStepperData);
-
+    await updateIkigai({ answers: updatedStepperData });
     if (step === formData.length) {
       await getGenerateIkigaiResult(updatedStepperData);
     }
@@ -119,9 +146,14 @@ const StepperForm: React.FC = () => {
     }
   };
 
+  const handleSelectIkigai = (item: ikigaiDataT) => {
+    console.log("item", item);
+  };
+
   return (
     <div className="grid grid-cols-2 gap-4">
-      <div className="mx-auto p-6 bg-white shadow-md rounded w-full">
+      {/* <div className="mx-auto p-6 bg-white shadow-md rounded w-full"> */}
+      <div className="mr-1">
         {/* Title and Description */}
         <h2 className="text-xl font-semibold mb-2 text-gray-600">
           {currentStep?.title}
@@ -159,7 +191,11 @@ const StepperForm: React.FC = () => {
 
             <button
               type="submit"
-              className={`px-4 py-2 bg-blue-500 text-white rounded ${isLoading ? "cursor-not-allowed opacity-50" : "hover:bg-blue-600"}`}
+              className={`px-4 py-2 bg-blue-500 text-white rounded ${
+                isLoading
+                  ? "cursor-not-allowed opacity-50"
+                  : "hover:bg-blue-600"
+              }`}
               disabled={isLoading}
             >
               {isLoading ? "Loading..." : currentStep?.button || "Continue"}
@@ -193,24 +229,35 @@ const StepperForm: React.FC = () => {
 
       <div>
         {ikigaiData.length > 0 && (
-          <div className="flex flex-col p-4 border rounded-md h-[calc(100vh-160px)]">
-            <ul className=" overflow-y-auto min-h-[350px]">
-              {ikigaiData?.map((ikigai, index) => (
+          <div className="flex flex-col p-4 border rounded-md ">
+            <ul className=" overflow-y-auto min-h-[350px] text-gray-600">
+              {ikigaiData?.map((ikigaiItem, index) => (
                 <li
                   className={`p-4 border rounded-md shadow-md cursor-pointer mt-2 mr-2`}
                   key={index}
-                  // onClick={() => handlePurposeSelection(purpose)}
+                  onClick={() => handleSelectIkigai(ikigaiItem)}
                 >
-                  {ikigai?.ikigai}
+                  {ikigaiItem?.ikigai?.replace("**", "")}
                   <ul className="list-disc pl-4 mt-2">
-                    <li>Passion: {ikigai?.Passion}%</li>
-                    <li>Profession: {ikigai?.Profession}%</li>
-                    <li>Mission: {ikigai?.Mission}%</li>
-                    <li>Vocation: {ikigai?.Vocation}%</li>
+                    <li>
+                      Passion & Profession: {ikigaiItem?.PassionProfession}%
+                    </li>
+                    <li>
+                      Profession & Vocation: {ikigaiItem?.ProfessionVocation}%
+                    </li>
+                    <li>Vocation & Mission: {ikigaiItem?.MissionVocation}%</li>
+                    <li>Passion & Mission: {ikigaiItem?.MissionPassion}%</li>
+                    <li>
+                      Overall Compatibility: {ikigaiItem?.OverallCompatibility}%
+                    </li>
                   </ul>
                 </li>
               ))}
             </ul>
+
+            {/* <div>
+              <button className="btn-primary">Save Ikigai</button>
+            </div> */}
           </div>
         )}
       </div>
@@ -218,4 +265,4 @@ const StepperForm: React.FC = () => {
   );
 };
 
-export default StepperForm;
+export default IkigaiStepperForm;
