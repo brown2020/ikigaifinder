@@ -29,6 +29,7 @@ export type ProfileType = {
 
 interface ProfileState {
   profile: ProfileType;
+  ikigaiLoading: boolean;
   fetchProfile: () => void;
   updateProfile: (newProfile: Partial<ProfileType>) => void;
 }
@@ -44,7 +45,8 @@ const defaultProfile: ProfileType = {
 
 const useProfileStore = create<ProfileState>((set) => ({
   profile: defaultProfile,
-
+  ikigaiLoading: false,
+  
   fetchProfile: async () => {
     const uid = useAuthStore.getState().uid;
     if (!uid) return;
@@ -108,7 +110,6 @@ const useProfileStore = create<ProfileState>((set) => ({
         };
         await setDoc(userRef, { profile: newProfile });
         set({ profile: newProfile });
-        console.log("Profile created successfully");
       }
     } catch (error) {
       console.error("Error fetching or creating profile:", error);

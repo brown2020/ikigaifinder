@@ -52,15 +52,33 @@ Each statement should start with 'My Ikigai is to' and reflect a balance between
 
 
 Output the statements as follows: "My Ikigai is to <insert first Ikigai statement here>\n
-- Passion & Profession: <insert first Ikigai statement here>\n
-- Profession & Vocation: <insert first Ikigai statement here>\n
-- Vocation & Mission: <insert first Ikigai statement here>\n
-- Passion & Mission: <insert first Ikigai statement here>\n
-- Overall Compatibility: <insert first Ikigai statement here>\n
+- Passion & Profession: <insert percentage with % sign here>\n
+- Profession & Vocation: <insert percentage with % sign here>\n
+- Vocation & Mission: <insert percentage with % sign here>\n
+- Passion & Mission: <insert percentage with % sign here>\n
+- Overall Compatibility: <insert percentage with % sign here>\n
 \nMy Ikigai is to <insert second Ikigai statement here>
-- Passion & Profession: <insert second Ikigai statement here>\n
-- Profession & Vocation: <insert second Ikigai statement here>\n
-- Vocation & Mission: <insert second Ikigai statement here>\n
-- Passion & Mission: <insert second Ikigai statement here>\n
-- Overall Compatibility: <insert second Ikigai statement here>\n
+- Passion & Profession: <insert percentage with % sign here>\n
+- Profession & Vocation: <insert percentage with % sign here>\n
+- Vocation & Mission: <insert percentage with % sign here>\n
+- Passion & Mission: <insert percentage with % sign here>\n
+- Overall Compatibility: <insert percentage with % sign here>\n
 ". Return Ikigai statements even if the survey results are incomplete or missing.`;
+
+
+
+
+
+// Output the statements as follows: "My Ikigai is to <insert first Ikigai statement here>\n
+// - Passion & Profession: <insert percentage without % sign here>\n
+// - Profession & Vocation: <insert percentage without % sign here>\n
+// - Vocation & Mission: <insert percentage without % sign here>\n
+// - Passion & Mission: <insert percentage without % sign here>\n
+// - Overall Compatibility: <insert percentage without % sign here>\n
+// \nMy Ikigai is to <insert second Ikigai statement here>
+// - Passion & Profession: <insert percentage without % sign here>\n
+// - Profession & Vocation: <insert percentage without % sign here>\n
+// - Vocation & Mission: <insert percentage without % sign here>\n
+// - Passion & Mission: <insert percentage without % sign here>\n
+// - Overall Compatibility: <insert percentage without % sign here>\n
+// ". Return Ikigai statements even if the survey results are incomplete or missing.`;

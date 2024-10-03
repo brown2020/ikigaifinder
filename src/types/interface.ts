@@ -15,3 +15,12 @@ export interface questionStepT {
   button?: string;
   questions: QuestionStepper[];
 }
+
+export interface ikigaiDataT {
+  ikigai: string;
+  PassionProfession: number;
+  ProfessionVocation: number;
+  MissionVocation: number;
+  MissionPassion: number;
+  OverallCompatibility: number;
+}

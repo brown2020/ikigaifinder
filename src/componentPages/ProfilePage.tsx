@@ -1,11 +1,12 @@
 "use client";
 
 import ProfileComponent from "@/components/ProfileComponent";
+import withAuth from "@/components/withAuth";
 import { useAuthStore } from "@/zustand";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 
-export default function ProfilePage() {
+function ProfilePage() {
   const router = useRouter();
   const { uid, authReady, authEmail } = useAuthStore();
 
@@ -28,3 +29,5 @@ export default function ProfilePage() {
     </div>
   );
 }
+
+export default withAuth(ProfilePage)

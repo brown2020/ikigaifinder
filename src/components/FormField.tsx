@@ -106,7 +106,7 @@ const FormField: React.FC<FormFieldProps> = ({
 
   return (
     <div className="mb-2">
-      <label className="block text-gray-700 font-medium mb-2">
+      <label className="block text-gray-700  font-semibold text-xl mb-2">
         {question.label}
       </label>
       <div className="text-gray-700">

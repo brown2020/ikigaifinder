@@ -17,10 +17,10 @@ export default function RootLayout({
     <html lang="en" className="h-full">
       <body className="flex flex-col h-full">
         <ClientProvider>
-          <div className="sticky top-0 z-50">
+          <div className="fixed top-0 z-50 w-full">
             <Navbar />
           </div>
-          <div className="flex-grow">{children}</div>
+          <div className="flex-grow pt-[64px]">{children}</div>
         </ClientProvider>
       </body>
     </html>

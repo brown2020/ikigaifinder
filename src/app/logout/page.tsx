@@ -1,12 +1,14 @@
 "use client";
 
+import withAuth from "@/components/withAuth";
 import { auth } from "@/firebase/firebaseClient";
 import { useAuthStore } from "@/zustand";
 import { signOut } from "firebase/auth";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
+import 'react-tooltip/dist/react-tooltip.css';
 
-export default function LogoutPage() {
+function LogoutPage() {
   const router = useRouter();
   const { uid, authReady } = useAuthStore();
 
@@ -46,3 +48,5 @@ export default function LogoutPage() {
     </div>
   );
 }
+
+export default withAuth(LogoutPage)

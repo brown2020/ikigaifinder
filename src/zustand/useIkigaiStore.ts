@@ -3,15 +3,18 @@ import { db } from "@/firebase/firebaseClient";
 import { doc, setDoc, getDoc, Timestamp } from "firebase/firestore";
 import { useAuthStore } from "./useAuthStore";
 import { STEPPER_QUESTIONS_JSON } from "@/constants/questions";
-import { questionStepT } from "@/types/interface";
+import { ikigaiDataT, questionStepT } from "@/types/interface";
 
 export type ikigaiType = {
   id: string;
   answers: questionStepT[];
   createdAt?: Timestamp;
   updatedAt?: Timestamp;
-  ikigaiOptions: string[];
-  ikigaiSelected: string;
+  ikigaiOptions: ikigaiDataT[];
+  ikigaiSelected: ikigaiDataT | null;
+  ikigaiGuidance: string;
+  ikigaiImage: string;
+  ikigaiCoverImage: string;
 };
 
 export const defaultIkigai: ikigaiType = {
@@ -32,7 +35,10 @@ export const defaultIkigai: ikigaiType = {
     })),
   })),
   ikigaiOptions: [],
-  ikigaiSelected: "",
+  ikigaiSelected: null,
+  ikigaiGuidance: "",
+  ikigaiImage: "",
+  ikigaiCoverImage: ""
 };
 
 interface IkigaiStoreState {
@@ -50,7 +56,6 @@ export const useIkigaiStore = create<IkigaiStoreState>((set) => ({
 
   fetchIkigai: async () => {
     const uid = useAuthStore.getState().uid;
-    console.log("uid:?????????????????????sss", uid);
     if (!uid) return;
 
     set({ ikigaiLoading: true });
@@ -81,7 +86,8 @@ export const useIkigaiStore = create<IkigaiStoreState>((set) => ({
     set({ ikigaiLoading: true });
 
     try {
-      const currentIkigaiData: ikigaiType = useIkigaiStore.getState().ikigaiData;
+      const currentIkigaiData: ikigaiType =
+        useIkigaiStore.getState().ikigaiData;
 
       // Merge the new answers with the existing ones
       const updatedAnswers = currentIkigaiData.answers.map((answer) => {

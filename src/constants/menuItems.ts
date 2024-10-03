@@ -1,5 +1,5 @@
 import { navItemType } from "@/types/interface";
-import { CircleUserIcon, Gauge, GoalIcon, LogOut } from "lucide-react";
+import { CircleUserIcon, Gauge, GoalIcon, LogOut, Target } from "lucide-react";
 
 export const navItems: navItemType[] = [
   {
@@ -20,7 +20,12 @@ export const navItems: navItemType[] = [
       {
         label: "Dashboard",
         icon: Gauge,
-        // path: "/dashboard",
+        path: "/dashboard",
+      },
+      {
+        label: "Generate Ikigai",
+        icon: Target,
+        path: "/generate-ikigai",
       },
       {
         label: "Logout",
@@ -28,5 +33,34 @@ export const navItems: navItemType[] = [
         path: "/logout",
       },
     ],
+  },
+];
+export const navMobileItems: navItemType[] = [
+  {
+    label: "Ikigai Finder",
+    icon: GoalIcon,
+    path: "/ikigai-finder",
+    surveySet: "ikigai",
+  },
+
+  {
+    label: "Profile",
+    icon: CircleUserIcon,
+    path: "/profile",
+  },
+  {
+    label: "Dashboard",
+    icon: Gauge,
+    path: "/dashboard",
+  },
+  {
+    label: "Generate Ikigai",
+    icon: Target,
+    path: "/generate-ikigai",
+  },
+  {
+    label: "Logout",
+    icon: LogOut,
+    path: "/logout",
   },
 ];
