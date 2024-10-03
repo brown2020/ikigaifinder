@@ -1,6 +1,7 @@
 "use client";
 
 import { generateImage } from "@/lib/generateImage";
+import { useAuthStore } from "@/zustand";
 import Image from "next/image";
 import { useState, useEffect } from "react";
 import TextareaAutosize from "react-textarea-autosize";
@@ -9,6 +10,7 @@ type Props = { defaultPrompt: string };
 
 export default function GenerateImage({ defaultPrompt }: Props) {
   const initialPrompt = `Generate a beautiful and inspiring image to represent the ikigai statement: ${defaultPrompt}`;
+  const { uid } = useAuthStore();
   const [message, setMessage] = useState<string>(initialPrompt);
   const [imageUrl, setImageUrl] = useState("");
   const [loading, setLoading] = useState(false);
@@ -22,8 +24,8 @@ export default function GenerateImage({ defaultPrompt }: Props) {
     setLoading(true);
     setError("");
     try {
-      const result = await generateImage({ prompt: message });
-      setImageUrl(result.imageUrl);
+      const result = await generateImage(message, uid);
+      setImageUrl(result.imageUrl as string);
     } catch (err) {
       if (err instanceof Error) {
         setError(err.message);
