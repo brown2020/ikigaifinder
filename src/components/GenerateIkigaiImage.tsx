@@ -1,6 +1,6 @@
-/* eslint-disable @next/next/no-img-element */
 "use client";
 import { useState } from "react";
+import Image from "next/image";
 import Select from "react-select";
 import { artStyles } from "@/constants/questions";
 import { selectStyles } from "@/constants/selectStyles";
@@ -28,7 +28,7 @@ export type PromptDataType = {
 };
 
 export default function GenerateIkigaiImage() {
-    const router = useRouter();
+  const router = useRouter();
   const { uid } = useAuthStore();
   const fetchIkigaiData = useIkigaiStore((s) => s.ikigaiData);
   const updateIkigai = useIkigaiStore((s) => s.updateIkigai);
@@ -94,18 +94,15 @@ export default function GenerateIkigaiImage() {
 
   const handleSaveToProfile = async () => {
     try {
-
       if (!uid) return;
 
       setSaving(true);
       const downloadUrl = await captureAndUploadImage(uid, "visualization");
 
-
       if (downloadUrl) {
         updateIkigai({ ikigaiCoverImage: downloadUrl });
-        router?.push("/dashboard")
+        router?.push(`/ikigai/${uid}`);
       }
-
     } catch (error) {
       console.error("error", error);
     } finally {
@@ -136,8 +133,8 @@ export default function GenerateIkigaiImage() {
             placeholder="Describe an image"
             onChange={(e) => setImagePrompt(e.target.value)}
           />
-          <div className="flex justify-between gap-2 items-end">
-            <div className="w-full max-w-80">
+          <div className="flex justify-between gap-2 sm:flex-row  flex-col items-end">
+            <div className="w-full sm:max-w-80">
               <div>Artistic Style (optional)</div>
 
               <Select
@@ -149,28 +146,27 @@ export default function GenerateIkigaiImage() {
                 styles={selectStyles}
               />
             </div>
-            <div>
-              <button
-                onClick={(e) => handleGenerateSDXL(e)}
-                className={`px-6 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 min-w-36`}
-              >
-                {loading ? (
-                  <PulseLoader color="#fff" size={12} />
-                ) : (
-                  "Create Image"
-                )}
-              </button>
-            </div>
+
+            <button
+              onClick={(e) => handleGenerateSDXL(e)}
+              className={`px-6 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 min-w-36 sm:w-fit w-full`}
+            >
+              {loading ? (
+                <PulseLoader color="#fff" size={12} />
+              ) : (
+                "Create Image"
+              )}
+            </button>
           </div>
         </div>
         <div className="mt-6">
           <ImageSelector />
         </div>
 
-        <div className="flex justify-center">
+        <div className="flex justify-end">
           <button
             onClick={handleSaveToProfile}
-            className={`px-8 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 min-w-36 mt-3`}
+            className={`px-8 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 min-w-36 mt-3  sm:w-fit w-full`}
           >
             {saving ? <PulseLoader color="#fff" size={12} /> : "Save Image"}
           </button>
@@ -182,10 +178,12 @@ export default function GenerateIkigaiImage() {
           className="relative w-full aspect-square flex items-center justify-center"
           id="visualization"
         >
-          <img
+          <Image
             className="object-cover w-full h-full"
             src={fetchIkigaiData?.ikigaiImage || "/assets/bg_image.webp"}
             alt="visualization"
+            width={300}
+            height={300}
           />
           <div className="absolute inset-0 flex items-center justify-center">
             <SVGOverlay

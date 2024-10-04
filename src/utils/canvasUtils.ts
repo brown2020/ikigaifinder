@@ -8,9 +8,7 @@ export const captureAndUploadImage = async (uid: string, elementId: string) => {
   if (!domElement) return null;
 
   const canvas = await html2canvas(domElement, {
-    allowTaint: true,
-    useCORS: true,
-    backgroundColor: null,
+    backgroundColor: "transparent",
   });
 
   return new Promise<string | null>((resolve, reject) => {

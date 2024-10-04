@@ -212,7 +212,7 @@ export default function AuthComponent() {
                     <div className="text-xl">Continue with Email</div>
                   </div>
                 </button>
-                           </form>
+              </form>
             )}
           </div>
         </div>

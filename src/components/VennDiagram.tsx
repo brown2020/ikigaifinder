@@ -2,20 +2,14 @@ import React from "react";
 import AnyChart from "anychart-react";
 
 export interface VennDiagramT {
-  MissionPassion: number;
-  ProfessionVocation: number;
-  PassionProfession: number;
-  MissionVocation: number;
+  Passion: number;
+  Profession: number;
+  Vocation: number;
+  Mission: number;
   OverallCompatibility: number;
-  ikigai: string
+  ikigai: string;
 }
-const VennDiagram = ({
-  chartData,
-}: {
-  chartData: VennDiagramT;
-}) => {
-  console.log(chartData, "chartData");
-
+const VennDiagram = ({ chartData }: { chartData: VennDiagramT }) => {
   const data = [
     {
       x: "good",
@@ -48,26 +42,26 @@ const VennDiagram = ({
 
     {
       x: ["love", "good"],
-      value: chartData?.PassionProfession,
+      value: chartData?.Passion,
       name: "Passion",
       label: { fontSize: 9 },
     },
     {
       x: ["good", "money"],
-      value: chartData?.ProfessionVocation,
+      value: chartData?.Profession,
       name: "Profession",
       label: { fontSize: 9 },
     },
     {
       x: ["love", "need"],
-      value: chartData?.MissionPassion,
+      value: chartData?.Mission,
       name: "Mission",
       label: { fontSize: 9 },
     },
 
     {
       x: ["money", "need"],
-      value: chartData?.MissionVocation,
+      value: chartData?.Vocation,
       name: "Vocation",
       label: { fontSize: 9 },
     },
@@ -99,71 +93,7 @@ const VennDiagram = ({
     },
   };
 
-  // const data = [
-  //   {
-  //     x: "A",
-  //     value: 400,
-  //     name: "TIME \n Can be quickly made",
-  //   },
-  //   {
-  //     x: "B",
-  //     value: 400,
-  //     name: "INGREDIENTS \n Key elements available",
-  //   },
-  //   {
-  //     x: "C",
-  //     value: 400,
-  //     name: "COMPLEXITY \n Manageable level",
-  //   },
-  //   {
-  //     x: "D",
-  //     value: 400,
-  //     name: "COMPLEXITY \n Manageable level",
-  //   },
-  //   {
-  //     x: ["A", "C"],
-  //     value: 80,
-  //     name: "Add to \n wishlist",
-  //   },
-  //   {
-  //     x: ["A", "B"],
-  //     value: 70,
-  //     name: "Possibility \n of disaster",
-  //   },
-  //   {
-  //     x: ["A", "D"],
-  //     value: 85,
-  //     name: "Try on a \n holiday ddddd",
-  //   },
-  //   {
-  //     x: ["B", "C"],
-  //     value: 92,
-  //     name: "Try on a \n holiday",
-  //   },
-  //   {
-  //     x: ["B", "D"],
-  //     value: 90,
-  //     name: "Try on a \n holiday",
-  //   },
-  //   {
-  //     x: ["C", "D"],
-  //     value: 85,
-  //     name: "Try on a \n holiday ddddd",
-  //   },
-
-  //   {
-  //     x: ["A", "B", "C", "D"],
-  //     value: 90,
-  //     name: "The perfect \n recipe",
-  //   },
-  // ];
-
-  return (
-    <AnyChart
-      // width={"100%"} height={200} type="venn" data={data}
-      {...complexSettings}
-    />
-  );
+  return <AnyChart {...complexSettings} />;
 };
 
 export default VennDiagram;

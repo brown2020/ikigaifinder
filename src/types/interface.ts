@@ -18,9 +18,9 @@ export interface questionStepT {
 
 export interface ikigaiDataT {
   ikigai: string;
-  PassionProfession: number;
-  ProfessionVocation: number;
-  MissionVocation: number;
-  MissionPassion: number;
+  Passion: number;
+  Profession: number;
+  Vocation: number;
+  Mission: number;
   OverallCompatibility: number;
 }

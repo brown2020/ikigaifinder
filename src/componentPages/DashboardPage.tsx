@@ -20,29 +20,20 @@ function DashboardPage() {
   const fetchIkigaiData = useIkigaiStore((s) => s.ikigaiData);
   const title = "Check out my Ikigai!";
   const bodyText = `I wanted to share my Ikigai with you. Check it out here:`;
-  const downloadImage = async () => {
-    try {
-      const response = await fetch(fetchIkigaiData?.ikigaiCoverImage);
-      if (!response.ok) throw new Error("Network response was not ok");
-      const imageBlob = await response.blob();
-      const timestamp = new Date().toISOString().replace(/[\W_]+/g, "");
-      const filename = `ikigai_${timestamp}.png`;
 
-      const link = document.createElement("a");
-      link.href = URL.createObjectURL(imageBlob);
-      link.download = filename;
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-      URL.revokeObjectURL(link.href);
-    } catch (error: unknown) {
-      if (error instanceof Error) {
-        console.error("Error downloading the image:", error.message);
-      } else {
-        console.error("An unknown error occurred while downloading the image.");
-      }
-    }
+  const handleDownload = async () => {
+    const imageUrl = fetchIkigaiData?.ikigaiCoverImage; // Your Firebase image URL
+    const response = await fetch(`/api/downloadImage?url=${encodeURIComponent(imageUrl)}`);
+    const blob = await response.blob();
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'image.png'; // Set the desired file name
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
   };
+
   return (
     <div className="p-10">
       <div className="w-full">
@@ -78,9 +69,10 @@ function DashboardPage() {
               <EmailIcon size={48} />
             </EmailShareButton>
           </div>
+
           <button
             className="btn-primary2 h-12 flex items-center justify-center mx-auto rounded"
-            onClick={downloadImage}
+            onClick={handleDownload}
           >
             Download
           </button>

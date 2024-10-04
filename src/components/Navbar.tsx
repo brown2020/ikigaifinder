@@ -1,6 +1,5 @@
 "use client";
 import IkigaiLogo from "@/SVGCompoenets/Ikigai-logo";
-import Image from "next/image";
 import NavbarMenuMobilesItems from "./NavbarMenuMobilesItems";
 import NavbarMenuItems from "./NavbarMenuItems";
 import Link from "next/link";
@@ -15,13 +14,7 @@ export default function Navbar() {
           className="md:w-10 md:h-10 w-8 h-8 sm:min-w-10 min-w-8"
           strokeColor="white"
         />
-        <Image
-          src="/assets/Ikigai-Finder.svg"
-          alt="Ikigai Finder"
-          width={300}
-          height={100}
-          className="md:w-56 sm:w-80 w-44"
-        />
+        <div className="text-4xl">IKIGAI FINDER</div>
       </Link>
 
       <div className="hidden md:block">

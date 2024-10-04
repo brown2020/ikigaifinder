@@ -4,11 +4,20 @@ import { generateIkigai } from "@/lib/generateIkigai";
 import { ikigaiDataT, questionStepT } from "@/types/interface";
 import { useIkigaiStore } from "@/zustand";
 import { readStreamableValue } from "ai/rsc";
-import { Info } from "lucide-react";
+import {
+  Heart,
+  Info,
+  Lightbulb,
+  Medal,
+  PencilRuler,
+  Rocket,
+  Target,
+} from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { ClipLoader, PulseLoader } from "react-spinners";
 import { Tooltip } from "react-tooltip";
+import CircularProgressWithIcon from "./CircularProgressWithIcon";
 
 interface GenerateIkigaiFormT {
   setIsSaveIkigai: (val: boolean) => void;
@@ -49,10 +58,10 @@ export default function GenerateIkigaiForm({
     while ((match = regex.exec(text)) !== null) {
       ikigaiArray.push({
         ikigai: match[2].trim(),
-        PassionProfession: parseFloat(match[3]),
-        ProfessionVocation: parseFloat(match[4]),
-        MissionVocation: parseFloat(match[5]),
-        MissionPassion: parseFloat(match[6]),
+        Passion: parseFloat(match[3]),
+        Profession: parseFloat(match[4]),
+        Vocation: parseFloat(match[5]),
+        Mission: parseFloat(match[6]),
         OverallCompatibility: parseFloat(match[7]),
       });
     }
@@ -159,10 +168,36 @@ export default function GenerateIkigaiForm({
       </div>
     );
   }
+
+  const renderIkiGaiPerformance = (
+    title: string,
+    value: number,
+    color: string,
+    Icon: React.ElementType
+  ) => {
+    return (
+      <div className="mx-3 min-w-[100px]">
+        <CircularProgressWithIcon value={value} color={color} Icon={Icon} />
+        <div className="flex gap-1">
+          <div className="text-center mx-auto text-xs">
+            {title}({value}%)
+          </div>
+        </div>
+      </div>
+    );
+  };
+
+  const ikigaiColors = {
+    ikigai: "#FF9F1C",
+    passion: "#3A86FF",
+    profession: "#3A86FF",
+    vocation: "#3A86FF",
+    mission: "#3A86FF",
+  };
   return (
     <div className="p-10 gap-4 flex flex-col justify-center items-center">
       <div className="w-full max-w-3xl">
-        <div className="flex gap-1 items-start justify-between">
+        <div className="flex gap-2 items-start">
           <h1 className="text-3xl font-bold mb-4">Generate Ikigai Ideas</h1>
           <Info data-tooltip-id="my-tooltip" size={30} className="mt-1" />
         </div>
@@ -189,12 +224,14 @@ export default function GenerateIkigaiForm({
           id="img"
         />
         <div
-          className={`w-full bg-white pb-1 ${isSticky ? "fixed top-[50px] left-0" : ""}`}
+          className={`w-full bg-white pb-1 ${
+            isSticky ? "fixed top-[50px] left-0 z-10" : ""
+          }`}
           id="sticky-element"
         >
           <button
             onClick={handleGenerateIkigai}
-            className={`px-6 py-2 bg-blue-500 text-white rounded  mx-auto flex mt-6 min-w-60 min-h-10 ${
+            className={`px-6 py-2 bg-blue-500 text-white rounded  mx-auto flex mt-6 min-w-56 min-h-10 ${
               isLoading ? "cursor-not-allowed opacity-60" : "hover:bg-blue-600"
             }`}
             disabled={isLoading}
@@ -204,7 +241,10 @@ export default function GenerateIkigaiForm({
                 <PulseLoader color="#fff" size={10} />
               </div>
             ) : (
-              "Generate More Ikigai Idea"
+              <span className="flex gap-1 items-center justify-center mx-auto">
+                <Lightbulb size={18} />
+                Generate More Idea
+              </span>
             )}
           </button>
         </div>
@@ -217,6 +257,7 @@ export default function GenerateIkigaiForm({
                 <li
                   className={`p-4 border rounded-md shadow-md cursor-pointer mt-2 md:mr-2
                    hover:bg-blue-100 transition-colors duration-200
+                   font-medium
                    ${
                      selectedIkigai &&
                      selectedIkigai?.ikigai === ikigaiItem?.ikigai
@@ -228,13 +269,39 @@ export default function GenerateIkigaiForm({
                   onClick={() => handleSelectIkigai(ikigaiItem)}
                 >
                   {ikigaiItem?.ikigai?.replace("**", "")}
-                  <ul className="list-disc pl-4 mt-2">
-                    <li>Passion: {ikigaiItem?.PassionProfession}%</li>
-                    <li>Profession: {ikigaiItem?.ProfessionVocation}%</li>
-                    <li>Vocation: {ikigaiItem?.MissionVocation}%</li>
-                    <li>Mission: {ikigaiItem?.MissionPassion}%</li>
-                    <li>Ikigai: {ikigaiItem?.OverallCompatibility}%</li>
-                  </ul>
+                  <div className="flex flex-wrap gap-2 mt-4">
+                    {renderIkiGaiPerformance(
+                      "Ikigai",
+                      ikigaiItem?.OverallCompatibility,
+                      ikigaiColors?.ikigai,
+                      Target
+                    )}
+
+                    {renderIkiGaiPerformance(
+                      "Passion",
+                      ikigaiItem?.Passion,
+                      ikigaiColors?.passion,
+                      Heart
+                    )}
+                    {renderIkiGaiPerformance(
+                      "Profession",
+                      ikigaiItem?.Profession,
+                      ikigaiColors?.profession,
+                      Medal
+                    )}
+                    {renderIkiGaiPerformance(
+                      "Vocation",
+                      ikigaiItem?.Vocation,
+                      ikigaiColors?.vocation,
+                      PencilRuler
+                    )}
+                    {renderIkiGaiPerformance(
+                      "Mission",
+                      ikigaiItem?.Mission,
+                      ikigaiColors?.mission,
+                      Rocket
+                    )}
+                  </div>
                 </li>
               ))}
               <div ref={resultEndRef}></div>

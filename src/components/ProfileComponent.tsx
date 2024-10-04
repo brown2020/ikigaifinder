@@ -12,8 +12,9 @@ import { resizeImage } from "@/utils/resizeImage";
 import Image from "next/image";
 import useProfileStore from "@/zustand/useProfileStore";
 
-export default function ProfileComponent() {
+export default function ProfileComponent2() {
   const uid = useAuthStore((s) => s.uid);
+  const authEmail = useAuthStore((s) => s.authEmail);
   const profile = useProfileStore((s) => s.profile);
   const updateProfile = useProfileStore((s) => s.updateProfile);
   const [newProfile, setNewProfile] = useState(profile);
@@ -73,83 +74,86 @@ export default function ProfileComponent() {
       }
     }
   };
-
   return (
-    <div className="flex flex-col gap-4">
-      <div className="flex flex-col w-full px-4 py-3 gap-3 border border-gray-500 rounded-md">
-        <div className="flex flex-col sm:flex-row w-full gap-3 ">
-          <div className="relative w-56 aspect-square">
-            {newProfile.photoUrl && (
-              <Image
-                width={512}
-                height={512}
-                src={newProfile.photoUrl}
-                alt="User"
-                className="object-cover rounded-md"
-                priority={true}
-              />
-            )}
-            {!newProfile.photoUrl && (
-              <div className="flex h-full items-center justify-center bg-gray-300 rounded-md">
-                <span>Click to upload</span>
-              </div>
-            )}
-            {loading && (
-              <div className="absolute inset-0 flex items-center justify-center bg-gray-700 bg-opacity-50 rounded-md">
-                <ClipLoader color="#4A90E2" />
-              </div>
-            )}
-
-            <div className="absolute z-10 top-0 left-0 h-full w-full opacity-0 bg-black hover:opacity-50 cursor-pointer">
-              <input
-                className="opacity-0 h-full w-full"
-                type="file"
-                accept="image/*"
-                onChange={handlePhotoChange}
-              />
-            </div>
+    <div>
+      <div className="relative w-36 min-w-36 h-36 aspect-square rounded-full border border-black mb-3">
+        {newProfile.photoUrl && (
+          <Image
+            width={512}
+            height={512}
+            src={newProfile.photoUrl}
+            alt="User"
+            className="object-cover rounded-full"
+            priority={true}
+          />
+        )}
+        {!newProfile.photoUrl && (
+          <div className="flex h-full items-center justify-center bg-gray-300 rounded-full">
+            <span>Click to upload</span>
           </div>
+        )}
+        {loading && (
+          <div className="absolute inset-0 flex items-center justify-center bg-gray-700 bg-opacity-50 rounded-full">
+            <ClipLoader color="#4A90E2" />
+          </div>
+        )}
 
-          <div className="flex flex-col gap-3 flex-1">
-            <div className="flex flex-col gap-1">
-              <div className="text-sm">{"First Name"}</div>
-              <input
-                className="px-3 py-2 text-black border border-gray-700 rounded-md"
-                type="text"
-                value={newProfile.firstName}
-                onChange={(e) =>
-                  setNewProfile({ ...newProfile, firstName: e.target.value })
-                }
-              />
-            </div>
-            <div className="flex flex-col gap-1">
-              <div className="text-sm">{"Last Name"}</div>
-              <input
-                className="px-3 py-2 text-black border border-gray-700 rounded-md"
-                type="text"
-                value={newProfile.lastName}
-                onChange={(e) =>
-                  setNewProfile({ ...newProfile, lastName: e.target.value })
-                }
-              />
-            </div>
+        <div className="absolute z-10 top-0 left-0 h-full w-full opacity-0 bg-black hover:opacity-50 cursor-pointer rounded-full">
+          <input
+            className="opacity-0 h-full w-full"
+            type="file"
+            accept="image/*"
+            onChange={handlePhotoChange}
+          />
+        </div>
+      </div>
 
-            <div className="flex flex-col gap-1">
-              <div className="text-sm">{"Contact Email"}</div>
-              <input
-                className="px-3 py-2 text-black border border-gray-700 rounded-md"
-                type="text"
-                value={newProfile.contactEmail}
-                onChange={(e) =>
-                  setNewProfile({ ...newProfile, contactEmail: e.target.value })
-                }
-              />
-            </div>
+      <div className="w-full p-4 border rounded-md shadow-md">
+        <div className="grid grid-cols-2 gap-3">
+          <div className="flex flex-col gap-1">
+            <div className="text-sm">{"First Name"}</div>
+            <input
+              className="px-3 py-2 text-black border border-gray-700 rounded-md"
+              type="text"
+              value={newProfile.firstName}
+              onChange={(e) =>
+                setNewProfile({ ...newProfile, firstName: e.target.value })
+              }
+            />
+          </div>
+          <div className="flex flex-col gap-1">
+            <div className="text-sm">{"Last Name"}</div>
+            <input
+              className="px-3 py-2 text-black border border-gray-700 rounded-md"
+              type="text"
+              value={newProfile.lastName}
+              onChange={(e) =>
+                setNewProfile({ ...newProfile, lastName: e.target.value })
+              }
+            />
           </div>
         </div>
+        <div className="mt-3 w-full flex flex-col gap-1">
+          <div className="text-sm">{"Contact Email"}</div>
+          <input
+            className="px-3 py-2 text-black border border-gray-700 rounded-md w-full"
+            type="text"
+            value={newProfile.contactEmail}
+            onChange={(e) =>
+              setNewProfile({ ...newProfile, contactEmail: e.target.value })
+            }
+          />
+        </div>
 
+        <div className="mt-3 flex flex-col gap-1">
+          <div className="text-sm">Login email</div>
+          <div className="px-3 py-2 text-black bg-gray-400 rounded-md">
+            {authEmail}
+          </div>
+        </div>
         <button
-          className="btn btn-blue flex-1 mx-auto w-full"
+          //   className="btn btn-blue flex-1 mx-auto w-full"
+          className="px-6 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 mt-3"
           type="button"
           disabled={!hasChanges}
           onClick={handleSubmit}

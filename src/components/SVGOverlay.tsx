@@ -1,7 +1,6 @@
 // SVGOverlay.tsx
 import { ikigaiDataT } from "@/types/interface";
 import React from "react";
-import VennDiagram from "./VennDiagram";
 
 type SVGOverlayProps = {
   profileName: string;
@@ -49,19 +48,19 @@ const SVGOverlay: React.FC<SVGOverlayProps> = ({
                 <div className="text-center text-xl">
                   {ikigaiSelected?.ikigai?.replace("**", "")}
                 </div>
-                <div className="flex flex-col items-center justify-center w-fit mx-auto">
+                {/* <div className="flex flex-col items-center justify-center w-fit mx-auto">
                   {ikigaiSelected && <VennDiagram chartData={ikigaiSelected} />}
-                </div>
+                </div> */}
               </div>
-            </div>
-            <div style={{ alignSelf: "flex-end", fontSize: "12px" }}>
-              {updatedAt
-                ? updatedAt.toLocaleDateString("en-US", {
-                    year: "numeric",
-                    month: "long",
-                    day: "2-digit",
-                  })
-                : "No date"}
+              <div style={{ alignSelf: "flex-end", fontSize: "12px" }}>
+                {updatedAt
+                  ? updatedAt.toLocaleDateString("en-US", {
+                      year: "numeric",
+                      month: "long",
+                      day: "2-digit",
+                    })
+                  : "No date"}
+              </div>
             </div>
           </div>
         </foreignObject>

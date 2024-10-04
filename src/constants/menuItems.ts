@@ -1,5 +1,5 @@
 import { navItemType } from "@/types/interface";
-import { CircleUserIcon, Gauge, GoalIcon, LogOut, Target } from "lucide-react";
+import { CircleUserIcon, GoalIcon, LogOut, Target } from "lucide-react";
 
 export const navItems: navItemType[] = [
   {
@@ -16,11 +16,6 @@ export const navItems: navItemType[] = [
         label: "Profile",
         icon: CircleUserIcon,
         path: "/profile",
-      },
-      {
-        label: "Dashboard",
-        icon: Gauge,
-        path: "/dashboard",
       },
       {
         label: "Generate Ikigai",
@@ -47,11 +42,6 @@ export const navMobileItems: navItemType[] = [
     label: "Profile",
     icon: CircleUserIcon,
     path: "/profile",
-  },
-  {
-    label: "Dashboard",
-    icon: Gauge,
-    path: "/dashboard",
   },
   {
     label: "Generate Ikigai",

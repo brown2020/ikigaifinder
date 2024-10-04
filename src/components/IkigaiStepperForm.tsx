@@ -8,7 +8,6 @@ import { useIkigaiStore } from "@/zustand";
 import { useRouter } from "next/navigation";
 import withAuth from "./withAuth";
 
-
 const IkigaiStepperForm: React.FC = () => {
   const {
     control,
@@ -85,10 +84,14 @@ const IkigaiStepperForm: React.FC = () => {
   return (
     <div className="flex justify-center gap-4">
       <div className="mx-auto p-6 bg-white shadow-md rounded w-full max-w-3xl">
-      {/* <div className="mr-1 w-full max-w-3xl"> */}
+        {/* <div className="mr-1 w-full max-w-3xl"> */}
         {/* Title and Description */}
-        <h2 className="text-3xl text-gray-700  font-bold mb-2">{currentStep?.title}</h2>
-        <p className="text-lg text-gray-700  font-semibold mb-6">{currentStep?.description}</p>
+        <h2 className="text-3xl text-gray-700  font-bold mb-2">
+          {currentStep?.title}
+        </h2>
+        <p className="text-lg text-gray-700  font-semibold mb-6">
+          {currentStep?.description}
+        </p>
 
         {/* Form fields */}
         <form onSubmit={handleSubmit(onSubmit)}>
@@ -134,13 +137,16 @@ const IkigaiStepperForm: React.FC = () => {
               const isDataExit = item?.questions.every(
                 (question) => question.answer && question.answer?.length > 0
               );
+              const isCurrentStep = step - 1 === index;
               return (
                 <div key={stepIndex} className="flex items-center">
                   <button
                     type="button"
                     className={`h-8 w-8 flex items-center justify-center rounded-full focus:outline-none ${
-                      stepIndex <= step || isDataExit
-                        ? "bg-blue-500 text-white"
+                      isCurrentStep
+                        ? "bg-blue-600 text-white"
+                        : stepIndex <= step || isDataExit
+                        ? "bg-blue-100 text-blue-600 hover:bg-blue-200 cursor-pointer"
                         : "bg-gray-300 text-gray-700"
                     }`}
                     onClick={() => handleStepClick(stepIndex)}
