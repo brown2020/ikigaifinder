@@ -25,7 +25,7 @@ function ProfilePage() {
       {fetchIkigaiData?.ikigaiCoverImage && (
         <div className="p-4 border rounded-md shadow-md flex justify-between">
           <div className="w-fit">
-            <Link href={`/ikigai/${uid}`} className="max-w-fit">
+            <Link href={`/ikigai/${uid}`} className="max-w-fit relative">
               <Image
                 src={fetchIkigaiData?.ikigaiCoverImage}
                 alt="ikigai image"
@@ -33,9 +33,12 @@ function ProfilePage() {
                 height={300}
                 className="rounded-sm shadow-sm"
               />
+              <div className="absolute right-2 top-2 sm:hidden block">
+                <Share size={25} />
+              </div>
             </Link>
           </div>
-          <Link href={`/ikigai/${uid}`} className="max-w-fit">
+          <Link href={`/ikigai/${uid}`} className="max-w-fit hidden sm:block">
             <button className="px-6 py-2 bg-gray-200 text-gray-700 rounded hover:bg-gray-300">
               <Share size={30} />
             </button>

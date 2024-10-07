@@ -7,7 +7,7 @@ import Link from "next/link";
 export default function Navbar() {
   return (
     <div
-      className={`flex items-center justify-between w-full py-3 flex-shrink-0 bg-blue-800 text-white px-10 transition-colors duration-700`}
+      className={`flex items-center justify-between w-full py-3 flex-shrink-0 bg-blue-800 text-white sm:px-10 px-5 transition-colors duration-700`}
     >
       <Link href="/" className="flex items-center gap-2 cursor-pointer">
         <IkigaiLogo

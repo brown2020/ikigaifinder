@@ -109,7 +109,7 @@ export default function ProfileComponent2() {
       </div>
 
       <div className="w-full p-4 border rounded-md shadow-md">
-        <div className="grid grid-cols-2 gap-3">
+        <div className="grid sm:grid-cols-2 grid-cols-1 gap-3">
           <div className="flex flex-col gap-1">
             <div className="text-sm">{"First Name"}</div>
             <input

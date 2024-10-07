@@ -25,7 +25,6 @@ const IkigaiStepperForm: React.FC = () => {
   const [formData, setFormData] = useState<questionStepT[]>(
     STEPPER_QUESTIONS_JSON
   );
-
   const currentStep = useMemo(() => {
     return formData.find((_, index) => index + 1 === step);
   }, [formData, step]);
@@ -64,9 +63,29 @@ const IkigaiStepperForm: React.FC = () => {
       item.id === currentStep.id ? updatedStep : item
     );
 
+    const checkAnswersMatch = (
+      mainArray: questionStepT[],
+      obj: Record<string, string[]>
+    ) => {
+      return mainArray.every((section) =>
+        section.questions.every(
+          (question) => obj?.[question.id]?.[0] === question?.answer?.[0]
+        )
+      );
+    };
+
+    // Example usage
+    const matches = checkAnswersMatch(fetchIkigaiData?.answers ?? [], data);
+
     setFormData(updatedStepperData);
     await updateIkigai({ answers: updatedStepperData });
     if (step === formData.length) {
+      if (!matches) {
+        updateIkigai({
+          ikigaiOptions: [],
+          ikigaiSelected: null,
+        })
+      }
       router.push("/generate-ikigai");
     }
   };
@@ -84,7 +103,6 @@ const IkigaiStepperForm: React.FC = () => {
   return (
     <div className="flex justify-center gap-4">
       <div className="mx-auto p-6 bg-white shadow-md rounded w-full max-w-3xl">
-        {/* <div className="mr-1 w-full max-w-3xl"> */}
         {/* Title and Description */}
         <h2 className="text-3xl text-gray-700  font-bold mb-2">
           {currentStep?.title}

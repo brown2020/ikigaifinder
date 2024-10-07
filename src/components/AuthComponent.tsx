@@ -14,7 +14,15 @@ import { PulseLoader } from "react-spinners";
 import { useAuthStore } from "@/zustand";
 import { auth } from "@/firebase/firebaseClient";
 
-export default function AuthComponent() {
+interface AuthComponentT {
+  isOpenModal: boolean;
+  onCloseModal: () => void;
+}
+
+export default function AuthComponent({
+  isOpenModal,
+  onCloseModal,
+}: AuthComponentT) {
   const setAuthDetails = useAuthStore((s) => s.setAuthDetails);
   const clearAuthDetails = useAuthStore((s) => s.clearAuthDetails);
   const uid = useAuthStore((s) => s.uid);
@@ -23,29 +31,25 @@ export default function AuthComponent() {
   const authPending = useAuthStore((s) => s.authPending);
   const [email, setEmail] = useState<string>("");
   const [name, setName] = useState<string>("");
-  // const [acceptTerms, setAcceptTerms] = useState<boolean>(true);
   const formRef = useRef<HTMLFormElement>(null);
-  const [isVisible, setIsVisible] = useState<boolean>(false);
   const modalRef = useRef<HTMLDivElement>(null);
 
-  const showModal = () => setIsVisible(true);
-  const hideModal = () => setIsVisible(false);
-
   const signInWithGoogle = async () => {
-    // if (!acceptTerms) {
-    //   formRef.current?.reportValidity();
-    //   return;
-    // }
-
     try {
       const provider = new GoogleAuthProvider();
       await signInWithPopup(auth, provider);
     } catch (error) {
       console.error("Error signing in:", error);
     } finally {
-      hideModal();
+      onCloseModal();
     }
   };
+
+  useEffect(() => {
+    if (uid) {
+      onCloseModal();
+    }
+  }, [onCloseModal, uid]);
 
   const handleSignOut = async () => {
     try {
@@ -55,7 +59,7 @@ export default function AuthComponent() {
       console.error("Error signing out:", error);
       alert("An error occurred while signing out.");
     } finally {
-      hideModal();
+      onCloseModal();
     }
   };
 
@@ -75,7 +79,7 @@ export default function AuthComponent() {
     } catch (error) {
       console.error("Error sending sign-in link:", error);
       alert("An error occurred while sending the sign-in link.");
-      hideModal();
+      onCloseModal();
     }
   };
 
@@ -85,33 +89,22 @@ export default function AuthComponent() {
         modalRef.current &&
         !modalRef.current.contains(event.target as Node)
       ) {
-        hideModal();
+        onCloseModal();
       }
     };
 
-    if (isVisible) {
+    if (isOpenModal) {
       document.addEventListener("mousedown", handleClickOutside);
     }
 
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
     };
-  }, [isVisible]);
+  }, [isOpenModal, onCloseModal]);
 
   return (
     <>
-      {uid && (
-        <button onClick={showModal} className="btn-secondary max-w-md mx-auto">
-          You are signed in
-        </button>
-      )}
-      {!uid && (
-        <button onClick={showModal} className="btn-white max-w-md mx-auto">
-          Sign In to Enable Your Account
-        </button>
-      )}
-
-      {isVisible && (
+      {isOpenModal && (
         <div className="fixed inset-0 bg-black/60 flex justify-center items-center">
           <div
             ref={modalRef}
@@ -119,7 +112,7 @@ export default function AuthComponent() {
             style={{ zIndex: 1000 }}
           >
             <button
-              onClick={hideModal}
+              onClick={onCloseModal}
               className="absolute top-0 right-0 p-2 hover:bg-gray-400 bg-gray-200 rounded-full m-2"
             >
               <XIcon size={24} className="text-gray-800" />

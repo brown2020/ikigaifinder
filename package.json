@@ -32,9 +32,11 @@
     "react-hot-toast": "^2.4.1",
     "react-select": "^5.8.1",
     "react-share": "^5.1.0",
+    "react-slick": "^0.30.2",
     "react-spinners": "^0.14.1",
     "react-textarea-autosize": "^8.5.3",
     "react-tooltip": "^5.28.0",
+    "slick-carousel": "^1.8.1",
     "zustand": "^5.0.0-rc.2"
   },
   "devDependencies": {
@@ -43,6 +45,7 @@
     "@types/node-fetch": "^2.6.11",
     "@types/react": "^18.3.11",
     "@types/react-dom": "^18",
+    "@types/react-slick": "^0.23.13",
     "eslint": "^8.57.1",
     "eslint-config-next": "^14.2.13",
     "postcss": "^8.4.47",
