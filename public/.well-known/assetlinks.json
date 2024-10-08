@@ -1,0 +1,12 @@
+[
+  {
+    "relation": ["delegate_permission/common.handle_all_urls"],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "ai.ikigaifinder.app",
+      "sha256_cert_fingerprints": [
+        "A0:24:38:A6:8F:4A:8A:CF:53:46:58:68:93:2A:FD:60:06:B1:3C:03:BC:EB:DE:60:78:AB:43:87:40:4C:52:90"
+      ]
+    }
+  }
+]
