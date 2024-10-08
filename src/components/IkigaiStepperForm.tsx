@@ -79,13 +79,13 @@ const IkigaiStepperForm: React.FC = () => {
 
     setFormData(updatedStepperData);
     await updateIkigai({ answers: updatedStepperData });
+    if (!matches) {
+      await updateIkigai({
+        ikigaiOptions: [],
+        ikigaiSelected: null,
+      });
+    }
     if (step === formData.length) {
-      if (!matches) {
-        updateIkigai({
-          ikigaiOptions: [],
-          ikigaiSelected: null,
-        })
-      }
       router.push("/generate-ikigai");
     }
   };

@@ -51,13 +51,13 @@ These are just examples to show the variety of possible Ikigai. Use the survey r
 Each statement should start with 'My Ikigai is to' and reflect a balance between what the user loves, what they are good at, what the world needs, and what they can be paid for. Ensure these statements are unique and aligned with the user's results.
 
 
-Output the statements as follows: "My Ikigai is to <insert first Ikigai statement here>\n
+Output the statements as follows: "1. My Ikigai is to <insert first Ikigai statement here>\n
 - Passion & Profession: <insert percentage with % sign here>\n
 - Profession & Vocation: <insert percentage with % sign here>\n
 - Vocation & Mission: <insert percentage with % sign here>\n
 - Passion & Mission: <insert percentage with % sign here>\n
 - Overall Compatibility: <insert percentage with % sign here>\n
-\nMy Ikigai is to <insert second Ikigai statement here>
+\n2. My Ikigai is to <insert second Ikigai statement here>
 - Passion & Profession: <insert percentage with % sign here>\n
 - Profession & Vocation: <insert percentage with % sign here>\n
 - Vocation & Mission: <insert percentage with % sign here>\n

@@ -9,15 +9,18 @@ export default function DemoImageSlick() {
     slidesToShow: 1,
     slidesToScroll: 1,
     autoplay: true,
-    autoplaySpeed: 2000,
-    speed: 1500,
+    autoplaySpeed: 5000,
+    speed: 2000,
     pauseOnHover: true,
   };
 
   const imagePath = [
-    "/assets/image.png",
-    "/assets/image1.png",
-    "/assets/image2.png",
+    "/assets/demoImages/image1.webp",
+    "/assets/demoImages/image2.webp",
+    "/assets/demoImages/image3.webp",
+    "/assets/demoImages/image4.webp",
+    "/assets/demoImages/image5.webp",
+    "/assets/demoImages/image6.webp",
   ];
   return (
     <Slider {...settings}>

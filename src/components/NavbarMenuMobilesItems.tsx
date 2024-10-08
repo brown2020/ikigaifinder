@@ -1,96 +1,82 @@
-import { useEffect, useMemo, useState } from "react";
-import { navMobileItems, withoutSignInNaveBar } from "@/constants/menuItems";
-import { useAuthStore } from "@/zustand";
-import { Menu } from "lucide-react";
+"use client";
+
+import { useState } from "react";
+import { navMobileItems } from "@/constants/menuItems";
+import { Menu, X } from "lucide-react";
 import { useRouter } from "next/navigation";
-import AuthComponent from "./AuthComponent";
+import IkigaiLogo from "@/SVGCompoenets/Ikigai-logo";
+import Link from "next/link";
 
-export default function NavbarMenuMobilesItems() {
+const Drawer = () => {
   const router = useRouter();
-  const { uid } = useAuthStore();
-  const [isOpenDropdownMenu, setIsOpenDropdownMenu] = useState(false);
-  const [isOpenAuthModal, setIsOpenAuthModal] = useState<boolean>(false);
+  const [isOpenDrawerMenu, setIsOpenDrawerMenu] = useState(false);
 
-  const handleOpenAuthModal = () => setIsOpenAuthModal(!isOpenAuthModal);
-
-  const handleClickOutside = (event: MouseEvent) => {
-    const target = event.target as HTMLElement;
-    const dropdownElements = document.querySelectorAll(".dropdown-mobile-menu");
-    if (!Array.from(dropdownElements).some((el) => el.contains(target))) {
-      setIsOpenDropdownMenu(false);
-    }
+  const toggleDrawer = () => {
+    setIsOpenDrawerMenu(!isOpenDrawerMenu);
   };
-
-  useEffect(() => {
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
-    };
-  }, []);
-
-  const toggleMenu = () => {
-    setIsOpenDropdownMenu(!isOpenDropdownMenu);
-  };
-
-  const executeItemAction = (label: string) => {
-    switch (label) {
-      case "Sign In":
-        handleOpenAuthModal();
-        break;
-      default:
-        break;
-    }
-    toggleMenu();
-  };
-
-  const navItemData = useMemo(() => {
-    return uid ? navMobileItems : withoutSignInNaveBar;
-  }, [uid]);
 
   return (
-    <div className="relative">
-      <button onClick={toggleMenu}>
-        <Menu color="white" size={35} />
+    <div>
+      <button
+        onClick={toggleDrawer}
+        className={`transition duration-300 ease-in-out`}
+      >
+        {isOpenDrawerMenu ? (
+          <X color="white" size={35} />
+        ) : (
+          <Menu color="white" size={35} />
+        )}
       </button>
 
-      {/* Dropdown menu */}
       <div
-        className={`dropdown-mobile-menu absolute right-0 w-48 mt-2 bg-white border border-gray-300 rounded-md shadow-lg transition-opacity duration-200 ${
-          isOpenDropdownMenu ? "opacity-100" : "opacity-0 pointer-events-none"
+        className={`fixed inset-0 bg-black bg-opacity-75 transition-opacity duration-700 ${
+          isOpenDrawerMenu ? "opacity-100" : "opacity-0 pointer-events-none"
+        }`}
+        onClick={toggleDrawer}
+      ></div>
+
+      <div
+        className={`fixed inset-y-0 left-0 w-full bg-white transition-transform transform duration-700 ${
+          isOpenDrawerMenu ? "translate-x-0" : "-translate-x-full"
         }`}
       >
-        <ul className="py-1">
-          {navItemData?.map((item, index) => (
-            <li
-              key={index}
-              className="block px-4 py-2 text-gray-700 hover:bg-gray-200"
-            >
+        <div className="w-full flex">
+          <Link
+            href="/"
+            className="flex items-center gap-2 cursor-pointer text-black pl-4"
+            onClick={toggleDrawer}
+          >
+            <IkigaiLogo
+              className="md:w-10 md:h-10 w-8 h-8 sm:min-w-10 min-w-8"
+              strokeColor="black"
+            />
+            <div className="text-2xl">IKIGAI FINDER</div>
+          </Link>
+          <button onClick={toggleDrawer} className="p-4 text-black ml-auto">
+            <X color="black" size={35} />
+          </button>
+        </div>
+        <nav className="flex flex-col p-4 space-y-4">
+          {navMobileItems?.length &&
+            navMobileItems?.map((item) => (
               <div
-                className="flex items-center space-x-2"
-                // onClick={toggleMenu}
+                className="flex items-center space-x-2 text-gray-800"
+                key={item.path}
                 onClick={() => {
                   if (item?.path) {
                     router.push(item.path);
-                    toggleMenu();
-                  } else {
-                    executeItemAction(item?.label);
+                    toggleDrawer();
                   }
                 }}
               >
-                <span>{item.icon && <item.icon className="w-5 h-5" />}</span>
-                <span>{item.label}</span>
+                <span>{item?.icon && <item.icon className="w-5 h-5" />}</span>
+                <span>{item?.label}</span>
               </div>
-            </li>
-          ))}
-        </ul>
+            ))}
+        </nav>
       </div>
-
-      {isOpenAuthModal && (
-        <AuthComponent
-          isOpenModal={isOpenAuthModal}
-          onCloseModal={() => setIsOpenAuthModal(false)}
-        />
-      )}
     </div>
   );
-}
+};
+
+export default Drawer;

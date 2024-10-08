@@ -424,3 +424,124 @@ export const artStyles = [
     label: "Traditional Chinese Painting",
   },
 ];
+
+export const testData = [
+  {
+    id: "activities",
+    questions: "What activities make you feel most alive or joyful?",
+    answer: [
+      "Coding new features, solving programming challenges, and optimizing applications.",
+    ],
+  },
+  {
+    id: "all_day_activity",
+    questions: "If you could do anything all day, what would you do?",
+    answer: [
+      "Developing software, debugging code, and learning new technologies.",
+    ],
+  },
+  {
+    id: "learning_interest",
+    questions:
+      "What do you love learning about, even if there's no external reward?",
+    answer: [
+      "Programming languages, software architecture, and AI technologies.",
+    ],
+  },
+  {
+    id: "hobbies",
+    questions: "Which hobbies or interests make you lose track of time?",
+    answer: [
+      "Building personal projects", "coding", "exploring new tech frameworks",
+    ],
+  },
+  {
+    id: "compliments",
+    questions: "What skills or activities do others often compliment you on?",
+    answer: [
+      "Logical thinking, coding efficiency, and problem-solving abilities.",
+    ],
+  },
+  {
+    id: "easy_tasks",
+    questions:
+      "Which tasks or challenges do you find easy while others struggle?",
+    answer: [
+      "Understanding code structures, debugging complex issues, and automating workflows.",
+    ],
+  },
+  {
+    id: "help_requests",
+    questions: "What do people usually ask for your help or advice with?",
+    answer: [
+      "Debugging software issues, optimizing code, and recommending technology stacks.",
+    ],
+  },
+  {
+    id: "quick_learning",
+    questions:
+      "What skills do you learn quickly or feel most comfortable doing?",
+    answer: [
+      "Learning new programming languages, frameworks, and development tools.",
+    ],
+  },
+  {
+    id: "problems_to_solve",
+    questions:
+      "What problems or issues in the world do you feel passionate about solving?",
+    answer: [
+      "Building scalable software systems, improving user experience, and automating processes.",
+    ],
+  },
+  {
+    id: "causes_drawn_to",
+    questions: "What causes or organizations do you feel drawn to support?",
+    answer: [
+      "Tech organizations focused on open-source software, education, and tech for good.",
+    ],
+  },
+  {
+    id: "skills_help_others",
+    questions:
+      "How could your skills or talents help others or improve their lives?",
+    answer: [
+      "By developing user-friendly software that simplifies tasks and enhances productivity.",
+    ],
+  },
+  {
+    id: "change_community",
+    questions:
+      "If you had the power to change something in your community or globally, what would it be?",
+    answer: [
+      "Bringing more accessible tech education to underserved communities.",
+    ],
+  },
+  {
+    id: "marketable_skills",
+    questions:
+      "What skills or knowledge do people seek or pay for in your industry?",
+    answer: ["Software development, cloud computing, and AI integration."],
+  },
+  {
+    id: "in_demand_roles",
+    questions:
+      "What roles or jobs in your field are in demand and aligned with your strengths?",
+    answer: ["Full-stack developer, cloud engineer, and AI/ML specialist."],
+  },
+  {
+    id: "business_ideas",
+    questions:
+      "If you were to start a business, what service or product could you offer that people would pay for?",
+    answer: [
+      "Developing SaaS platforms, automation tools, or AI-driven applications.",
+    ],
+  },
+  {
+    id: "turn_hobbies_income",
+    questions:
+      "What opportunities exist to turn your hobbies or passions into a sustainable income source?",
+    answer: [
+      "Freelance software development, creating tech courses, or building open-source tools.",
+    ],
+  },
+];

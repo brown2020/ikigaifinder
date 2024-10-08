@@ -4,6 +4,7 @@ import HomeHeroSection from "@/components/HomeHeroSection";
 import { Heart, Medal, PencilRuler, Rocket, Target } from "lucide-react";
 import RenderIkigaiDetails from "@/components/RenderIkigaiDetails";
 import DemoImageSlick from "@/components/DemoImageSlick";
+import AuthComponent from "@/components/AuthComponent";
 
 export default function Homepage() {
   const [isSticky, setIsSticky] = useState(false);
@@ -19,14 +20,24 @@ export default function Homepage() {
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
+
+  const [isOpenAuthModal, setIsOpenAuthModal] = useState<boolean>(false);
+
+  const handleOpenAuthModal = () => setIsOpenAuthModal(!isOpenAuthModal);
   return (
     <div>
       <div id="home-hero">
-        <HomeHeroSection />
+        <HomeHeroSection handleOpenAuthModal={handleOpenAuthModal} />
       </div>
       <div className="grid sm:grid-cols-2 grid-cols-1 gap-6 sm:p-10 p-5">
         <div className={`relative`}>
-          <div className={` ${isSticky ? "sm:fixed top-[80px] w-full h-full sm:max-w-[50%] sm:pr-14" : ""}`}>
+          <div
+            className={` ${
+              isSticky
+                ? "sm:fixed top-[80px] w-full h-full sm:max-w-[50%] sm:pr-14"
+                : ""
+            }`}
+          >
             <DemoImageSlick />
           </div>
         </div>
@@ -52,7 +63,7 @@ export default function Homepage() {
             Icon={Medal}
             title={"What You Are Good At"}
             description={
-              "Understanding your strengths is crucial. This involves recognizing your skills, talents, and capabilities—both innate and developed over time. Reflect on what you excel at and seek feedback from others. Knowing what you are good at allows you to leverage your unique abilities as you explore career paths that align with your ikigai."
+              "Understanding your strengths is crucial. This involves recognizing your skills, talents, and capabilities both innate and developed over time. Reflect on what you excel at and seek feedback from others. Knowing what you are good at allows you to leverage your unique abilities as you explore career paths that align with your ikigai."
             }
             color={"#6187c5"}
           />
@@ -75,6 +86,13 @@ export default function Homepage() {
           />
         </div>
       </div>
+
+      {isOpenAuthModal && (
+        <AuthComponent
+          isOpenModal={isOpenAuthModal}
+          onCloseModal={() => setIsOpenAuthModal(false)}
+        />
+      )}
     </div>
   );
 }

@@ -1,16 +1,19 @@
 "use client";
-import React, { useState } from "react";
+import React from "react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useAuthStore } from "@/zustand";
-import AuthComponent from "./AuthComponent";
 
-export default function HomeHeroSection() {
+interface HomeHeroSectionT {
+  handleOpenAuthModal: () => void;
+}
+
+export default function HomeHeroSection({
+    handleOpenAuthModal,
+}: HomeHeroSectionT) {
   const router = useRouter();
   const { uid } = useAuthStore();
-  const [isOpenAuthModal, setIsOpenAuthModal] = useState<boolean>(false);
 
-  const handleOpenAuthModal = () => setIsOpenAuthModal(!isOpenAuthModal);
   return (
     <div className="relative sm:px-10 px-5 min-h-screen-minus-64">
       <div className="absolute inset-0 z-0 animate-fade-in">
@@ -19,12 +22,11 @@ export default function HomeHeroSection() {
           alt="Background"
           layout="fill"
           objectFit="cover"
-          quality={100}
           className="opacity-20"
         />
       </div>
 
-      <div className="relative z-10 container mx-auto sm:px-4 sm:py-16 py-10 min-h-screen-minus-64 flex items-center">
+      <div className="relative container mx-auto sm:px-4 sm:py-16 py-10 min-h-screen-minus-64 flex items-center">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
           <div className="text-black space-y-6 animate-slide-up">
             <h1 className="text-4xl font-bold">
@@ -77,12 +79,6 @@ export default function HomeHeroSection() {
           </button>
         </div>
       </div>
-      {isOpenAuthModal && (
-        <AuthComponent
-          isOpenModal={isOpenAuthModal}
-          onCloseModal={() => setIsOpenAuthModal(false)}
-        />
-      )}
     </div>
   );
 }

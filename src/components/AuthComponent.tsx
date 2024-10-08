@@ -105,7 +105,7 @@ export default function AuthComponent({
   return (
     <>
       {isOpenModal && (
-        <div className="fixed inset-0 bg-black/60 flex justify-center items-center">
+        <div id="auth" className="fixed inset-0 bg-black/60 flex justify-center items-center">
           <div
             ref={modalRef}
             className="relative bg-white text-black p-4 rounded-lg shadow-lg w-full max-w-md mx-auto"
