@@ -27,7 +27,7 @@ export default function DemoImageSlick() {
       {imagePath?.length > 0
         ? imagePath?.map((image) => {
             return (
-              <div    key={image} className="p-2">
+              <div key={image} className="p-2">
                 <Image
                   key={image}
                   src={image}

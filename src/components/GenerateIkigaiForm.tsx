@@ -1,7 +1,6 @@
 "use client";
 
 import { generateIkigai } from "@/lib/generateIkigai";
-import { ikigaiDataT, questionStepT } from "@/types/interface";
 import { useIkigaiStore } from "@/zustand";
 import { readStreamableValue } from "ai/rsc";
 import {
@@ -18,6 +17,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { ClipLoader, PulseLoader } from "react-spinners";
 import { Tooltip } from "react-tooltip";
 import CircularProgressWithIcon from "./CircularProgressWithIcon";
+import { ikigaiDataT, questionStepT } from "@/types/interface";
 
 interface GenerateIkigaiFormT {
   setIsSaveIkigai: (val: boolean) => void;
@@ -176,10 +176,10 @@ export default function GenerateIkigaiForm({
     Icon: React.ElementType
   ) => {
     return (
-      <div className="mx-3 min-w-[100px]">
+      <div className="md:mx-3 sm:min-w-[90px] xs:min-w-[65px] min-w-[70px]">
         <CircularProgressWithIcon value={value} color={color} Icon={Icon} />
         <div className="flex gap-1">
-          <div className="text-center mx-auto text-xs">
+          <div className="text-center mx-auto md:text-xs text-[10px]">
             {title}({value}%)
           </div>
         </div>
@@ -195,7 +195,7 @@ export default function GenerateIkigaiForm({
     mission: "#3A86FF",
   };
   return (
-    <div className="p-10 gap-4 flex flex-col justify-center items-center">
+    <div className="md:p-10 sm:mb-7 mb-12 p-5 gap-4  flex flex-col justify-center items-center">
       <div className="w-full max-w-3xl">
         <div className="flex gap-2 items-start">
           <h1 className="text-3xl font-bold mb-4">Generate Ikigai Ideas</h1>
@@ -225,13 +225,13 @@ export default function GenerateIkigaiForm({
         />
         <div
           className={`w-full bg-white pb-1 ${
-            isSticky ? "fixed top-[50px] left-0 z-10" : ""
+            isSticky ? "fixed sm:top-[50px] top-0 left-0 z-10" : ""
           }`}
           id="sticky-element"
         >
           <button
             onClick={handleGenerateIkigai}
-            className={`px-6 py-2 bg-blue-500 text-white rounded  mx-auto flex mt-6 min-w-56 min-h-10 ${
+            className={`px-6 py-2 bg-blue-500 text-white rounded  mx-auto flex sm:mt-6 mt-1 in-w-56 min-h-10 ${
               isLoading ? "cursor-not-allowed opacity-60" : "hover:bg-blue-600"
             }`}
             disabled={isLoading}
@@ -249,13 +249,14 @@ export default function GenerateIkigaiForm({
           </button>
         </div>
       </div>
+
       <div className="w-full max-w-3xl mt-6" ref={resultsContainerRef}>
         {ikigaiData.length > 0 ? (
-          <div className="flex flex-col p-4 border rounded-md w-full max-w-3xl">
+          <div className="flex flex-col md:p-4 md:border rounded-md w-full max-w-3xl">
             <ul className=" overflow-y-auto min-h-[350px] text-gray-600 ">
               {ikigaiData?.map((ikigaiItem, index) => (
                 <li
-                  className={`p-4 border rounded-md shadow-md cursor-pointer mt-2 md:mr-2
+                  className={`md:p-4 p-2 border rounded-md shadow-md cursor-pointer mt-4
                    hover:bg-blue-100 transition-colors duration-200
                    font-medium
                    ${
@@ -269,7 +270,7 @@ export default function GenerateIkigaiForm({
                   onClick={() => handleSelectIkigai(ikigaiItem)}
                 >
                   {ikigaiItem?.ikigai?.replace("**", "")}
-                  <div className="flex flex-wrap gap-2 mt-4">
+                  <div className="flex flex-wrap xs:gap-2 gap-1 mt-4">
                     {renderIkiGaiPerformance(
                       "Ikigai",
                       ikigaiItem?.OverallCompatibility,
@@ -313,8 +314,9 @@ export default function GenerateIkigaiForm({
           </div>
         )}
       </div>
-      <div className="w-full max-w-3xl">
-        <div className="flex justify-between items-center mt-3 max-w-3xl">
+
+      <div className="w-full max-w-3xl fixed sm:bottom-0 bottom-[52px] bg-white">
+        <div className="flex justify-between items-center mt-2 max-w-3xl mb-1 px-5">
           <button
             type="button"
             onClick={() => router?.push("/ikigai-finder")}
@@ -327,7 +329,7 @@ export default function GenerateIkigaiForm({
             className={`px-6 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 disabled:cursor-not-allowed disabled:opacity-60`}
             disabled={isLoading || !selectedIkigai}
           >
-            Save My Ikigai
+            Save Ikigai
           </button>
         </div>
       </div>

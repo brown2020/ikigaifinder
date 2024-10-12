@@ -102,7 +102,7 @@ const IkigaiStepperForm: React.FC = () => {
 
   return (
     <div className="flex justify-center gap-4">
-      <div className="mx-auto p-6 bg-white shadow-md rounded w-full max-w-3xl">
+      <div className="mx-auto sm:p-6 p-4 py-6 bg-white shadow-md sm:rounded w-full max-w-3xl">
         {/* Title and Description */}
         <h2 className="text-3xl text-gray-700  font-bold mb-2">
           {currentStep?.title}

@@ -32,11 +32,9 @@ export default function Homepage() {
       <div className="grid sm:grid-cols-2 grid-cols-1 gap-6 sm:p-10 p-5">
         <div className={`relative`}>
           <div
-            className={` ${
-              isSticky
-                ? "sm:fixed top-[80px] w-full h-full sm:max-w-[50%] sm:pr-14"
-                : ""
-            }`}
+            className={`
+              w-full h-full max-w-[98%]
+              ${isSticky ? "sm:fixed top-[80px] sm:max-w-[50%] sm:pr-14" : ""}`}
           >
             <DemoImageSlick />
           </div>

@@ -33,7 +33,7 @@ const CircularProgressWithIcon = ({
   };
 
   return (
-    <div className="relative w-14 h-14 mx-auto">
+    <div className="relative sm:w-14 sm:h-14 w-10 h-10 mx-auto">
       <svg className="w-full h-full" viewBox="0 0 120 120">
         <circle
           stroke="#e6e6e6"

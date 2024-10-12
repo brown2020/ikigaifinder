@@ -37,6 +37,10 @@ const config: Config = {
         "screen-minus-115": "calc(100vh - 115px)",
         "screen-minus-64": "calc(100vh - 64px)",
       },
+      screens: {
+        xs: "424px",
+        xxs: "321px"
+      },
     },
   },
   plugins: [],

@@ -1,6 +1,5 @@
 "use client";
 import IkigaiLogo from "@/SVGCompoenets/Ikigai-logo";
-import NavbarMenuMobilesItems from "./NavbarMenuMobilesItems";
 import NavbarMenuItems from "./NavbarMenuItems";
 import Link from "next/link";
 import NavbarLoginItem from "./NavbarLoginItem";
@@ -23,9 +22,6 @@ export default function Navbar() {
         <div>
           <div className="hidden md:block">
             <NavbarMenuItems />
-          </div>
-          <div className="md:hidden block">
-            <NavbarMenuMobilesItems />
           </div>
         </div>
       ) : (

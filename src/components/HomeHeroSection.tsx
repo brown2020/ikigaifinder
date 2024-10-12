@@ -27,7 +27,7 @@ export default function HomeHeroSection({
       </div>
 
       <div className="relative container mx-auto sm:px-4 sm:py-16 py-10 min-h-screen-minus-64 flex items-center">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
+        <div className="grid grid-cols-1 md:grid-cols-2 sm:gap-8 gap-4 items-center">
           <div className="text-black space-y-6 animate-slide-up">
             <h1 className="text-4xl font-bold">
               Find Your Ikigai: The Journey to Meaning and Joy
@@ -68,7 +68,7 @@ export default function HomeHeroSection({
           </div>
           <button
             className={
-              "px-6 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 mt-6 sm:hidden block w-fit"
+              "px-6 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 sm:hidden block w-fit mx-auto"
             }
             onClick={
               uid ? () => router.push("/ikigai-finder") : handleOpenAuthModal

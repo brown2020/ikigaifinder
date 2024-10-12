@@ -4,6 +4,8 @@ export interface navItemType {
   label: string;
   icon: React.ElementType;
   path?: string;
+  profileUrl?: string;
+  profileName?: string;
   surveySet?: "ikigai";
   subItems?: navItemType[];
 }
@@ -16,7 +18,7 @@ export interface questionStepT {
   questions: QuestionStepper[];
 }
 
-export interface ikigaiDataT {
+export  interface ikigaiDataT {
   ikigai: string;
   Passion: number;
   Profession: number;

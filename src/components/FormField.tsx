@@ -8,7 +8,7 @@ import {
   Controller,
   Control,
 } from "react-hook-form";
-import CustomMultiTag from "./CustomMultiTag"; // Import CustomMultiTag
+import CustomMultiTag from "./CustomMultiTag";
 import { QuestionStepper } from "@/types/question";
 
 interface FormFieldProps {

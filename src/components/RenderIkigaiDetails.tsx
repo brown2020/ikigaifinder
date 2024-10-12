@@ -15,9 +15,9 @@ export default function RenderIkigaiDetails({
       <div className="sm:p-6 relative pt-11">
         <div className="flex item gap-1">
           <div className="mt-[1px]">
-            <Icon size={30} color={color} />
+            <Icon color={color} className="sm:text-3xl text-2xl" />
           </div>
-          <h1 className="text-3xl font-bold leading-none">{title}</h1>
+          <h1 className="sm:text-3xl text-2xl font-bold leading-none">{title}</h1>
         </div>
         <p className="font-medium mt-8">{description}</p>
       </div>

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { navMobileItems } from "@/constants/menuItems";
+import { navMobileMenu } from "@/constants/menuItems";
 import { Menu, X } from "lucide-react";
 import { useRouter } from "next/navigation";
 import IkigaiLogo from "@/SVGCompoenets/Ikigai-logo";
@@ -57,8 +57,8 @@ const Drawer = () => {
           </button>
         </div>
         <nav className="flex flex-col p-4 space-y-4">
-          {navMobileItems?.length &&
-            navMobileItems?.map((item) => (
+          {navMobileMenu?.length &&
+            navMobileMenu?.map((item) => (
               <div
                 className="flex items-center space-x-2 text-gray-800"
                 key={item.path}
