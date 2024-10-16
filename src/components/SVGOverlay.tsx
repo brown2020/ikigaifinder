@@ -48,9 +48,6 @@ const SVGOverlay: React.FC<SVGOverlayProps> = ({
                 <div className="text-center text-xl">
                   {ikigaiSelected?.ikigai?.replace("**", "")}
                 </div>
-                {/* <div className="flex flex-col items-center justify-center w-fit mx-auto">
-                  {ikigaiSelected && <VennDiagram chartData={ikigaiSelected} />}
-                </div> */}
               </div>
               <div style={{ alignSelf: "flex-end", fontSize: "12px" }}>
                 {updatedAt
