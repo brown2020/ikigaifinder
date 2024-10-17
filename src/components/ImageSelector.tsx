@@ -34,6 +34,7 @@ export default function ImageSelector() {
         .map((doc) => doc.data().downloadUrl)
         .filter(Boolean);
       setFileUrls([...urls, defaultImage]);
+      console.log("urls :>> ", urls);
     });
 
     return () => unsubscribe();

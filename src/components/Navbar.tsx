@@ -20,7 +20,7 @@ export default function Navbar() {
       </Link>
       {uid ? (
         <div>
-          <div className="hidden md:block">
+          <div className="hidden sm:block">
             <NavbarMenuItems />
           </div>
         </div>

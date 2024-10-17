@@ -5,6 +5,7 @@ import { ClientProvider } from "@/components/ClientProvider";
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
 import "./globals.css";
+import FooterNavBar from "@/components/FooterNavBar";
 
 export const metadata: Metadata = {
   title: "Ikigai Finder",
@@ -23,7 +24,12 @@ export default function RootLayout({
           <div className="sm:fixed top-0 z-50 w-full">
             <Navbar />
           </div>
-          <div className="flex-grow sm:pt-[64px] pb-10 sm:pb-0">{children}</div>
+          <div className="flex-grow sm:pt-[64px] pb-20 sm:pb-9">
+            {children}
+          </div>
+            <div className="fixed sm:bottom-0 bottom-[52px] z-50 w-full bg-white">
+              <FooterNavBar />
+            </div>
           <div className="fixed bottom-0 z-50 w-full block sm:hidden">
             <BottomBar />
           </div>
