@@ -2,17 +2,23 @@
 
 import { useEffect, useRef, useState } from "react";
 import {
+  createUserWithEmailAndPassword,
   GoogleAuthProvider,
+  sendPasswordResetEmail,
   sendSignInLinkToEmail,
+  signInWithEmailAndPassword,
   signInWithPopup,
   signOut,
 } from "firebase/auth";
 
 import Image from "next/image";
-import { MailIcon, XIcon } from "lucide-react";
+import { LockIcon, MailIcon, XIcon } from "lucide-react";
 import { PulseLoader } from "react-spinners";
 import { useAuthStore } from "@/zustand";
 import { auth } from "@/firebase/firebaseClient";
+import toast from "react-hot-toast";
+import Link from "next/link";
+import { isIOSReactNativeWebView } from "@/utils/platform";
 
 interface AuthComponentT {
   isOpenModal: boolean;
@@ -30,9 +36,18 @@ export default function AuthComponent({
   const authDisplayName = useAuthStore((s) => s.authDisplayName);
   const authPending = useAuthStore((s) => s.authPending);
   const [email, setEmail] = useState<string>("");
+  const [password, setPassword] = useState<string>("");
   const [name, setName] = useState<string>("");
+  const [acceptTerms, setAcceptTerms] = useState<boolean>(true);
   const formRef = useRef<HTMLFormElement>(null);
   const modalRef = useRef<HTMLDivElement>(null);
+  const [isEmailLinkLogin, setIsEmailLinkLogin] = useState(false);
+  const [showGoogleSignIn, setShowGoogleSignIn] = useState(true);
+
+  useEffect(() => {
+    // Hide Google Sign-In button and the divider if in a React Native WebView on iOS
+    setShowGoogleSignIn(!isIOSReactNativeWebView());
+  }, []);
 
   const signInWithGoogle = async () => {
     try {
@@ -83,6 +98,56 @@ export default function AuthComponent({
     }
   };
 
+  const handlePasswordLogin = async () => {
+    try {
+      await signInWithEmailAndPassword(auth, email, password);
+      window.localStorage.setItem("generateEmail", email);
+      window.localStorage.setItem("generateName", email.split("@")[0]);
+    } catch (error: unknown) {
+      handleAuthError(error);
+    } finally {
+      onCloseModal();
+    }
+  };
+
+  const handlePasswordSignup = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    try {
+      await createUserWithEmailAndPassword(auth, email, password);
+      window.localStorage.setItem("generateEmail", email);
+      window.localStorage.setItem("generateName", email.split("@")[0]);
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        if ((error as { code?: string }).code === "auth/email-already-in-use") {
+          handlePasswordLogin();
+          return;
+        }
+      }
+      onCloseModal();
+      handleAuthError(error);
+    }
+  };
+
+  const handlePasswordReset = async () => {
+    if (!email) {
+      toast.error("Please enter your email to reset your password.");
+      return;
+    }
+
+    try {
+      await sendPasswordResetEmail(auth, email);
+      toast.success(`Password reset email sent to ${email}`);
+    } catch (error) {
+      handleAuthError(error);
+    }
+  };
+
+  const handleAuthError = (error: unknown) => {
+    if (isFirebaseError(error)) {
+      toast.error(error.message);
+    }
+  };
+
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (
@@ -105,7 +170,10 @@ export default function AuthComponent({
   return (
     <>
       {isOpenModal && (
-        <div id="auth" className="fixed inset-0 bg-black/60 flex justify-center items-center">
+        <div
+          id="auth"
+          className="fixed inset-0 bg-black/60 flex justify-center items-center"
+        >
           <div
             ref={modalRef}
             className="relative bg-white text-black p-4 rounded-lg shadow-lg w-full max-w-md mx-auto"
@@ -153,39 +221,47 @@ export default function AuthComponent({
               </div>
             ) : (
               <form
-                onSubmit={handleSubmit}
+                onSubmit={
+                  isEmailLinkLogin ? handleSubmit : handlePasswordSignup
+                }
                 ref={formRef}
                 className="flex flex-col gap-2"
               >
                 <div className="text-3xl text-center pb-3">Sign In</div>
 
-                <button
-                  type="button"
-                  className="w-full overflow-hidden"
-                  onClick={signInWithGoogle}
-                >
-                  <Image
-                    src="/assets/google_ctn.svg"
-                    alt="Google Logo"
-                    className="object-cover w-full"
-                    width={100}
-                    height={20}
-                  />
-                </button>
-                <div className="flex items-center justify-center w-full h-12">
-                  <hr className="flex-grow h-px bg-gray-400 border-0" />
-                  <span className="px-3">or</span>
-                  <hr className="flex-grow h-px bg-gray-400 border-0" />
-                </div>
+                {showGoogleSignIn && (
+                  <>
+                    <button
+                      type="button"
+                      className="w-full overflow-hidden"
+                      onClick={signInWithGoogle}
+                    >
+                      <Image
+                        src="/assets/google_ctn.svg"
+                        alt="Google Logo"
+                        className="object-cover w-full"
+                        width={100}
+                        height={20}
+                      />
+                    </button>
+                    <div className="flex items-center justify-center w-full h-12">
+                      <hr className="flex-grow h-px bg-gray-400 border-0" />
+                      <span className="px-3">or</span>
+                      <hr className="flex-grow h-px bg-gray-400 border-0" />
+                    </div>
+                  </>
+                )}
 
-                <input
-                  id="name"
-                  type="text"
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
-                  placeholder="Enter your name"
-                  className="input-primary"
-                />
+                {isEmailLinkLogin && (
+                  <input
+                    id="name"
+                    type="text"
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
+                    placeholder="Enter your name"
+                    className="input-primary mb-2"
+                  />
+                )}
 
                 <input
                   id="email"
@@ -195,21 +271,92 @@ export default function AuthComponent({
                   placeholder="Enter your email"
                   className="input-primary"
                 />
+
+                {!isEmailLinkLogin && (
+                  <input
+                    type="password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    placeholder="Enter your password"
+                    className="input-primary mt-2"
+                  />
+                )}
+
+                {!isEmailLinkLogin && (
+                  <div className="text-right mt-2">
+                    <button
+                      type="button"
+                      onClick={handlePasswordReset}
+                      className="underline text-sm text-blue-600 hover:text-blue-800"
+                    >
+                      Forgot Password?
+                    </button>
+                  </div>
+                )}
+
                 <button
                   type="submit"
                   className="btn-primary"
-                  disabled={!email || !name}
+                  disabled={!email || (!isEmailLinkLogin && !password)}
                 >
-                  <div className="flex items-center gap-2 h-10">
-                    <MailIcon size={30} />
-                    <div className="text-xl">Continue with Email</div>
-                  </div>
+                  {isEmailLinkLogin ? (
+                    <div className="flex items-center gap-2 h-8">
+                      <MailIcon size={20} />
+                      <span>Continue with Email Link</span>
+                    </div>
+                  ) : (
+                    <div className="flex items-center gap-2 h-8">
+                      <LockIcon size={20} />
+                      <span>Continue with Password</span>
+                    </div>
+                  )}
                 </button>
+
+                <div className="text-center">
+                  <button
+                    type="button"
+                    onClick={() => setIsEmailLinkLogin(!isEmailLinkLogin)}
+                    className="underline"
+                  >
+                    {isEmailLinkLogin ? "Use Email/Password" : "Use Email Link"}
+                  </button>
+                </div>
+                <label className="flex items-center space-x-2 pl-1">
+                  <input
+                    type="checkbox"
+                    checked={acceptTerms}
+                    onChange={(e) => setAcceptTerms(e.target.checked)}
+                    className="h-full"
+                    required
+                  />
+                  <span>
+                    I accept the
+                    <Link href={"/terms-conditions"} className="underline">
+                      terms
+                    </Link>
+                    and
+                    <Link href="/privacy-policy" className="underline">
+                      privacy
+                    </Link>
+                    policy.
+                  </span>
+                </label>
               </form>
             )}
           </div>
         </div>
       )}
     </>
+  );
+}
+
+function isFirebaseError(
+  error: unknown
+): error is { code: string; message: string } {
+  return (
+    typeof error === "object" &&
+    error !== null &&
+    "code" in error &&
+    "message" in error
   );
 }

@@ -29,4 +29,8 @@ const footerNav = [
     name: "Terms",
     path: "/terms-conditions",
   },
+  {
+    name: "Support",
+    path: "/support",
+  },
 ];
