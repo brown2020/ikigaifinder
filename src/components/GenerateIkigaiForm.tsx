@@ -243,7 +243,7 @@ export default function GenerateIkigaiForm({
             ) : (
               <span className="flex gap-1 items-center justify-center mx-auto">
                 <Lightbulb size={18} />
-                Generate More Idea
+                Generate More Ideas
               </span>
             )}
           </button>
