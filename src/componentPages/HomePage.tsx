@@ -8,11 +8,24 @@ import AuthComponent from "@/components/AuthComponent";
 
 export default function Homepage() {
   const [isSticky, setIsSticky] = useState(false);
+  const [isBottom, setIsBottom] = useState(false);
+
+  // const handleScroll = () => {
+  //   const element2 = document.getElementById("home-hero");
+  //   if (element2) {
+  //     const rect2 = element2.getBoundingClientRect();
+  //     setIsSticky(rect2.bottom <= 0);
+  //   }
+  // };
   const handleScroll = () => {
     const element2 = document.getElementById("home-hero");
-    if (element2) {
+    const element3 = document.getElementById("recent-article");
+    if (element2 && element3) {
+      const viewportHeight = window.innerHeight;
       const rect2 = element2.getBoundingClientRect();
-      setIsSticky(rect2.bottom <= 0);
+      const rect3 = element3.getBoundingClientRect();
+      setIsSticky(rect2.bottom <= 0 && rect3.top - viewportHeight >= 0);
+      setIsBottom(rect3.top - viewportHeight <= 0);
     }
   };
 
@@ -29,12 +42,16 @@ export default function Homepage() {
       <div id="home-hero">
         <HomeHeroSection handleOpenAuthModal={handleOpenAuthModal} />
       </div>
-      <div className="grid sm:grid-cols-2 grid-cols-1 gap-6 sm:p-10 p-5">
+      <div className="grid sm:grid-cols-2 grid-cols-1 gap-6 sm:px-10 p-5 py-5">
         <div className={`relative`}>
           <div
             className={`
               w-full h-full max-w-[98%]
-              ${isSticky ? "sm:fixed top-[80px] sm:max-w-[50%] sm:pr-14" : ""}`}
+              ${
+                isSticky
+                  ? "sm:fixed top-[80px] sm:max-w-[50%] bottom-8 sm:pr-14"
+                  : `lg:absolute ${isBottom ? "bottom-0" : "top-0"} w-full`
+              }`}
           >
             <DemoImageSlick />
           </div>
@@ -86,10 +103,7 @@ export default function Homepage() {
       </div>
 
       {isOpenAuthModal && (
-        <AuthComponent
-          isOpenModal={isOpenAuthModal}
-          onCloseModal={() => setIsOpenAuthModal(false)}
-        />
+        <AuthComponent isOpenModal={isOpenAuthModal} onCloseModal={() => setIsOpenAuthModal(false)} />
       )}
     </div>
   );

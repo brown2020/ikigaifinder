@@ -315,7 +315,7 @@ export default function GenerateIkigaiForm({
         )}
       </div>
 
-      <div className="w-full max-w-3xl fixed sm:bottom-8 bottom-20 bg-white">
+      <div className="w-full max-w-3xl fixed sm:bottom-0 bottom-[52px] bg-white">
         <div className="flex justify-between items-center mt-2 max-w-3xl mb-1 px-5">
           <button
             type="button"

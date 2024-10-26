@@ -40,16 +40,6 @@ function ProfilePage() {
       <div className="text-3xl font-semibold">Your Info</div>
 
       <ProfileComponent />
-      <div className="p-4 border rounded-md shadow-md">
-        <h2 className="text-2xl font-semibold text-red-500">Permanently Close Your Account</h2>
-        <button
-          onClick={() => setIsOpen(true)}
-          className="bg-blue-500 text-white rounded-md p-2 px-9 mt-5"
-        >
-          Delete Your Account
-        </button>
-      </div>
-
       <div>
         {fetchIkigaiData?.ikigaiCoverImage && (
           <div className="p-4 border rounded-md shadow-md flex justify-between">
@@ -74,6 +64,16 @@ function ProfilePage() {
             </Link>
           </div>
         )}
+      </div>
+
+      <div className="p-4 border rounded-md shadow-md flex gap-4 items-center justify-between">
+        <h2 className="text-lg font-semibold text-red-500">Permanently Close Your Account</h2>
+        <button
+          onClick={() => setIsOpen(true)}
+          className="bg-blue-500 text-white rounded-md p-2 px-9"
+        >
+          Delete Your Account
+        </button>
       </div>
       {isOpen && (
         <ProfileDeleted
