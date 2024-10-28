@@ -107,6 +107,7 @@ export default function GenerateIkigaiForm({
         resultEndRef.current?.scrollIntoView({ behavior: "smooth" });
       }
     }
+    setIsLoading(false);
   };
 
   useEffect(() => {
