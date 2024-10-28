@@ -94,7 +94,7 @@ export default function GenerateIkigaiForm({
     for await (const content of readStreamableValue(result)) {
       if (content) {
         const ikigaiList = extractIkigaiData(content);
-        if (ikigaiList.length >= 10) {
+        if (ikigaiList.length >= 5) {
           setIsLoading(false);
         }
 
