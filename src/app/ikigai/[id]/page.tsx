@@ -3,55 +3,52 @@ import { doc, getDoc } from "firebase/firestore";
 import { Metadata } from "next";
 import { db } from "@/firebase/firebaseClient";
 
-type Props = { params: { id: string } };
+type Props = { params: Promise<{ id: string }> };
 
-export default function IkigaiShare({ params: { id } }: Props) {
-  return <ShareImagePage userId={id}  />;
+export default async function IkigaiShare({ params }: Props) {
+  const resolvedParams = await params;
+  const { id } = resolvedParams;
+
+  return <ShareImagePage userId={id} />;
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
-  const userId = params.id;
-  let imageUrl: string = "";
-  let sharableUrl: boolean = false;
+  const resolvedParams = await params;
+  const userId = resolvedParams.id;
 
-  const fetchImageUrl = async () => {
-    try {
-      const docRef = doc(db, ` ikigaiUsers/${userId}/ikigai/main`);
-      const docSnap = await getDoc(docRef);
+  let imageUrl = "";
+  let sharableUrl = false;
 
-      if (docSnap.exists()) {
-        imageUrl = docSnap.data().ikigaiCoverImage;
-        sharableUrl = docSnap.data().ikigaiSharableUrl;
-      } else {
-        console.log("No such document!");
-        imageUrl = "";
-        sharableUrl = false;
-      }
-    } catch (error: unknown) {
-      if (error instanceof Error) {
-        console.log("Error getting document:", error.message);
-      } else {
-        console.log("An unknown error occurred while getting the document.");
-      }
-      imageUrl = "";
-      sharableUrl = false;
-    } finally {
-      if (sharableUrl && imageUrl) return imageUrl;
-      return "https://assets/falcon.jpeg";
+  try {
+    const docRef = doc(db, `ikigaiUsers/${userId}/ikigai/main`);
+    const docSnap = await getDoc(docRef);
+
+    if (docSnap.exists()) {
+      imageUrl = docSnap.data().ikigaiCoverImage || "";
+      sharableUrl = docSnap.data().ikigaiSharableUrl || false;
+    } else {
+      console.log("No such document!");
     }
-  };
+  } catch (error: unknown) {
+    if (error instanceof Error) {
+      console.error("Error getting document:", error.message);
+    } else {
+      console.error("An unknown error occurred while getting the document.");
+    }
+  }
 
-  const shareUrl = await fetchImageUrl();
+  const shareUrl =
+    sharableUrl && imageUrl ? imageUrl : "https://assets/falcon.jpeg";
 
   return {
-    metadataBase: new URL("https://Ikigaifinder.ai/"),
+    metadataBase: new URL("https://ikigaifinder.ai/"),
     title: "Check out my Ikigai!",
     description: "I just created my Ikigai with Ikigaifinder.ai/",
 
     openGraph: {
-      title: "Check out my ikigai!",
-      description: "I just created my ikigai with Ikigaifinder.ai/",
-      url: `https://Ikigaifinder.ai//ikigai/${userId}`,
+      title: "Check out my Ikigai!",
+      description: "I just created my Ikigai with Ikigaifinder.ai/",
+      url: `https://ikigaifinder.ai/ikigai/${userId}`,
       siteName: "Ikigaifinder.ai/",
       locale: "en_US",
       type: "website",
@@ -66,8 +63,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
     twitter: {
       card: "summary_large_image",
-      title: "Check out my ikigai!",
-      description: "I just created my ikigai with Ikigaifinder.ai/",
+      title: "Check out my Ikigai!",
+      description: "I just created my Ikigai with Ikigaifinder.ai/",
       images: [shareUrl],
     },
   };

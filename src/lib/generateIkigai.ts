@@ -30,7 +30,7 @@ export async function generateIkigai(
     { role: "user", content: userPrompt },
   ];
 
-  const result = await streamText({
+  const result = streamText({
     model: openai("gpt-4o"),
     messages,
   });

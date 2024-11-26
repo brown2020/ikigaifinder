@@ -68,10 +68,14 @@ async function updateUserDetailsInFirestore(
 ) {
   if (uid) {
     const userRef = doc(db, `ikigaiUsers/${uid}`);
+
+    // Filter only serializable fields
+    const serializableDetails = JSON.parse(JSON.stringify(details));
+
     try {
       await setDoc(
         userRef,
-        { ...details, lastSignIn: serverTimestamp() },
+        { ...serializableDetails, lastSignIn: serverTimestamp() },
         { merge: true }
       );
       console.log("Auth details updated successfully in Firestore.");
