@@ -66,7 +66,7 @@ function ProfilePage() {
         )}
       </div>
 
-      <div className="p-4 border rounded-md shadow-md flex gap-4 items-center justify-between">
+      <div className="p-4 border rounded-md shadow-md flex sm:flex-row flex-col gap-4 items-center justify-between">
         <h2 className="text-lg font-semibold text-red-500">Permanently Close Your Account</h2>
         <button
           onClick={() => setIsOpen(true)}

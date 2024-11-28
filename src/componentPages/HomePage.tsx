@@ -10,13 +10,6 @@ export default function Homepage() {
   const [isSticky, setIsSticky] = useState(false);
   const [isBottom, setIsBottom] = useState(false);
 
-  // const handleScroll = () => {
-  //   const element2 = document.getElementById("home-hero");
-  //   if (element2) {
-  //     const rect2 = element2.getBoundingClientRect();
-  //     setIsSticky(rect2.bottom <= 0);
-  //   }
-  // };
   const handleScroll = () => {
     const element2 = document.getElementById("home-hero");
     const element3 = document.getElementById("recent-article");
@@ -42,15 +35,14 @@ export default function Homepage() {
       <div id="home-hero">
         <HomeHeroSection handleOpenAuthModal={handleOpenAuthModal} />
       </div>
-      <div className="grid sm:grid-cols-2 grid-cols-1 gap-6 sm:px-10 p-5 py-5">
+      <div className="grid md:grid-cols-2 grid-cols-1 gap-6 md:px-10 p-5 py-5">
         <div className={`relative`}>
           <div
-            className={`
-              w-full h-full max-w-[98%]
+            className={`w-full h-full max-w-[98%]
               ${
                 isSticky
-                  ? "sm:fixed top-[80px] sm:max-w-[50%] bottom-8 sm:pr-14"
-                  : `lg:absolute ${isBottom ? "bottom-0" : "top-0"} w-full`
+                  ? "md:fixed top-[80px] md:max-w-[50%] bottom-8 md:pr-14"
+                  : `md:absolute ${isBottom ? "bottom-0 !h-fit" : "top-0"}    w-full`
               }`}
           >
             <DemoImageSlick />

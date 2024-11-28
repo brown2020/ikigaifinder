@@ -59,8 +59,8 @@ export default function BottomBar() {
     }
   };
   return (
-    <div className={`w-full py-1 bg-blue-800 text-white sm:px-10 px-8`}>
-      <nav className="flex justify-between px-4 h-11">
+    <div className={`w-full py-1 bg-blue-800 text-white sm:px-10 px-5`}>
+      <nav className="flex justify-between h-11">
         {bottomMenu?.length &&
           bottomMenu?.map((item) => (
             <div

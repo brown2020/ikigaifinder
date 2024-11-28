@@ -23,7 +23,7 @@ export default function RootLayout({
           <div className="sm:fixed top-0 z-50 w-full">
             <Navbar />
           </div>
-          <div className="flex-grow sm:pt-[64px] pb-10 sm:pb-0">{children}</div>
+          <div className="flex-grow sm:pt-[64px] pb-12 sm:pb-0">{children}</div>
           <div className="fixed bottom-0 z-50 w-full block sm:hidden">
             <BottomBar />
           </div>
