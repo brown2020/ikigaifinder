@@ -1,7 +1,6 @@
 import ShareImagePage from "@/componentPages/ShareImagePage";
-import { doc, getDoc } from "firebase/firestore";
+import { adminDb } from "@/firebase/firebaseAdmin";
 import { Metadata } from "next";
-import { db } from "@/firebase/firebaseClient";
 
 type Props = { params: Promise<{ id: string }> };
 
@@ -20,12 +19,13 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   let sharableUrl = false;
 
   try {
-    const docRef = doc(db, `ikigaiUsers/${userId}/ikigai/main`);
-    const docSnap = await getDoc(docRef);
+    const docRef = adminDb.collection("ikigaiUsers").doc(userId).collection("ikigai").doc("main");
+    const docSnap = await docRef.get();
 
-    if (docSnap.exists()) {
-      imageUrl = docSnap.data().ikigaiCoverImage || "";
-      sharableUrl = docSnap.data().ikigaiSharableUrl || false;
+    if (docSnap.exists) {
+      const data = docSnap.data();
+      imageUrl = data?.ikigaiCoverImage || "";
+      sharableUrl = data?.ikigaiSharableUrl || false;
     } else {
       console.log("No such document!");
     }
@@ -37,8 +37,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     }
   }
 
-  const shareUrl =
-    sharableUrl && imageUrl ? imageUrl : "https://assets/falcon.jpeg";
+  const shareUrl = sharableUrl && imageUrl ? imageUrl : "https://assets/falcon.jpeg";
 
   return {
     metadataBase: new URL("https://ikigaifinder.ai/"),
