@@ -5,18 +5,18 @@ import { debounce } from "lodash";
 import { useAuthStore } from "@/zustand/useAuthStore";
 import { auth } from "@/firebase/firebaseClient";
 import { useAuthState } from "react-firebase-hooks/auth";
+import { useContextStore } from "@/zustand/useContextStore";
 
 const useAuthToken = (cookieName = "authToken") => {
   const [user, loading, error] = useAuthState(auth);
   const setAuthDetails = useAuthStore((state) => state.setAuthDetails);
   const clearAuthDetails = useAuthStore((state) => state.clearAuthDetails);
+  const { setIsUserNotExist } = useContextStore();
 
   const refreshInterval = 50 * 60 * 1000; // 50 minutes
   const lastTokenRefresh = `lastTokenRefresh_${cookieName}`;
 
-  const [activityTimeout, setActivityTimeout] = useState<NodeJS.Timeout | null>(
-    null
-  );
+  const [activityTimeout, setActivityTimeout] = useState<NodeJS.Timeout | null>(null);
 
   const refreshAuthToken = async () => {
     try {
@@ -55,6 +55,14 @@ const useAuthToken = (cookieName = "authToken") => {
       scheduleTokenRefresh();
     }
   }, 1000);
+
+  useEffect(() => {
+    if (!loading && !user) {
+      setIsUserNotExist(true);
+    }
+  }, [loading, setIsUserNotExist, user]);
+
+
 
   useEffect(() => {
     if (!window.ReactNativeWebView) {
