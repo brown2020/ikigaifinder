@@ -245,9 +245,9 @@ export default function AuthComponent({
                       />
                     </button>
                     <div className="flex items-center justify-center w-full h-12">
-                      <hr className="flex-grow h-px bg-gray-400 border-0" />
+                      <hr className="grow h-px bg-gray-400 border-0" />
                       <span className="px-3">or</span>
-                      <hr className="flex-grow h-px bg-gray-400 border-0" />
+                      <hr className="grow h-px bg-gray-400 border-0" />
                     </div>
                   </>
                 )}

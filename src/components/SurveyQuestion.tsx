@@ -41,7 +41,7 @@ const SurveyQuestion: React.FC<SurveyQuestionProps> = ({
           <textarea
             name={question.name}
             required
-            className="appearance-none rounded-md relative block w-full px-4 py-3 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 text-lg"
+            className="appearance-none rounded-md relative block w-full px-4 py-3 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-hidden focus:ring-indigo-500 focus:border-indigo-500 text-lg"
             placeholder={question.question}
             value={question.answer[0] || ""}
             onChange={handleNativeChange}
@@ -53,7 +53,7 @@ const SurveyQuestion: React.FC<SurveyQuestionProps> = ({
           <select
             name={question.name}
             required
-            className="appearance-none rounded-md relative block w-full px-4 py-3 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 text-lg"
+            className="appearance-none rounded-md relative block w-full px-4 py-3 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-hidden focus:ring-indigo-500 focus:border-indigo-500 text-lg"
             value={question.answer[0] || ""}
             onChange={handleNativeChange}
           >
@@ -91,7 +91,7 @@ const SurveyQuestion: React.FC<SurveyQuestionProps> = ({
             name={question.name}
             type="text"
             required
-            className="appearance-none rounded-md relative block w-full px-4 py-3 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 text-lg"
+            className="appearance-none rounded-md relative block w-full px-4 py-3 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-hidden focus:ring-indigo-500 focus:border-indigo-500 text-lg"
             placeholder={question.question}
             value={question.answer[0] || ""}
             onChange={handleNativeChange}
@@ -119,7 +119,7 @@ const SurveyQuestion: React.FC<SurveyQuestionProps> = ({
         {renderInput()}
         <button
           type="submit"
-          className="mt-6 w-full flex justify-center py-3 px-4 border border-transparent text-lg font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition duration-150 ease-in-out"
+          className="mt-6 w-full flex justify-center py-3 px-4 border border-transparent text-lg font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-hidden focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition duration-150 ease-in-out"
         >
           Next
         </button>

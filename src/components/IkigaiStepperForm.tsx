@@ -102,7 +102,7 @@ const IkigaiStepperForm: React.FC = () => {
 
   return (
     <div className="flex justify-center gap-4">
-      <div className="mx-auto sm:p-6 p-4 py-6 bg-white shadow-md sm:rounded w-full max-w-3xl">
+      <div className="mx-auto sm:p-6 p-4 py-6 bg-white shadow-md sm:rounded-sm w-full max-w-3xl">
         {/* Title and Description */}
         <h2 className="text-3xl text-gray-700  font-bold mb-2">
           {currentStep?.title}
@@ -142,7 +142,7 @@ const IkigaiStepperForm: React.FC = () => {
 
             <button
               type="submit"
-              className={`px-6 py-2 bg-blue-500 text-white rounded "hover:bg-blue-600`}
+              className={`px-6 py-2 bg-blue-500 text-white rounded-sm "hover:bg-blue-600`}
             >
               {currentStep?.button || "Continue"}
             </button>
@@ -160,7 +160,7 @@ const IkigaiStepperForm: React.FC = () => {
                 <div key={stepIndex} className="flex items-center">
                   <button
                     type="button"
-                    className={`h-8 w-8 flex items-center justify-center rounded-full focus:outline-none ${
+                    className={`h-8 w-8 flex items-center justify-center rounded-full focus:outline-hidden ${
                       isCurrentStep
                         ? "bg-blue-600 text-white"
                         : stepIndex <= step || isDataExit

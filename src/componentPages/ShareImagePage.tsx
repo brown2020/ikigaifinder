@@ -134,7 +134,7 @@ export default function ShareImagePage({ userId }: { userId: string }) {
           )}
         </div>
       ) : errorMessage && (
-        <div className="mx-auto p-6 bg-gradient-to-r from-gray-100 to-gray-300 shadow-md w-full max-w-xl aspect-square">
+        <div className="mx-auto p-6 bg-linear-to-r from-gray-100 to-gray-300 shadow-md w-full max-w-xl aspect-square">
           <div className="text-center h-full text-xl font-bold flex items-center justify-center">
             {errorMessage}
           </div>

@@ -162,7 +162,7 @@ export default function GenerateIkigaiForm({
         <button
           type="button"
           onClick={() => router?.push("/ikigai-finder")}
-          className={`px-6 py-2 bg-gray-200 text-gray-700 rounded hover:bg-gray-300 mt-6`}
+          className={`px-6 py-2 bg-gray-200 text-gray-700 rounded-sm hover:bg-gray-300 mt-6`}
         >
           Create Your Ikigai
         </button>
@@ -217,7 +217,7 @@ export default function GenerateIkigaiForm({
           </p>
         </Tooltip>
         <textarea
-          className="w-full p-2 border border-gray-300 rounded h-24 font-semibold "
+          className="w-full p-2 border border-gray-300 rounded-sm h-24 font-semibold "
           autoComplete="on"
           placeholder="Enter your guidance here"
           onChange={(e) => setGuidance(e.target.value)}
@@ -321,13 +321,13 @@ export default function GenerateIkigaiForm({
           <button
             type="button"
             onClick={() => router?.push("/ikigai-finder")}
-            className={`px-6 py-2 bg-gray-200 text-gray-700 rounded hover:bg-gray-300 disabled:cursor-not-allowed disabled:opacity-60`}
+            className={`px-6 py-2 bg-gray-200 text-gray-700 rounded-sm hover:bg-gray-300 disabled:cursor-not-allowed disabled:opacity-60`}
           >
             Back
           </button>
           <button
             onClick={handleSaveMyIkigai}
-            className={`px-6 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 disabled:cursor-not-allowed disabled:opacity-60`}
+            className={`px-6 py-2 bg-blue-500 text-white rounded-sm hover:bg-blue-600 disabled:cursor-not-allowed disabled:opacity-60`}
             disabled={isLoading || !selectedIkigai}
           >
             Save Ikigai

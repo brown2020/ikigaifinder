@@ -42,7 +42,7 @@ export default function Homepage() {
               ${
                 isSticky
                   ? "md:fixed top-[80px] md:max-w-[50%] bottom-8 md:pr-14"
-                  : `md:absolute ${isBottom ? "bottom-0 !h-fit" : "top-0"}    w-full`
+                  : `md:absolute ${isBottom ? "bottom-0 h-fit!" : "top-0"}    w-full`
               }`}
           >
             <DemoImageSlick />

@@ -1,35 +1,90 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import 'tailwindcss';
+
+@theme {
+  --animate-fade-in: fade-in 1s ease-out;
+  --animate-slide-up: slide-up 0.5s ease-out;
+
+  --background-image-gradient-radial: radial-gradient(var(--tw-gradient-stops));
+  --background-image-gradient-conic: conic-gradient(
+    from 180deg at 50% 50%,
+    var(--tw-gradient-stops)
+  );
+
+  --height-screen-minus-115: calc(100vh - 115px);
+  --height-screen-minus-64: calc(100vh - 64px);
+
+  --min-height-screen-minus-115: calc(100vh - 115px);
+  --min-height-screen-minus-64: calc(100vh - 64px);
+
+  --breakpoint-xs: 424px;
+  --breakpoint-xxs: 321px;
+
+  @keyframes fade-in {
+    0% {
+      opacity: 0;
+    }
+    100% {
+      opacity: 1;
+    }
+  }
+  @keyframes slide-up {
+    0% {
+      transform: translateY(100px);
+      opacity: 0;
+    }
+    100% {
+      transform: translateY(0);
+      opacity: 1;
+    }
+  }
+}
+
+/*
+  The default border color has changed to `currentColor` in Tailwind CSS v4,
+  so we've added these compatibility styles to make sure everything still
+  looks the same as it did with Tailwind CSS v3.
+
+  If we ever want to remove these styles, we need to add an explicit border
+  color utility to any element that depends on these defaults.
+*/
+@layer base {
+  *,
+  ::after,
+  ::before,
+  ::backdrop,
+  ::file-selector-button {
+    border-color: var(--color-gray-200, currentColor);
+  }
+}
 
 .btn {
   @apply flex items-center justify-center px-3 py-2 hover:opacity-50 rounded-md gap-1 disabled:opacity-50;
 }
 .btn-primary {
-  @apply cursor-pointer flex outline-none text-center justify-center items-center gap-2 mt-2 px-6 py-2 bg-[#2563EB] text-white font-semibold hover:bg-[#2563EB]/30 rounded-full disabled:bg-[#2563EB]/30 disabled:hover:bg-[#2563EB]/30 disabled:cursor-not-allowed;
+  @apply cursor-pointer flex outline-hidden text-center justify-center items-center gap-2 mt-2 px-6 py-2 bg-[#2563EB] text-white font-semibold hover:bg-[#2563EB]/30 rounded-full disabled:bg-[#2563EB]/30 disabled:hover:bg-[#2563EB]/30 disabled:cursor-not-allowed;
 }
 
 .btn-blue {
-  @apply cursor-pointer flex w-full outline-none text-center justify-center items-center gap-2 mt-2 px-6 py-2 bg-blue-500 text-white font-semibold hover:opacity-70 rounded-full disabled:opacity-50 disabled:cursor-not-allowed;
+  @apply cursor-pointer flex w-full outline-hidden text-center justify-center items-center gap-2 mt-2 px-6 py-2 bg-blue-500 text-white font-semibold hover:opacity-70 rounded-full disabled:opacity-50 disabled:cursor-not-allowed;
 }
 
 .btn-white {
-  @apply cursor-pointer flex outline-none text-center justify-center items-center gap-2 mt-2 px-6 py-2 bg-white text-black font-semibold hover:opacity-70 rounded-full disabled:opacity-50 disabled:cursor-not-allowed;
+  @apply cursor-pointer flex outline-hidden text-center justify-center items-center gap-2 mt-2 px-6 py-2 bg-white text-black font-semibold hover:opacity-70 rounded-full disabled:opacity-50 disabled:cursor-not-allowed;
 }
 
 .btn-muted {
-  @apply cursor-pointer flex  outline-none text-center justify-center items-center gap-2 mt-2 px-6 py-2 bg-gray-400 text-white font-semibold hover:opacity-70 rounded-full disabled:opacity-50 disabled:cursor-not-allowed;
+  @apply cursor-pointer flex  outline-hidden text-center justify-center items-center gap-2 mt-2 px-6 py-2 bg-gray-400 text-white font-semibold hover:opacity-70 rounded-full disabled:opacity-50 disabled:cursor-not-allowed;
 }
 
 .btn-primary2 {
-  @apply cursor-pointer flex outline-none items-center gap-2 mt-2 px-6 py-2 bg-black/20 text-black font-semibold hover:bg-black/30 rounded disabled:bg-white/10 disabled:hover:bg-white/10 disabled:cursor-not-allowed;
+  @apply cursor-pointer flex outline-hidden items-center gap-2 mt-2 px-6 py-2 bg-black/20 text-black font-semibold hover:bg-black/30 rounded-sm disabled:bg-white/10 disabled:hover:bg-white/10 disabled:cursor-not-allowed;
 }
 .btn-secondary {
-  @apply cursor-pointer flex outline-none items-center gap-2 mt-2 px-6 py-2 bg-white/10 text-black/50 font-semibold hover:bg-white/30 ml-auto rounded-full;
+  @apply cursor-pointer flex outline-hidden items-center gap-2 mt-2 px-6 py-2 bg-white/10 text-black/50 font-semibold hover:bg-white/30 ml-auto rounded-full;
 }
 
 .input-primary {
-  @apply w-full text-black px-4 py-2 outline-none border border-[#111113]/20  bg-white rounded-lg;
+  @apply w-full text-black px-4 py-2 outline-hidden border border-[#111113]/20  bg-white rounded-lg;
 }
 
 .anychart-credits {

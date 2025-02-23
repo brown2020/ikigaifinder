@@ -43,7 +43,7 @@ const FormField: React.FC<FormFieldProps> = ({
       case "text":
         return (
           <input
-            className="w-full p-2 border border-gray-300 rounded min-h-12 font-semibold "
+            className="w-full p-2 border border-gray-300 rounded-sm min-h-12 font-semibold "
             {...register(question.id, {
               required: question.validation.required,
             })}
@@ -53,7 +53,7 @@ const FormField: React.FC<FormFieldProps> = ({
       case "textarea":
         return (
           <textarea
-            className="w-full p-2 border border-gray-300 rounded h-24 font-semibold "
+            className="w-full p-2 border border-gray-300 rounded-sm h-24 font-semibold "
             {...register(question.id, {
               required: question.validation.required,
             })}
@@ -65,7 +65,7 @@ const FormField: React.FC<FormFieldProps> = ({
         return (
           <select
             {...register(question.id)}
-            className="w-full p-2 border rounded font-semibold"
+            className="w-full p-2 border rounded-sm font-semibold"
           >
             <option value="">Select an option</option>
             {question.options?.map((option) => (

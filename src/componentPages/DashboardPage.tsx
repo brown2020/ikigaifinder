@@ -43,7 +43,7 @@ function DashboardPage() {
             alt="Ikigai Finder"
             width={375}
             height={375}
-            className="w-full h-full object-cover max-w-3xl mx-auto rounded"
+            className="w-full h-full object-cover max-w-3xl mx-auto rounded-sm"
             unoptimized
           />
         )}
@@ -71,7 +71,7 @@ function DashboardPage() {
           </div>
 
           <button
-            className="btn-primary2 h-12 flex items-center justify-center mx-auto rounded"
+            className="btn-primary2 h-12 flex items-center justify-center mx-auto rounded-sm"
             onClick={handleDownload}
           >
             Download

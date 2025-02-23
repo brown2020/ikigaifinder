@@ -128,7 +128,7 @@ export default function GenerateIkigaiImage() {
             Ikigai alone.
           </p>
           <textarea
-            className="w-full p-2 border border-gray-300 rounded h-16 font-semibold "
+            className="w-full p-2 border border-gray-300 rounded-sm h-16 font-semibold "
             autoComplete="on"
             placeholder="Describe an image"
             onChange={(e) => setImagePrompt(e.target.value)}
@@ -149,7 +149,7 @@ export default function GenerateIkigaiImage() {
 
             <button
               onClick={(e) => handleGenerateSDXL(e)}
-              className={`px-6 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 min-w-36 sm:w-fit w-full`}
+              className={`px-6 py-2 bg-blue-500 text-white rounded-sm hover:bg-blue-600 min-w-36 sm:w-fit w-full`}
             >
               {loading ? (
                 <PulseLoader color="#fff" size={12} />
@@ -166,7 +166,7 @@ export default function GenerateIkigaiImage() {
         <div className="flex justify-end">
           <button
             onClick={handleSaveToProfile}
-            className={`px-8 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 min-w-36 mt-3  sm:w-fit w-full`}
+            className={`px-8 py-2 bg-blue-500 text-white rounded-sm hover:bg-blue-600 min-w-36 mt-3  sm:w-fit w-full`}
           >
             {saving ? <PulseLoader color="#fff" size={12} /> : "Save Image"}
           </button>

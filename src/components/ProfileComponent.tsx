@@ -156,7 +156,7 @@ export default function ProfileComponent2() {
         <div className="flex xs:flex-row flex-col gap-3 justify-between mt-3">
           <button
             //   className="btn btn-blue flex-1 mx-auto w-full"
-            className="px-6 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 xs:w-fit w-full"
+            className="px-6 py-2 bg-blue-500 text-white rounded-sm hover:bg-blue-600 xs:w-fit w-full"
             type="button"
             disabled={!hasChanges}
             onClick={handleSubmit}
@@ -167,7 +167,7 @@ export default function ProfileComponent2() {
           <button
             type="button"
             onClick={() => router?.push("/logout")}
-            className="px-6 py-2 bg-gray-200 text-gray-700 rounded hover:bg-gray-300 xs:w-fit w-full"
+            className="px-6 py-2 bg-gray-200 text-gray-700 rounded-sm hover:bg-gray-300 xs:w-fit w-full"
           >
             Logout
           </button>

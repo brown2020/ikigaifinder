@@ -37,7 +37,7 @@ const Toast = ({ type, message, onClose }:ToastProps) => {
     >
       <span>{message}</span>
       <button
-        className="ml-4 text-lg font-semibold focus:outline-none"
+        className="ml-4 text-lg font-semibold focus:outline-hidden"
         onClick={() => {
           setIsVisible(false);
           onClose();

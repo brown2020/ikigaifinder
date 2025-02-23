@@ -108,16 +108,16 @@ export default function ProfileDeleted({ isOpen, closeModal, setToast }: Profile
             <h2 className="text-lg font-bold">Are you sure you want to delete your account?</h2>
             <p className="text-sm mt-3">Please type <b>DELETE ACCOUNT</b> to confirm.</p>
             <input
-              className="w-full p-2 border border-gray-300 rounded min-h-12 font-semibold mt-6"
+              className="w-full p-2 border border-gray-300 rounded-sm min-h-12 font-semibold mt-6"
               onChange={(e) => setConfirmText(e.target.value?.toLowerCase())}
               placeholder="Type DELETE ACCOUNT to confirm"
             />
             <div className="mt-4 flex gap-2 justify-end">
-              <button onClick={closeModal} className="px-9 py-3 bg-gray-200 text-gray-700 rounded hover:bg-gray-300">Cancel</button>
+              <button onClick={closeModal} className="px-9 py-3 bg-gray-200 text-gray-700 rounded-sm hover:bg-gray-300">Cancel</button>
               <button
                 onClick={deleteConfirmIkigaiProfile}
                 disabled={isLoading || confirmText !== "delete account"}
-                className="px-9 py-3 bg-blue-500 text-white rounded hover:bg-blue-600"
+                className="px-9 py-3 bg-blue-500 text-white rounded-sm hover:bg-blue-600"
               >
                 {isLoading ? <PulseLoader color="#fff" size={10} /> : "Delete"}
               </button>

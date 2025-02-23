@@ -111,7 +111,7 @@ const CustomMultiTag: React.FC<CustomMultiTagProps> = ({
         <input
           ref={inputRef}
           type="text"
-          className="outline-none p-1 text-base font-semibold sm:max-w-max max-w-14"
+          className="outline-hidden p-1 text-base font-semibold sm:max-w-max max-w-14"
           placeholder={value.length === 0 ? placeholder : ""}
           value={inputValue}
           onChange={handleInputChange}
