@@ -94,17 +94,39 @@ export default function GenerateIkigaiImage() {
 
   const handleSaveToProfile = async () => {
     try {
-      if (!uid) return;
+      if (!uid) {
+        console.log("No uid found, cannot save to profile");
+        return;
+      }
 
       setSaving(true);
+      console.log("Starting image capture and upload...");
+      
       const downloadUrl = await captureAndUploadImage(uid, "visualization");
+      console.log("Capture result:", downloadUrl);
 
       if (downloadUrl) {
-        updateIkigai({ ikigaiCoverImage: downloadUrl });
-        router?.push(`/ikigai/${uid}`);
+        console.log("Updating Ikigai with cover image:", downloadUrl);
+        await updateIkigai({ ikigaiCoverImage: downloadUrl });
+        console.log("Ikigai update completed successfully");
+        
+        // Add a small delay to ensure Firestore propagation
+        await new Promise(resolve => setTimeout(resolve, 1000));
+        
+        console.log("Redirecting to:", `/ikigai/${uid}`);
+        // Use replace to force a fresh load of the page
+        router?.replace(`/ikigai/${uid}`);
+      } else {
+        console.log("Failed to capture and upload image - no download URL received");
+        // Still redirect even if image capture fails
+        console.log("Redirecting anyway to:", `/ikigai/${uid}`);
+        router?.replace(`/ikigai/${uid}`);
       }
     } catch (error) {
-      console.log("error", error);
+      console.log("Error in handleSaveToProfile:", error);
+      // Still redirect even if there's an error
+      console.log("Redirecting despite error to:", `/ikigai/${uid}`);
+      router?.replace(`/ikigai/${uid}`);
     } finally {
       setSaving(false);
     }
@@ -115,7 +137,7 @@ export default function GenerateIkigaiImage() {
       <div className="w-full max-w-3xl">
         <div>
           <h1 className="text-3xl font-bold mb-4">
-            let&apos;s make your Ikigai beautiful.
+            Let&apos;s make your Ikigai beautiful.
           </h1>
           <p className="text-lg font-semibold mb-6">
             Create a background image that embodies your vision. Once
@@ -168,7 +190,7 @@ export default function GenerateIkigaiImage() {
             onClick={handleSaveToProfile}
             className={`px-8 py-2 bg-blue-500 text-white rounded-sm hover:bg-blue-600 min-w-36 mt-3  sm:w-fit w-full`}
           >
-            {saving ? <PulseLoader color="#fff" size={12} /> : "Save Image"}
+            {saving ? <PulseLoader color="#fff" size={12} /> : "Save Ikigai Image"}
           </button>
         </div>
       </div>
