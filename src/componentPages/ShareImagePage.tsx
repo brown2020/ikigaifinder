@@ -77,7 +77,11 @@ export default function ShareImagePage({ userId }: { userId: string }) {
     const url = window.URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
-    a.download = "image.png"; // Set the desired file name
+    
+    // Create filename with "ikigai finder" and current date
+    const currentDate = new Date().toISOString().split('T')[0]; // YYYY-MM-DD format
+    a.download = `ikigai-finder-${currentDate}.png`;
+    
     document.body.appendChild(a);
     a.click();
     a.remove();
