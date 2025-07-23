@@ -338,8 +338,8 @@ export default function AuthComponent({
     <>
       {isOpenModal && (
         <div
-          className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4"
-          style={{ zIndex: 999 }}
+          className="fixed inset-0 flex items-center justify-center p-4"
+          style={{ backgroundColor: 'rgba(0, 0, 0, 0.4)', backdropFilter: 'blur(4px)', zIndex: 999 }}
           onClick={(e) => {
             if (
               modalRef.current &&
