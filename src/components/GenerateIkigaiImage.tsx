@@ -197,15 +197,15 @@ export default function GenerateIkigaiImage() {
 
       <div className="flex-1 flex items-center justify-center bg-gray-200">
         <div
-          className="relative w-full aspect-square flex items-center justify-center"
+          className="relative w-full aspect-square max-w-[600px] max-h-[600px]"
           id="visualization"
         >
           <Image
             className="object-cover w-full h-full"
             src={fetchIkigaiData?.ikigaiImage || "/assets/bg_image.webp"}
             alt="visualization"
-            width={300}
-            height={300}
+            fill
+            sizes="(max-width: 768px) 100vw, 50vw"
           />
           <div className="absolute inset-0 flex items-center justify-center">
             <SVGOverlay

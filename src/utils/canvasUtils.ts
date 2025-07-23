@@ -109,6 +109,13 @@ export const captureAndUploadImage = async (uid: string, elementId: string) => {
       allowTaint: true,
       useCORS: true,
       backgroundColor: null,
+      scale: 1,
+      width: domElement.offsetWidth,
+      height: domElement.offsetHeight,
+      scrollX: 0,
+      scrollY: 0,
+      windowWidth: window.innerWidth,
+      windowHeight: window.innerHeight
     });
 
     return new Promise<string | null>((resolve, reject) => {
