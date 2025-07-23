@@ -54,7 +54,7 @@ export async function generateImage(message: string, uid: string) {
   } catch (error: unknown) {
     const errorMessage =
       error instanceof Error ? error.message : "An unknown error occurred";
-    console.error("Error generating image:", errorMessage);
+    console.log("Error generating image:", errorMessage);
     return { error: errorMessage };
   }
 }

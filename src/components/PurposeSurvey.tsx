@@ -73,7 +73,7 @@ export default function PurposeSurvey() {
       }
       setError("");
     } catch (err) {
-      console.error("Purpose Error:", err);
+      console.log("Purpose Error:", err);
       setError("Failed to generate purpose statement");
     }
   };

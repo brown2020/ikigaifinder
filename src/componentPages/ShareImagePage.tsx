@@ -36,7 +36,7 @@ export default function ShareImagePage({ userId }: { userId: string }) {
       await updateDoc(docRef, { ikigaiSharableUrl: makeSharable });
       setSharableUrl(makeSharable);
     } catch (error) {
-      console.error("Error updating sharable status:", error);
+      console.log("Error updating sharable status:", error);
     }
   };
 
@@ -133,12 +133,14 @@ export default function ShareImagePage({ userId }: { userId: string }) {
             </div>
           )}
         </div>
-      ) : errorMessage && (
-        <div className="mx-auto p-6 bg-linear-to-r from-gray-100 to-gray-300 shadow-md w-full max-w-xl aspect-square">
-          <div className="text-center h-full text-xl font-bold flex items-center justify-center">
-            {errorMessage}
+      ) : (
+        errorMessage && (
+          <div className="mx-auto p-6 bg-linear-to-r from-gray-100 to-gray-300 shadow-md w-full max-w-xl aspect-square">
+            <div className="text-center h-full text-xl font-bold flex items-center justify-center">
+              {errorMessage}
+            </div>
           </div>
-        </div>
+        )
       )}
       <div className="w-full">
         <Link href={"/ikigai-finder"}>

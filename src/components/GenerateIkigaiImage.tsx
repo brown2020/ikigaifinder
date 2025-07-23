@@ -83,9 +83,9 @@ export default function GenerateIkigaiImage() {
       await saveHistory(promptData, prompt, downloadURL);
     } catch (error: unknown) {
       if (error instanceof Error) {
-        console.error("Error generating image:", error.message);
+        console.log("Error generating image:", error.message);
       } else {
-        console.error("An unknown error occurred during image generation.");
+        console.log("An unknown error occurred during image generation.");
       }
     } finally {
       setLoading(false);
@@ -104,7 +104,7 @@ export default function GenerateIkigaiImage() {
         router?.push(`/ikigai/${uid}`);
       }
     } catch (error) {
-      console.error("error", error);
+      console.log("error", error);
     } finally {
       setSaving(false);
     }

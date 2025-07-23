@@ -42,9 +42,9 @@ export default function ProfileComponent2() {
       setNewProfile({ ...newProfile, photoUrl: updatedUrl });
     } catch (error: unknown) {
       if (error instanceof Error) {
-        console.error("Error uploading file: ", error.message);
+        console.log("Error uploading file: ", error.message);
       } else {
-        console.error("An unknown error occurred during file upload.");
+        console.log("An unknown error occurred during file upload.");
       }
     } finally {
       setLoading(false);
@@ -70,9 +70,9 @@ export default function ProfileComponent2() {
       });
     } catch (error: unknown) {
       if (error instanceof Error) {
-        console.error("Error saving to Firestore:", error.message);
+        console.log("Error saving to Firestore:", error.message);
       } else {
-        console.error("An unknown error occurred while saving to Firestore.");
+        console.log("An unknown error occurred while saving to Firestore.");
       }
     }
   };

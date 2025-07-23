@@ -14,7 +14,7 @@ export const captureAndUploadImage = async (uid: string, elementId: string) => {
   return new Promise<string | null>((resolve, reject) => {
     canvas.toBlob(async (blob) => {
       if (blob === null) {
-        console.error("Canvas is empty or not properly initialized");
+        console.log("Canvas is empty or not properly initialized");
         return resolve(null);
       }
 
@@ -27,7 +27,7 @@ export const captureAndUploadImage = async (uid: string, elementId: string) => {
         const downloadUrl = await getDownloadURL(fileRef);
         resolve(downloadUrl);
       } catch (error) {
-        console.error("Error uploading image:", error);
+        console.log("Error uploading image:", error);
         reject(null);
       }
     });

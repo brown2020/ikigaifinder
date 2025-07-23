@@ -27,7 +27,7 @@ export async function GET(req: Request) {
       },
     });
   } catch (error) {
-    console.error("Error downloading image:", error);
+    console.log("Error downloading image:", error);
     return new Response(JSON.stringify({ error: "Internal Server Error" }), {
       status: 500,
     });

@@ -34,7 +34,7 @@ const useAuthToken = (cookieName = "authToken") => {
       if (error instanceof Error) {
         console.error(error.message);
       } else {
-        console.error("Error refreshing token");
+        console.log("Error refreshing token");
       }
       deleteCookie(cookieName);
     }

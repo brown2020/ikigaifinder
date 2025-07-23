@@ -1,5 +1,5 @@
 "use client";
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import HomeHeroSection from "@/components/HomeHeroSection";
 import { Heart, Medal, PencilRuler, Rocket, Target } from "lucide-react";
 import RenderIkigaiDetails from "@/components/RenderIkigaiDetails";
@@ -7,25 +7,6 @@ import DemoImageSlick from "@/components/DemoImageSlick";
 import AuthComponent from "@/components/AuthComponent";
 
 export default function Homepage() {
-  const [isSticky, setIsSticky] = useState(false);
-  const [isBottom, setIsBottom] = useState(false);
-
-  const handleScroll = () => {
-    const element2 = document.getElementById("home-hero");
-    const element3 = document.getElementById("recent-article");
-    if (element2 && element3) {
-      const viewportHeight = window.innerHeight;
-      const rect2 = element2.getBoundingClientRect();
-      const rect3 = element3.getBoundingClientRect();
-      setIsSticky(rect2.bottom <= 0 && rect3.top - viewportHeight >= 0);
-      setIsBottom(rect3.top - viewportHeight <= 0);
-    }
-  };
-
-  useEffect(() => {
-    window.addEventListener("scroll", handleScroll);
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
 
   const [isOpenAuthModal, setIsOpenAuthModal] = useState<boolean>(false);
 
@@ -35,16 +16,9 @@ export default function Homepage() {
       <div id="home-hero">
         <HomeHeroSection handleOpenAuthModal={handleOpenAuthModal} />
       </div>
-      <div className="grid md:grid-cols-2 grid-cols-1 gap-6 md:px-10 p-5 py-5">
-        <div className={`relative`}>
-          <div
-            className={`w-full h-full max-w-[98%]
-              ${
-                isSticky
-                  ? "md:fixed top-[80px] md:max-w-[50%] bottom-8 md:pr-14"
-                  : `md:absolute ${isBottom ? "bottom-0 h-fit!" : "top-0"}    w-full`
-              }`}
-          >
+      <div className="grid md:grid-cols-2 grid-cols-1 gap-8 md:px-10 p-5 py-8">
+        <div className="flex justify-center items-start">
+          <div className="w-full max-w-lg sticky top-8">
             <DemoImageSlick />
           </div>
         </div>

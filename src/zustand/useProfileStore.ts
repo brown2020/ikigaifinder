@@ -46,7 +46,7 @@ const defaultProfile: ProfileType = {
 const useProfileStore = create<ProfileState>((set) => ({
   profile: defaultProfile,
   ikigaiLoading: false,
-  
+
   fetchProfile: async () => {
     const uid = useAuthStore.getState().uid;
     if (!uid) return;
@@ -112,7 +112,7 @@ const useProfileStore = create<ProfileState>((set) => ({
         set({ profile: newProfile });
       }
     } catch (error) {
-      console.error("Error fetching or creating profile:", error);
+      console.log("Error fetching or creating profile:", error);
     }
   },
   updateProfile: async (newProfile: Partial<ProfileType>) => {
@@ -144,7 +144,7 @@ const useProfileStore = create<ProfileState>((set) => ({
       await setDoc(userRef, { profile: profileToUpdate }, { merge: true });
       console.log("Profile updated successfully");
     } catch (error) {
-      console.error("Error updating profile:", error);
+      console.log("Error updating profile:", error);
     }
   },
 }));

@@ -19,7 +19,11 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   let sharableUrl = false;
 
   try {
-    const docRef = adminDb.collection("ikigaiUsers").doc(userId).collection("ikigai").doc("main");
+    const docRef = adminDb
+      .collection("ikigaiUsers")
+      .doc(userId)
+      .collection("ikigai")
+      .doc("main");
     const docSnap = await docRef.get();
 
     if (docSnap.exists) {
@@ -31,13 +35,14 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     }
   } catch (error: unknown) {
     if (error instanceof Error) {
-      console.error("Error getting document:", error.message);
+      console.log("Error getting document:", error.message);
     } else {
-      console.error("An unknown error occurred while getting the document.");
+      console.log("An unknown error occurred while getting the document.");
     }
   }
 
-  const shareUrl = sharableUrl && imageUrl ? imageUrl : "https://assets/falcon.jpeg";
+  const shareUrl =
+    sharableUrl && imageUrl ? imageUrl : "https://assets/falcon.jpeg";
 
   return {
     metadataBase: new URL("https://ikigaifinder.ai/"),

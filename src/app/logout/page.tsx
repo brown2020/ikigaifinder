@@ -6,7 +6,7 @@ import { useAuthStore } from "@/zustand";
 import { signOut } from "firebase/auth";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
-import 'react-tooltip/dist/react-tooltip.css';
+import "react-tooltip/dist/react-tooltip.css";
 
 function LogoutPage() {
   const router = useRouter();
@@ -22,7 +22,7 @@ function LogoutPage() {
         router.replace("/");
       })
       .catch((error) => {
-        console.error("Error during sign out:", error.message);
+        console.log("Error during sign out:", error.message);
       });
   };
   return (
@@ -31,16 +31,10 @@ function LogoutPage() {
         <h2 className="text-lg font-semibold mb-4">Confirm Logout</h2>
         <p className="mb-6">Are you sure you want to logout?</p>
         <div className="flex justify-end">
-          <button
-            onClick={() => router.back()}
-            className="mr-2 btn-muted"
-          >
+          <button onClick={() => router.back()} className="mr-2 btn-muted">
             Cancel
           </button>
-          <button
-            onClick={handleSignOut}
-            className="btn-primary w-fit"
-          >
+          <button onClick={handleSignOut} className="btn-primary w-fit">
             Logout
           </button>
         </div>
@@ -49,4 +43,4 @@ function LogoutPage() {
   );
 }
 
-export default withAuth(LogoutPage)
+export default withAuth(LogoutPage);
