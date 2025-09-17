@@ -1,6 +1,6 @@
 "use server";
 
-import { createStreamableValue } from '@ai-sdk/rsc';
+import { createStreamableValue } from "@ai-sdk/rsc";
 import { ModelMessage, streamText } from "ai";
 import { openai } from "@ai-sdk/openai";
 import { QuestionType } from "../types/question";
@@ -19,7 +19,7 @@ export async function generatePurpose(questions: QuestionType[]) {
   ];
 
   const result = streamText({
-    model: openai("gpt-4o"),
+    model: openai("gpt-4.1"),
     messages,
   });
 
