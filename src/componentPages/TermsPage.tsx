@@ -2,57 +2,62 @@ import React from "react";
 
 export default function TermsConditions() {
   return (
-    <div className="bg-white text-gray-800 min-h-screen py-12 px-6">
-      <div className="container mx-auto max-w-7xl">
-        <h1 className="text-4xl font-bold mb-6 text-center text-indigo-600">
-          Terms of Service
-        </h1>
-        <p className="text-lg leading-relaxed mb-10 text-center">
-          Welcome and thank you for your interest in{" "}
-          <span className="font-semibold">Ikigaifinder.ai</span> services and
-          mobile apps! These Terms of Use (the “Agreement”) describe the terms
-          and conditions applicable to your use of Ikigaifinder.ai (the “Sites”)
-          and the related mobile applications (the “Mobile Apps”) (collectively,
-          the “Services”). The Sites and Mobile Apps are owned and operated by
-          Ikigaifinder.ai, and its affiliates and subsidiaries (collectively
-          “Ikigaifinder.ai”).
-        </p>
-        <p className="text-lg leading-relaxed mb-10 text-center">
-          In this Agreement, we refer to ourselves as Ikigaifinder.ai or “us” or
-          “we”; we refer to you as “you” or “Customer.” Ikigaifinder.ai and
-          Customer are referred to in this Agreement individually as a “Party”
-          and collectively as the “Parties.”
-        </p>
-        <p className="text-lg leading-relaxed mb-10 text-center">
-          By accessing or using the Services, including access to the Sites, you
-          intend and expressly agree to be bound by all the terms and conditions
-          of this Agreement and the Privacy Policy (available at /privacy),
-          which is incorporated by reference. If you do not agree to these terms
-          and conditions, you may not use the Services.
-        </p>
-        {termsContent?.length &&
-          termsContent?.map((section, index) => (
-            <section className="mb-12" key={index}>
-              <h2 className="text-2xl font-semibold mb-4 text-indigo-600">
-                {section?.title}
-              </h2>
-              {section?.paragraphs.map((paragraph, pIndex) => (
-                <p className="text-lg leading-relaxed mb-4" key={pIndex}>
-                  {paragraph?.split("\n").map((line, lineIndex) => (
-                    <React.Fragment key={lineIndex}>
-                      {line}
-                      <br />
-                    </React.Fragment>
-                  ))}
-                </p>
-              ))}
-            </section>
-          ))}
-        <p className="text-center text-gray-500 mt-8">
-          Last updated: November 1, 2022
-        </p>
+    <section className="relative sm:px-10 px-5 py-12">
+      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,rgba(59,130,246,0.08),transparent_60%)] pointer-events-none" />
+      <div className="container mx-auto sm:px-4 relative">
+        <div className="text-center">
+          <h1 className="text-3xl font-semibold">Terms of Service</h1>
+          <p className="text-gray-700 mt-2 max-w-2xl mx-auto">
+            These Terms of Use describe the terms and conditions applicable to
+            your use of Ikigaifinder.ai services.
+          </p>
+        </div>
+        <div className="max-w-3xl mx-auto mt-8">
+          <p className="leading-relaxed">
+            Welcome and thank you for your interest in{" "}
+            <span className="font-semibold">Ikigaifinder.ai</span> services and
+            mobile apps! These Terms of Use (the “Agreement”) describe the terms
+            and conditions applicable to your use of Ikigaifinder.ai (the
+            “Sites”) and the related mobile applications (the “Mobile Apps”)
+            (collectively, the “Services”). The Sites and Mobile Apps are owned
+            and operated by Ikigaifinder.ai, and its affiliates and subsidiaries
+            (collectively “Ikigaifinder.ai”).
+          </p>
+          <p className="leading-relaxed mt-4">
+            In this Agreement, we refer to ourselves as Ikigaifinder.ai or “us”
+            or “we”; we refer to you as “you” or “Customer.” Ikigaifinder.ai and
+            Customer are referred to in this Agreement individually as a “Party”
+            and collectively as the “Parties.”
+          </p>
+          <p className="leading-relaxed mt-4">
+            By accessing or using the Services, including access to the Sites,
+            you intend and expressly agree to be bound by all the terms and
+            conditions of this Agreement and the Privacy Policy (available at
+            /privacy), which is incorporated by reference. If you do not agree
+            to these terms and conditions, you may not use the Services.
+          </p>
+          {termsContent?.length &&
+            termsContent?.map((section, index) => (
+              <section className="mb-12" key={index}>
+                <h2 className="text-xl font-semibold">{section?.title}</h2>
+                {section?.paragraphs.map((paragraph, pIndex) => (
+                  <p className="leading-relaxed mt-3" key={pIndex}>
+                    {paragraph?.split("\n").map((line, lineIndex) => (
+                      <React.Fragment key={lineIndex}>
+                        {line}
+                        <br />
+                      </React.Fragment>
+                    ))}
+                  </p>
+                ))}
+              </section>
+            ))}
+          <p className="text-center text-gray-500 mt-8">
+            Last updated: November 1, 2022
+          </p>
+        </div>
       </div>
-    </div>
+    </section>
   );
 }
 

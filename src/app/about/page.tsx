@@ -1,4 +1,5 @@
 import FooterNavBar from "@/components/FooterNavBar";
+import SectionHeader from "@/components/SectionHeader";
 
 export default function About() {
   const sections = [
@@ -25,31 +26,27 @@ export default function About() {
 
   return (
     <>
-      <div className="bg-white text-gray-800 min-h-screen py-12 px-6">
-        <div className="container mx-auto max-w-7xl">
-          <h1 className="text-4xl font-bold mb-6 text-center text-indigo-600">
-            About Us
-          </h1>
-          <p className="text-lg leading-relaxed text-center mb-10">
-            Welcome to{" "}
-            <span className="font-semibold text-lg">Ikigai Finder</span>, your
-            personal guide to discovering your true purpose in life!
-          </p>
-
-          {sections.map((section, index) => (
-            <section className="mb-12" key={index}>
-              <h2 className="text-2xl font-semibold mb-4 text-indigo-600">
-                {section.title}
-              </h2>
-              {section.content.map((paragraph, idx) => (
-                <p className="text-lg leading-relaxed mb-4" key={idx}>
-                  {paragraph}
-                </p>
-              ))}
-            </section>
-          ))}
+      <section className="relative sm:px-10 px-5 py-12">
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,rgba(59,130,246,0.08),transparent_60%)] pointer-events-none" />
+        <div className="container mx-auto sm:px-4 relative">
+          <SectionHeader
+            title="About Us"
+            subtitle="Welcome to Ikigai Finder, your guide to discovering purpose."
+          />
+          <div className="max-w-3xl mx-auto mt-8 space-y-10 text-gray-700">
+            {sections.map((section, index) => (
+              <section key={index}>
+                <h2 className="text-xl font-semibold">{section.title}</h2>
+                {section.content.map((paragraph, idx) => (
+                  <p className="leading-relaxed mt-3" key={idx}>
+                    {paragraph}
+                  </p>
+                ))}
+              </section>
+            ))}
+          </div>
         </div>
-      </div>
+      </section>
       <FooterNavBar />
     </>
   );

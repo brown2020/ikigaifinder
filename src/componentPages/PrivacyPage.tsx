@@ -2,51 +2,49 @@ import React from "react";
 
 export default function PrivacyPage() {
   return (
-    <div className="bg-white text-gray-800 min-h-screen py-12 px-6">
-      <div className="container mx-auto max-w-7xl">
-        <h1 className="text-4xl font-bold mb-6 text-center text-indigo-600">
-          Privacy Policy
-        </h1>
-        <p className="text-lg leading-relaxed mb-10 text-center">
-          Protecting your private information is our priority. This Statement of
-          Privacy applies to{" "}
-          <span className="font-semibold">Ikigaifinder.ai</span> pages and apps
-          developed by Ikigaifinder.ai and governs data collection and usage. By
-          using the Ikigaifinder.ai website and applications, you consent to the
-          data practices described in this statement.
-        </p>
-        {privacyPolicyContent.map((section, index) => (
-          <section className="mb-12" key={index}>
-            <h2 className="text-2xl font-semibold mb-4 text-indigo-600">
-              {section.title}
-            </h2>
-            {section.paragraphs.map((paragraph, pIndex) => (
-              <p className="text-lg leading-relaxed mb-4" key={pIndex}>
-                {paragraph?.split("\n").map((line, lineIndex) => (
-                  <React.Fragment key={lineIndex}>
-                    {line}
-                    <br />
-                  </React.Fragment>
-                ))}
-              </p>
-            ))}
-            {section.listItems && (
-              <ul className="list-disc list-inside text-lg mb-4">
-                {section.listItems.map((item, iIndex) => (
-                  <li key={iIndex}>{item}</li>
-                ))}
-              </ul>
-            )}
-          </section>
-        ))}
-        <p className="text-center text-gray-500 mt-8">
-          Last updated: November 1, 2022
-        </p>
+    <section className="relative sm:px-10 px-5 py-12">
+      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,rgba(59,130,246,0.08),transparent_60%)] pointer-events-none" />
+      <div className="container mx-auto sm:px-4 relative">
+        <div className="text-center">
+          <h1 className="text-3xl font-semibold">Privacy Policy</h1>
+          <p className="text-gray-700 mt-2 max-w-2xl mx-auto">
+            Protecting your private information is our priority. This Statement
+            of Privacy applies to{" "}
+            <span className="font-semibold">Ikigaifinder.ai</span>
+            and governs data collection and usage.
+          </p>
+        </div>
+        <div className="max-w-3xl mx-auto mt-8">
+          {privacyPolicyContent.map((section, index) => (
+            <section className="mb-12" key={index}>
+              <h2 className="text-xl font-semibold">{section.title}</h2>
+              {section.paragraphs.map((paragraph, pIndex) => (
+                <p className="leading-relaxed mt-3" key={pIndex}>
+                  {paragraph?.split("\n").map((line, lineIndex) => (
+                    <React.Fragment key={lineIndex}>
+                      {line}
+                      <br />
+                    </React.Fragment>
+                  ))}
+                </p>
+              ))}
+              {section.listItems && (
+                <ul className="list-disc list-inside mb-4">
+                  {section.listItems.map((item, iIndex) => (
+                    <li key={iIndex}>{item}</li>
+                  ))}
+                </ul>
+              )}
+            </section>
+          ))}
+          <p className="text-center text-gray-500 mt-8">
+            Last updated: November 1, 2022
+          </p>
+        </div>
       </div>
-    </div>
+    </section>
   );
 }
-
 
 const privacyPolicyContent = [
   {
