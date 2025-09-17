@@ -1,7 +1,7 @@
 "use server";
 
-import { createStreamableValue } from "ai/rsc";
-import { CoreMessage, streamText } from "ai";
+import { createStreamableValue } from "@ai-sdk/rsc";
+import { ModelMessage, streamText } from "ai";
 import { openai } from "@ai-sdk/openai";
 import { IKIGAI_SYSTEMPROMPT2 } from "../constants/systemPrompt";
 
@@ -25,13 +25,13 @@ export async function generateIkigai(
   For each ikigai statement, calculate and provide the percentage match between: passion & profession, profession & vocation, vocation & mission, passion & mission and Overall compatibility. Present these percentages on separate lines.`;
   const userPrompt = `${JSON.stringify(questions)}\n\n\n${defaultClientPrompt}`;
 
-  const messages: CoreMessage[] = [
+  const messages: ModelMessage[] = [
     { role: "system", content: systemPrompt },
     { role: "user", content: userPrompt },
   ];
 
   const result = streamText({
-    model: openai("gpt-4o"),
+    model: openai("gpt-4.1"),
     messages,
   });
 

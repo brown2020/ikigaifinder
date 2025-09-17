@@ -3,7 +3,7 @@
 import { useState, useRef, useEffect } from "react";
 import { generatePurpose } from "../lib/actions";
 import { QuestionType } from "../types/question";
-import { readStreamableValue } from "ai/rsc";
+import { readStreamableValue } from '@ai-sdk/rsc';
 import { questions } from "../constants/questions";
 import SurveyQuestion from "./SurveyQuestion";
 import GenerateImage from "./GenerateImage";

@@ -2,7 +2,7 @@
 
 import { generateIkigai } from "@/lib/generateIkigai";
 import { useIkigaiStore } from "@/zustand";
-import { readStreamableValue } from "ai/rsc";
+import { readStreamableValue } from '@ai-sdk/rsc';
 import {
   Heart,
   Info,

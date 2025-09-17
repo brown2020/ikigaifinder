@@ -1,5 +1,3 @@
-import fetch from "node-fetch";
-
 export async function GET(req: Request) {
   const { searchParams } = new URL(req.url);
   const imageUrl = searchParams.get("url");
@@ -12,18 +10,20 @@ export async function GET(req: Request) {
   }
 
   try {
-    const response = await fetch(imageUrl);
-    if (!response.ok) {
+    const upstream = await fetch(imageUrl);
+    if (!upstream.ok) {
       return new Response(JSON.stringify({ error: "Failed to fetch image" }), {
-        status: response.status,
+        status: upstream.status,
       });
     }
 
-    const imageBuffer = await response.buffer();
-    return new Response(imageBuffer, {
+    const contentType =
+      upstream.headers.get("content-type") ?? "application/octet-stream";
+    const arrayBuffer = await upstream.arrayBuffer();
+    return new Response(arrayBuffer, {
       status: 200,
       headers: {
-        "Content-Type": "image/png",
+        "Content-Type": contentType,
       },
     });
   } catch (error) {
