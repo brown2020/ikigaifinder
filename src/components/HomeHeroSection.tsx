@@ -13,6 +13,10 @@ export default function HomeHeroSection({
 }: HomeHeroSectionT) {
   const router = useRouter();
   const { uid } = useAuthStore();
+  const handleScrollHowItWorks = () => {
+    const el = document.getElementById("how-it-works");
+    if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
+  };
 
   return (
     <div className="relative sm:px-10 px-5 min-h-screen-minus-64">
@@ -29,26 +33,43 @@ export default function HomeHeroSection({
       <div className="relative container mx-auto sm:px-4 sm:py-16 py-10 min-h-screen-minus-64 flex items-center">
         <div className="grid grid-cols-1 md:grid-cols-2 sm:gap-8 gap-4 items-center">
           <div className="text-black space-y-6 animate-slide-up">
-            <h1 className="text-4xl font-bold">
-              Find Your Ikigai: The Journey to Meaning and Joy
-            </h1>
+            <h1 className="text-4xl font-bold">Discover Your Ikigai</h1>
             <p className="text-xl">
-              Embark on a transformative quest with our AI-driven Ikigai Finder!
-              Uncover your unique purpose by aligning your passions, talents,
-              and the needs of the world. Take the first step towards a life
-              filled with fulfillment and happiness your Ikigai is just a click
-              away!
+              Align what you love, what youre great at, and what the world
+              needs. Create an inspiring, shareable Ikigai card in minutes.
             </p>
 
-            <button
-              className={"btn-base btn-primary-solid mt-6 sm:block hidden"}
-              onClick={
-                uid ? () => router.push("/ikigai-finder") : handleOpenAuthModal
-              }
-              autoFocus={!!uid}
-            >
-              {uid ? "Get Started" : "Sign In Your Account"}
-            </button>
+            <div className="flex flex-wrap items-center gap-2 text-sm text-gray-700">
+              <span className="px-3 py-1 rounded-full bg-white/70">
+                AI-guided
+              </span>
+              <span className="px-3 py-1 rounded-full bg-white/70">
+                Takes ~3 minutes
+              </span>
+              <span className="px-3 py-1 rounded-full bg-white/70">
+                Private by default
+              </span>
+            </div>
+
+            <div className="mt-6 hidden sm:flex items-center gap-3">
+              <button
+                className="btn-base btn-primary-solid"
+                onClick={
+                  uid
+                    ? () => router.push("/ikigai-finder")
+                    : handleOpenAuthModal
+                }
+                autoFocus={!!uid}
+              >
+                {uid ? "Get started" : "Sign in to get started"}
+              </button>
+              <button
+                className="btn-base btn-neutral-solid"
+                onClick={handleScrollHowItWorks}
+              >
+                See how it works
+              </button>
+            </div>
           </div>
 
           <div className="animate-fade-in">
@@ -64,17 +85,23 @@ export default function HomeHeroSection({
               />
             </div>
           </div>
-          <button
-            className={
-              "btn-base btn-primary-solid sm:hidden block w-fit mx-auto"
-            }
-            onClick={
-              uid ? () => router.push("/ikigai-finder") : handleOpenAuthModal
-            }
-            autoFocus={!!uid}
-          >
-            {uid ? "Get Started" : "Sign In Your Account"}
-          </button>
+          <div className="sm:hidden flex flex-col items-center gap-3 w-full">
+            <button
+              className={"btn-base btn-primary-solid w-fit"}
+              onClick={
+                uid ? () => router.push("/ikigai-finder") : handleOpenAuthModal
+              }
+              autoFocus={!!uid}
+            >
+              {uid ? "Get started" : "Sign in to get started"}
+            </button>
+            <button
+              className={"btn-base btn-neutral-solid w-fit"}
+              onClick={handleScrollHowItWorks}
+            >
+              See how it works
+            </button>
+          </div>
         </div>
       </div>
     </div>
