@@ -148,14 +148,14 @@ export default function ProfileDeleted({
             <div className="mt-4 flex gap-2 justify-end">
               <button
                 onClick={closeModal}
-                className="px-9 py-3 bg-gray-200 text-gray-700 rounded-sm hover:bg-gray-300"
+                className="btn-base btn-neutral-solid rounded-sm px-9 py-3"
               >
                 Cancel
               </button>
               <button
                 onClick={deleteConfirmIkigaiProfile}
                 disabled={isLoading || confirmText !== "delete account"}
-                className="px-9 py-3 bg-blue-500 text-white rounded-sm hover:bg-blue-600"
+                className="btn-base btn-danger-solid rounded-sm px-9 py-3"
               >
                 {isLoading ? <PulseLoader color="#fff" size={10} /> : "Delete"}
               </button>

@@ -18,7 +18,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className="h-full">
-      <body className="flex flex-col h-full">
+      <body className="flex flex-col h-full overflow-x-hidden">
         <ClientProvider>
           <div className="sm:fixed top-0 z-50 w-full">
             <Navbar />

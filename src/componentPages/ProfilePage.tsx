@@ -58,7 +58,7 @@ function ProfilePage() {
               </Link>
             </div>
             <Link href={`/ikigai/${uid}`} className="max-w-fit hidden sm:block">
-              <button className="px-6 py-2 bg-gray-200 text-gray-700 rounded-sm hover:bg-gray-300">
+              <button className="btn-base btn-neutral-solid rounded-sm">
                 <Share size={30} />
               </button>
             </Link>
@@ -67,10 +67,12 @@ function ProfilePage() {
       </div>
 
       <div className="p-4 border rounded-md shadow-md flex sm:flex-row flex-col gap-4 items-center justify-between">
-        <h2 className="text-lg font-semibold text-red-500">Permanently Close Your Account</h2>
+        <h2 className="text-lg font-semibold text-red-500">
+          Permanently Close Your Account
+        </h2>
         <button
           onClick={() => setIsOpen(true)}
-          className="bg-blue-500 text-white rounded-md p-2 px-9"
+          className="btn-base btn-danger-solid rounded-md px-9"
         >
           Delete Your Account
         </button>

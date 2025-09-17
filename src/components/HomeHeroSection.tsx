@@ -9,7 +9,7 @@ interface HomeHeroSectionT {
 }
 
 export default function HomeHeroSection({
-    handleOpenAuthModal,
+  handleOpenAuthModal,
 }: HomeHeroSectionT) {
   const router = useRouter();
   const { uid } = useAuthStore();
@@ -41,9 +41,7 @@ export default function HomeHeroSection({
             </p>
 
             <button
-              className={
-                "px-6 py-2 bg-blue-500 text-white rounded-sm hover:bg-blue-600 mt-6 sm:block hidden"
-              }
+              className={"btn-base btn-primary-solid mt-6 sm:block hidden"}
               onClick={
                 uid ? () => router.push("/ikigai-finder") : handleOpenAuthModal
               }
@@ -68,7 +66,7 @@ export default function HomeHeroSection({
           </div>
           <button
             className={
-              "px-6 py-2 bg-blue-500 text-white rounded-sm hover:bg-blue-600 sm:hidden block w-fit mx-auto"
+              "btn-base btn-primary-solid sm:hidden block w-fit mx-auto"
             }
             onClick={
               uid ? () => router.push("/ikigai-finder") : handleOpenAuthModal

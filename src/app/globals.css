@@ -1,4 +1,4 @@
-@import 'tailwindcss';
+@import "tailwindcss";
 
 @theme {
   --animate-fade-in: fade-in 1s ease-out;
@@ -83,10 +83,26 @@
   @apply cursor-pointer flex outline-hidden items-center gap-2 mt-2 px-6 py-2 bg-white/10 text-black/50 font-semibold hover:bg-white/30 ml-auto rounded-full;
 }
 
+/* Unified button styles */
+.btn-base {
+  /* Do NOT set display here so Tailwind's hidden/sm:block work correctly */
+  @apply cursor-pointer rounded-sm px-6 py-2 transition-colors duration-200 disabled:cursor-not-allowed disabled:opacity-60;
+}
+.btn-primary-solid {
+  @apply bg-blue-500 text-white hover:bg-blue-600;
+}
+.btn-neutral-solid {
+  @apply bg-gray-200 text-gray-700 hover:bg-gray-300;
+}
+
+.btn-danger-solid {
+  @apply bg-red-500 text-white hover:bg-red-600;
+}
+
 .input-primary {
   @apply w-full text-black px-4 py-2 outline-hidden border border-[#111113]/20  bg-white rounded-lg;
 }
 
 .anychart-credits {
-  @apply hidden
+  @apply hidden;
 }

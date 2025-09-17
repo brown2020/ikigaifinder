@@ -130,10 +130,8 @@ const IkigaiStepperForm: React.FC = () => {
             <button
               type="button"
               onClick={handleBack}
-              className={`px-6 py-2 bg-gray-200 text-gray-700 rounded ${
-                step === 1
-                  ? "cursor-not-allowed opacity-60"
-                  : "hover:bg-gray-300"
+              className={`btn-base btn-neutral-solid rounded ${
+                step === 1 ? "cursor-not-allowed opacity-60" : ""
               }`}
               disabled={step === 1}
             >
@@ -142,7 +140,7 @@ const IkigaiStepperForm: React.FC = () => {
 
             <button
               type="submit"
-              className={`px-6 py-2 bg-blue-500 text-white rounded-sm "hover:bg-blue-600`}
+              className={`btn-base btn-primary-solid rounded-sm`}
             >
               {currentStep?.button || "Continue"}
             </button>

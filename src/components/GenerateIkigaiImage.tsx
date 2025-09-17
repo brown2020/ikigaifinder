@@ -101,7 +101,7 @@ export default function GenerateIkigaiImage() {
 
       setSaving(true);
       console.log("Starting image capture and upload...");
-      
+
       const downloadUrl = await captureAndUploadImage(uid, "visualization");
       console.log("Capture result:", downloadUrl);
 
@@ -109,15 +109,17 @@ export default function GenerateIkigaiImage() {
         console.log("Updating Ikigai with cover image:", downloadUrl);
         await updateIkigai({ ikigaiCoverImage: downloadUrl });
         console.log("Ikigai update completed successfully");
-        
+
         // Add a small delay to ensure Firestore propagation
-        await new Promise(resolve => setTimeout(resolve, 1000));
-        
+        await new Promise((resolve) => setTimeout(resolve, 1000));
+
         console.log("Redirecting to:", `/ikigai/${uid}`);
         // Use replace to force a fresh load of the page
         router?.replace(`/ikigai/${uid}`);
       } else {
-        console.log("Failed to capture and upload image - no download URL received");
+        console.log(
+          "Failed to capture and upload image - no download URL received"
+        );
         // Still redirect even if image capture fails
         console.log("Redirecting anyway to:", `/ikigai/${uid}`);
         router?.replace(`/ikigai/${uid}`);
@@ -171,7 +173,7 @@ export default function GenerateIkigaiImage() {
 
             <button
               onClick={(e) => handleGenerateSDXL(e)}
-              className={`px-6 py-2 bg-blue-500 text-white rounded-sm hover:bg-blue-600 min-w-36 sm:w-fit w-full`}
+              className={`btn-base btn-primary-solid min-w-36 sm:w-fit w-full`}
             >
               {loading ? (
                 <PulseLoader color="#fff" size={12} />
@@ -188,9 +190,13 @@ export default function GenerateIkigaiImage() {
         <div className="flex justify-end">
           <button
             onClick={handleSaveToProfile}
-            className={`px-8 py-2 bg-blue-500 text-white rounded-sm hover:bg-blue-600 min-w-36 mt-3  sm:w-fit w-full`}
+            className={`btn-base btn-primary-solid min-w-36 mt-3 sm:w-fit w-full`}
           >
-            {saving ? <PulseLoader color="#fff" size={12} /> : "Save Ikigai Image"}
+            {saving ? (
+              <PulseLoader color="#fff" size={12} />
+            ) : (
+              "Save Ikigai Image"
+            )}
           </button>
         </div>
       </div>

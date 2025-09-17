@@ -2,7 +2,7 @@
 
 import { generateIkigai } from "@/lib/generateIkigai";
 import { useIkigaiStore } from "@/zustand";
-import { readStreamableValue } from '@ai-sdk/rsc';
+import { readStreamableValue } from "@ai-sdk/rsc";
 import {
   Heart,
   Info,
@@ -232,8 +232,8 @@ export default function GenerateIkigaiForm({
         >
           <button
             onClick={handleGenerateIkigai}
-            className={`px-6 py-2 bg-blue-500 text-white rounded  mx-auto flex sm:mt-6 mt-1 in-w-56 min-h-10 ${
-              isLoading ? "cursor-not-allowed opacity-60" : "hover:bg-blue-600"
+            className={`btn-base btn-primary-solid mx-auto flex sm:mt-6 mt-1 min-w-56 min-h-10 ${
+              isLoading ? "cursor-not-allowed opacity-60" : ""
             }`}
             disabled={isLoading}
           >
@@ -321,13 +321,13 @@ export default function GenerateIkigaiForm({
           <button
             type="button"
             onClick={() => router?.push("/ikigai-finder")}
-            className={`px-6 py-2 bg-gray-200 text-gray-700 rounded-sm hover:bg-gray-300 disabled:cursor-not-allowed disabled:opacity-60`}
+            className={`btn-base btn-neutral-solid rounded-sm`}
           >
             Back
           </button>
           <button
             onClick={handleSaveMyIkigai}
-            className={`px-6 py-2 bg-blue-500 text-white rounded-sm hover:bg-blue-600 disabled:cursor-not-allowed disabled:opacity-60`}
+            className={`btn-base btn-primary-solid rounded-sm disabled:cursor-not-allowed disabled:opacity-60`}
             disabled={isLoading || !selectedIkigai}
           >
             Save Ikigai
