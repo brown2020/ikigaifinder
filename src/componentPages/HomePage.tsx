@@ -2,7 +2,6 @@
 import React, { useState } from "react";
 import HomeHeroSection from "@/components/HomeHeroSection";
 import IkigaiExplainer from "@/components/IkigaiExplainer";
-import DemoImageSlick from "@/components/DemoImageSlick";
 import AuthComponent from "@/components/AuthComponent";
 import HowItWorks from "@/components/HowItWorks";
 import Features from "@/components/Features";
