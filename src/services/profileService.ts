@@ -95,3 +95,4 @@ export const updateProfileData = async (
   return updatedProfile;
 };
 
+

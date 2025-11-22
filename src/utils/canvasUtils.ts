@@ -4,6 +4,8 @@ import { getDownloadURL, ref, uploadBytes } from "firebase/storage";
 import { storage } from "@/firebase/firebaseClient";
 
 // Helper function to temporarily replace oklch colors with fallback colors
+const UNSUPPORTED_COLOR_TOKENS = ["oklch(", "lab(", "lch("];
+
 const prepareElementForCapture = (element: HTMLElement): (() => void) => {
   // Store original styles to restore later
   interface StyleChange {
@@ -18,6 +20,8 @@ const prepareElementForCapture = (element: HTMLElement): (() => void) => {
   const colorProperties = [
     "color",
     "background-color",
+    "background",
+    "background-image",
     "border-color",
     "border-top-color",
     "border-right-color",
@@ -28,6 +32,8 @@ const prepareElementForCapture = (element: HTMLElement): (() => void) => {
     "caret-color",
     "fill",
     "stroke",
+    "box-shadow",
+    "text-shadow",
   ];
 
   // Process an element to replace oklch colors
@@ -37,8 +43,13 @@ const prepareElementForCapture = (element: HTMLElement): (() => void) => {
     // Check each color property for oklch
     for (const prop of colorProperties) {
       const value = computedStyle.getPropertyValue(prop);
+      const normalized = value?.toLowerCase() ?? "";
 
-      if (value && value.includes("oklch")) {
+      const hasUnsupportedColor = UNSUPPORTED_COLOR_TOKENS.some((token) =>
+        normalized.includes(token)
+      );
+
+      if (value && hasUnsupportedColor) {
         // Store original value
         styleChanges.push({
           element: el,
@@ -47,10 +58,14 @@ const prepareElementForCapture = (element: HTMLElement): (() => void) => {
         });
 
         // Apply fallback color based on property type
-        if (prop.includes("background")) {
+        if (prop === "background-image") {
+          el.style.setProperty(prop, "none");
+        } else if (prop.includes("background")) {
           el.style.setProperty(prop, "#ffffff"); // White for backgrounds
         } else if (prop.includes("border") || prop.includes("outline")) {
           el.style.setProperty(prop, "#cccccc"); // Light gray for borders
+        } else if (prop.includes("shadow")) {
+          el.style.setProperty(prop, "none");
         } else {
           el.style.setProperty(prop, "#000000"); // Black for text and other colors
         }
@@ -99,10 +114,7 @@ export const safeHtml2Canvas = async (element: HTMLElement, options = {}) => {
 export const captureAndUploadImage = async (uid: string, elementId: string) => {
   const domElement = document.getElementById(elementId);
   console.log("domElement", domElement);
-  if (!domElement) {
-    console.log("DOM element not found:", elementId);
-    return null;
-  }
+  if (!domElement) return null;
 
   try {
     const canvas = await safeHtml2Canvas(domElement, {
@@ -110,10 +122,6 @@ export const captureAndUploadImage = async (uid: string, elementId: string) => {
       useCORS: true,
       backgroundColor: null,
       scale: 1,
-      width: domElement.offsetWidth,
-      height: domElement.offsetHeight,
-      scrollX: 0,
-      scrollY: 0,
       windowWidth: window.innerWidth,
       windowHeight: window.innerHeight
     });
@@ -121,7 +129,7 @@ export const captureAndUploadImage = async (uid: string, elementId: string) => {
     return new Promise<string | null>((resolve, reject) => {
       canvas.toBlob(async (blob) => {
         if (blob === null) {
-          console.log("Canvas is empty or not properly initialized");
+          console.error("Canvas is empty or not properly initialized");
           return resolve(null);
         }
 
@@ -134,13 +142,13 @@ export const captureAndUploadImage = async (uid: string, elementId: string) => {
           const downloadUrl = await getDownloadURL(fileRef);
           resolve(downloadUrl);
         } catch (error) {
-          console.log("Error uploading image:", error);
+          console.error("Error uploading image:", error);
           reject(null);
         }
       });
     });
   } catch (error) {
-    console.log("Error capturing canvas:", error);
+    console.error("Error capturing image:", error);
     return null;
   }
 };

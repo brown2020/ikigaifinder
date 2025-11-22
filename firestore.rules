@@ -1,0 +1,35 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // Helper function to check if the user is authenticated and accessing their own data
+    function isOwner(userId) {
+      return request.auth != null && request.auth.uid == userId;
+    }
+
+    // User Data Collection
+    match /ikigaiUsers/{userId} {
+      // Allow owner to read/write their own user document (e.g. auth details)
+      allow read, write: if isOwner(userId);
+      
+      // Ikigai Subcollection
+      match /ikigai/{docId} {
+        // Allow owner to read/write all documents
+        // Allow public read ONLY for the 'main' document IF it is marked as sharable
+        allow read: if isOwner(userId) || (docId == 'main' && resource.data.ikigaiSharableUrl == true);
+        allow write: if isOwner(userId);
+      }
+      
+      // Settings/Profile Subcollection
+      match /settings/{document=**} {
+        allow read, write: if isOwner(userId);
+      }
+    }
+
+    // Profiles/Covers Collection (History)
+    match /ikigaiProfiles/{userId}/{document=**} {
+      allow read, write: if isOwner(userId);
+    }
+  }
+}
+

@@ -117,7 +117,7 @@ export default function ProfileComponent2() {
             <input
               className="px-3 py-2 text-black border border-gray-700 rounded-md"
               type="text"
-              value={newProfile.firstName}
+              value={newProfile.firstName || ""}
               onChange={(e) =>
                 setNewProfile({ ...newProfile, firstName: e.target.value })
               }
@@ -128,7 +128,7 @@ export default function ProfileComponent2() {
             <input
               className="px-3 py-2 text-black border border-gray-700 rounded-md"
               type="text"
-              value={newProfile.lastName}
+              value={newProfile.lastName || ""}
               onChange={(e) =>
                 setNewProfile({ ...newProfile, lastName: e.target.value })
               }
@@ -140,7 +140,7 @@ export default function ProfileComponent2() {
           <input
             className="px-3 py-2 text-black border border-gray-700 rounded-md w-full"
             type="text"
-            value={newProfile.contactEmail}
+            value={newProfile.contactEmail || ""}
             onChange={(e) =>
               setNewProfile({ ...newProfile, contactEmail: e.target.value })
             }

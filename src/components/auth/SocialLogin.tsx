@@ -34,3 +34,4 @@ export default function SocialLogin({ onSuccess }: { onSuccess: () => void }) {
   );
 }
 
+

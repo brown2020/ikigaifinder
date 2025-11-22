@@ -111,15 +111,11 @@ export default function GenerateIkigaiImage() {
         console.log(
           "Failed to capture and upload image - no download URL received"
         );
-        // Still redirect even if image capture fails
-        console.log("Redirecting anyway to:", `/ikigai/${uid}`);
-        router?.replace(`/ikigai/${uid}`);
+        alert("Failed to generate image. Please try again.");
       }
     } catch (error) {
       console.log("Error in handleSaveToProfile:", error);
-      // Still redirect even if there's an error
-      console.log("Redirecting despite error to:", `/ikigai/${uid}`);
-      router?.replace(`/ikigai/${uid}`);
+      alert("An error occurred while saving. Please try again.");
     } finally {
       setSaving(false);
     }
