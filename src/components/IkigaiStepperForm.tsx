@@ -148,12 +148,37 @@ const IkigaiStepperForm: React.FC = () => {
 
           {/* Stepper navigation bar */}
           <div className="flex items-center justify-center gap-2 mt-6">
-            {formData.map((item, index) => {
+            {Array.from({ length: 6 }).map((_, index) => {
               const stepIndex = index + 1;
-              const isDataExit = item?.questions.every(
-                (question) => question.answer && question.answer?.length > 0
-              );
-              const isCurrentStep = step - 1 === index;
+              let isDataExit = false;
+              let isCurrentStep = false;
+              let isDisabled = true;
+              let handleClick = () => {};
+
+              if (stepIndex <= 4) {
+                const item = formData[index];
+                isDataExit = item?.questions.every(
+                  (question) => question.answer && question.answer?.length > 0
+                );
+                isCurrentStep = step === stepIndex;
+                isDisabled = stepIndex > step && !isDataExit;
+                handleClick = () => handleStepClick(stepIndex);
+              } else if (stepIndex === 5) {
+                const allQuestionsAnswered = formData.every((item) =>
+                  item.questions.every((q) => q.answer && q.answer.length > 0)
+                );
+                isDataExit = allQuestionsAnswered;
+                isCurrentStep = false;
+                isDisabled = !allQuestionsAnswered;
+                handleClick = () => router.push("/generate-ikigai");
+              } else if (stepIndex === 6) {
+                const hasSelected = !!fetchIkigaiData?.ikigaiSelected;
+                isDataExit = hasSelected;
+                isCurrentStep = false;
+                isDisabled = !hasSelected;
+                handleClick = () => router.push("/generate-ikigai?step=image");
+              }
+
               return (
                 <div key={stepIndex} className="flex items-center">
                   <button
@@ -161,12 +186,12 @@ const IkigaiStepperForm: React.FC = () => {
                     className={`h-8 w-8 flex items-center justify-center rounded-full focus:outline-hidden ${
                       isCurrentStep
                         ? "bg-blue-600 text-white"
-                        : stepIndex <= step || isDataExit
+                        : !isDisabled
                         ? "bg-blue-100 text-blue-600 hover:bg-blue-200 cursor-pointer"
                         : "bg-gray-300 text-gray-700"
                     }`}
-                    onClick={() => handleStepClick(stepIndex)}
-                    disabled={stepIndex > step && !isDataExit}
+                    onClick={handleClick}
+                    disabled={isDisabled}
                   >
                     {stepIndex}
                   </button>

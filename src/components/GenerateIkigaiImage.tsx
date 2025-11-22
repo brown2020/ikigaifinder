@@ -174,7 +174,13 @@ export default function GenerateIkigaiImage() {
           <ImageSelector />
         </div>
 
-        <div className="flex justify-end">
+        <div className="flex justify-between gap-4 flex-wrap">
+          <button
+            onClick={() => router.push("/generate-ikigai")}
+            className="btn-base btn-neutral-solid min-w-36 mt-3 sm:w-fit w-full"
+          >
+            Back to Ideas
+          </button>
           <button
             onClick={handleSaveToProfile}
             className={`btn-base btn-primary-solid min-w-36 mt-3 sm:w-fit w-full`}
