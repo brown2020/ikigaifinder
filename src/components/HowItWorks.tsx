@@ -1,4 +1,3 @@
-"use client";
 import React from "react";
 import { Brain, ListChecks, Share2 } from "lucide-react";
 import SectionHeader from "@/components/SectionHeader";

@@ -3,10 +3,12 @@ import React from "react";
 import { Heart, Medal, PencilRuler, Rocket } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useAuthStore } from "@/zustand";
+import { useAuthModal } from "@/context/AuthModalContext";
 
 export default function IkigaiExplainer() {
   const router = useRouter();
   const { uid } = useAuthStore();
+  const { openModal } = useAuthModal();
 
   const items = [
     {
@@ -94,7 +96,7 @@ export default function IkigaiExplainer() {
             onClick={
               uid
                 ? () => router.push("/ikigai-finder")
-                : () => router.push("/loginfinish")
+                : openModal
             }
           >
             {uid ? "Create your card" : "Sign in to create your card"}

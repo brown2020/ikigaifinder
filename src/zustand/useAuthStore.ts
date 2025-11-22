@@ -1,5 +1,4 @@
-import { db } from "@/firebase/firebaseClient";
-import { Timestamp, doc, setDoc, serverTimestamp } from "firebase/firestore";
+import { Timestamp } from "firebase/firestore";
 import { create } from "zustand";
 
 export interface AuthState {
@@ -38,11 +37,10 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
   selectedName: "",
   premium: false,
 
-  setAuthDetails: async (details: Partial<AuthState>) => {
+  setAuthDetails: (details: Partial<AuthState>) => {
     const { ...oldState } = get();
     const newState = { ...oldState, ...details };
     set(newState);
-    await updateUserDetailsInFirestore(newState, get().uid);
   },
 
   clearAuthDetails: () =>
@@ -61,26 +59,3 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
       premium: false,
     }),
 }));
-
-async function updateUserDetailsInFirestore(
-  details: Partial<AuthState>,
-  uid: string
-) {
-  if (uid) {
-    const userRef = doc(db, `ikigaiUsers/${uid}`);
-
-    // Filter only serializable fields
-    const serializableDetails = JSON.parse(JSON.stringify(details));
-
-    try {
-      await setDoc(
-        userRef,
-        { ...serializableDetails, lastSignIn: serverTimestamp() },
-        { merge: true }
-      );
-      console.log("Auth details updated successfully in Firestore.");
-    } catch (error) {
-      console.log("Error updating auth details in Firestore:", error);
-    }
-  }
-}

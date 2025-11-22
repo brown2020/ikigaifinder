@@ -8,6 +8,9 @@ import { useInitializeStores } from "@/zustand";
 import ErrorBoundary from "./ErrorBoundary";
 import useAuthToken from "@/hook/useAuthToken";
 
+import { AuthModalProvider } from "@/context/AuthModalContext";
+import AuthModal from "@/components/auth/AuthModal";
+
 export function ClientProvider({ children }: { children: React.ReactNode }) {
   const { loading } = useAuthToken(process.env.NEXT_PUBLIC_COOKIE_NAME!);
   useInitializeStores();
@@ -56,15 +59,18 @@ export function ClientProvider({ children }: { children: React.ReactNode }) {
 
   return (
     <ErrorBoundary>
-      <div className="flex flex-col h-full">
-        {children}
-        {!window.ReactNativeWebView && (
-          <CookieConsent>
-            This app uses cookies to enhance the user experience.
-          </CookieConsent>
-        )}
-        <Toaster position="top-right" />
-      </div>
+      <AuthModalProvider>
+        <div className="flex flex-col h-full">
+          {children}
+          {!window.ReactNativeWebView && (
+            <CookieConsent>
+              This app uses cookies to enhance the user experience.
+            </CookieConsent>
+          )}
+          <Toaster position="top-right" />
+          <AuthModal />
+        </div>
+      </AuthModalProvider>
     </ErrorBoundary>
   );
 }

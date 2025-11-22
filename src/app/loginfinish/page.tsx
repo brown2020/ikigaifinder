@@ -7,6 +7,7 @@ import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 import { FirebaseError } from "firebase/app";
 import useProfileStore from "@/zustand/useProfileStore";
+import { updateUserDetailsInFirestore } from "@/services/userService";
 
 export default function LoginFinishPage() {
   const router = useRouter();
@@ -64,12 +65,14 @@ export default function LoginFinishPage() {
           selectedName
         );
 
-        setAuthDetails({
+        const authDetails = {
           uid,
           authEmail,
           selectedName,
           offersOptIn,
-        });
+        };
+        setAuthDetails(authDetails);
+        updateUserDetailsInFirestore(authDetails, uid);
         updateProfile({ firstName: selectedName });
       } catch (error) {
         let errorMessage = "Unknown error signing in";

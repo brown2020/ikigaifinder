@@ -1,8 +1,7 @@
 import { create } from "zustand";
-import { doc, getDoc, setDoc } from "firebase/firestore";
-import { db } from "@/firebase/firebaseClient";
 import { useAuthStore } from "@/zustand/useAuthStore";
 import { AnswerType } from "@/types/question";
+import { fetchProfileData, updateProfileData } from "@/services/profileService";
 
 export type ProfileType = {
   email: string;
@@ -43,7 +42,7 @@ const defaultProfile: ProfileType = {
   answers: [],
 };
 
-const useProfileStore = create<ProfileState>((set) => ({
+const useProfileStore = create<ProfileState>((set, get) => ({
   profile: defaultProfile,
   ikigaiLoading: false,
 
@@ -51,66 +50,9 @@ const useProfileStore = create<ProfileState>((set) => ({
     const uid = useAuthStore.getState().uid;
     if (!uid) return;
     try {
-      const authEmail = useAuthStore.getState().authEmail;
-      const authDisplayName = useAuthStore.getState().authDisplayName;
-      const authPhotoUrl = useAuthStore.getState().authPhotoUrl;
-      const authEmailVerified = useAuthStore.getState().authEmailVerified;
-      const selectedName = useAuthStore.getState().selectedName;
-      const authFirstName =
-        selectedName || authDisplayName?.split(" ")[0] || "";
-      const authLastName = authDisplayName?.split(" ")[1] || "";
-
-      const userRef = doc(db, `ikigaiUsers/${uid}/settings/profile`);
-      const docSnap = await getDoc(userRef);
-
-      if (docSnap.exists() && docSnap.data().profile) {
-        const d = docSnap.data().profile;
-        set({
-          profile: {
-            email: authEmail || "",
-            contactEmail: d.contactEmail || authEmail || "",
-            displayName: d.displayName || authDisplayName || "",
-            photoUrl: d.photoUrl || authPhotoUrl || "",
-            emailVerified: authEmailVerified || false,
-            firstName: d.firstName || authFirstName || "",
-            lastName: d.lastName || authLastName || "",
-            headerUrl: d.headerUrl || "",
-            organization: d.organization || "",
-            title: d.title || "",
-            bio: d.bio || "",
-            interests: d.interests || "",
-            location: d.location || "",
-            website: d.website || "",
-            linkedin: d.linkedin || "",
-            purposeId: d.purposeId || "",
-            moonshotId: d.moonshotId || "",
-            answers: d.answers || [],
-          },
-        });
-      } else {
-        const newProfile = {
-          email: authEmail || "",
-          contactEmail: authEmail || "",
-          displayName: authDisplayName || "",
-          photoUrl: authPhotoUrl || "",
-          emailVerified: authEmailVerified || false,
-          firstName: authFirstName || "",
-          lastName: authLastName || "",
-          headerUrl: "",
-          organization: "",
-          title: "",
-          bio: "",
-          interests: "",
-          location: "",
-          website: "",
-          linkedin: "",
-          purposeId: "",
-          moonshotId: "",
-          answers: [],
-        };
-        await setDoc(userRef, { profile: newProfile });
-        set({ profile: newProfile });
-      }
+      // Pass current auth state to service
+      const profile = await fetchProfileData(uid, useAuthStore.getState());
+      set({ profile });
     } catch (error) {
       console.log("Error fetching or creating profile:", error);
     }
@@ -120,28 +62,15 @@ const useProfileStore = create<ProfileState>((set) => ({
     if (!uid) return;
 
     try {
-      const userRef = doc(db, `ikigaiUsers/${uid}/settings/profile`);
-      const oldFirstName = useProfileStore.getState().profile.firstName;
-      const authDisplayName = useAuthStore.getState().authDisplayName;
-      const selectedName = useAuthStore.getState().selectedName;
-      const authFirstName =
-        newProfile.firstName ||
-        selectedName ||
-        oldFirstName ||
-        authDisplayName?.split(" ")[0] ||
-        "";
+      const currentProfile = get().profile;
+      const updatedProfile = await updateProfileData(
+        uid, 
+        currentProfile, 
+        newProfile, 
+        useAuthStore.getState()
+      );
 
-      const profileFixed = { ...newProfile, firstName: authFirstName };
-
-      set((state) => ({
-        profile: { ...state.profile, ...profileFixed },
-      }));
-
-      const profileToUpdate = {
-        ...profileFixed,
-      };
-
-      await setDoc(userRef, { profile: profileToUpdate }, { merge: true });
+      set({ profile: updatedProfile });
       console.log("Profile updated successfully");
     } catch (error) {
       console.log("Error updating profile:", error);

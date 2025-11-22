@@ -4,15 +4,12 @@ import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useAuthStore } from "@/zustand";
 
-interface HomeHeroSectionT {
-  handleOpenAuthModal: () => void;
-}
+import { useAuthModal } from "@/context/AuthModalContext";
 
-export default function HomeHeroSection({
-  handleOpenAuthModal,
-}: HomeHeroSectionT) {
+export default function HomeHeroSection() {
   const router = useRouter();
   const { uid } = useAuthStore();
+  const { openModal } = useAuthModal();
   const handleScrollHowItWorks = () => {
     const el = document.getElementById("how-it-works");
     if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
@@ -57,7 +54,7 @@ export default function HomeHeroSection({
                 onClick={
                   uid
                     ? () => router.push("/ikigai-finder")
-                    : handleOpenAuthModal
+                    : openModal
                 }
                 autoFocus={!!uid}
               >
@@ -89,7 +86,7 @@ export default function HomeHeroSection({
             <button
               className={"btn-base btn-primary-solid w-fit"}
               onClick={
-                uid ? () => router.push("/ikigai-finder") : handleOpenAuthModal
+                uid ? () => router.push("/ikigai-finder") : openModal
               }
               autoFocus={!!uid}
             >

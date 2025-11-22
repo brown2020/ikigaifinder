@@ -9,6 +9,11 @@ import "./globals.css";
 export const metadata: Metadata = {
   title: "Ikigai Finder",
   description: "Find your Ikigai by answering a series of questions.",
+  icons: {
+    icon: "/assets/logo.svg",
+    shortcut: "/assets/logo.svg",
+    apple: "/assets/logo.svg",
+  },
 };
 
 export default function RootLayout({

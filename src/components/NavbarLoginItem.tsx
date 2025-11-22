@@ -1,18 +1,16 @@
 "use client";
 import { LogIn } from "lucide-react";
-import { useState } from "react";
-import AuthComponent from "./AuthComponent";
 import Image from "next/image";
+import { useAuthModal } from "@/context/AuthModalContext";
 
 export default function NavbarLoginItem() {
-  const [isOpenAuthModal, setIsOpenAuthModal] = useState<boolean>(false);
+  const { openModal } = useAuthModal();
 
-  const handleOpenAuthModal = () => setIsOpenAuthModal(true);
   return (
     <div>
       <div
         className="flex items-center gap-1 px-3 cursor-pointer"
-        onClick={handleOpenAuthModal}
+        onClick={openModal}
       >
         <div className="hidden md:flex items-center gap-1 px-3">
             
@@ -29,12 +27,6 @@ export default function NavbarLoginItem() {
           className="filter invert md:hidden block"
         />
       </div>
-      {isOpenAuthModal && (
-        <AuthComponent
-          isOpenModal={isOpenAuthModal}
-          onCloseModal={() => setIsOpenAuthModal(false)}
-        />
-      )}
     </div>
   );
 }

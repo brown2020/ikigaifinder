@@ -31,7 +31,7 @@ export async function generateIkigai(
   ];
 
   const result = streamText({
-    model: openai("gpt-4.1"),
+    model: openai("gpt-4o"),
     messages,
   });
 

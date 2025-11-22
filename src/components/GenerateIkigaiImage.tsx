@@ -4,8 +4,7 @@ import Image from "next/image";
 import Select from "react-select";
 import { artStyles } from "@/constants/questions";
 import { selectStyles } from "@/constants/selectStyles";
-import { Timestamp, collection, doc, setDoc } from "firebase/firestore";
-import { db } from "@/firebase/firebaseClient";
+import { Timestamp } from "firebase/firestore";
 import { useAuthStore, useIkigaiStore, useProfileStore } from "@/zustand";
 import { generatePrompt } from "@/utils/promptUtils";
 import { generateImage } from "@/lib/generateImage";
@@ -14,6 +13,7 @@ import ImageSelector from "./ImageSelector";
 import { captureAndUploadImage } from "@/utils/canvasUtils";
 import { PulseLoader } from "react-spinners";
 import { useRouter } from "next/navigation";
+import { saveGeneratedImageHistory } from "@/services/ikigaiService";
 
 export type PromptDataType = {
   style?: string;
@@ -51,20 +51,11 @@ export default function GenerateIkigaiImage() {
   ) {
     if (!uid) return;
 
-    const coll = collection(db, "ikigaiProfiles", uid, "covers");
-    const docRef = doc(coll);
-    const p: PromptDataType = {
-      ...promptData,
-      downloadUrl: downloadUrl,
-      prompt: prompt,
-      id: docRef.id,
-      timestamp: Timestamp.now(),
-    };
+    const p = await saveGeneratedImageHistory(uid, promptData, prompt, downloadUrl);
     setPromptData(p);
     updateIkigai({
       ikigaiImage: downloadUrl,
     });
-    await setDoc(docRef, p);
   }
 
   const handleGenerateSDXL = async (e: React.FormEvent<HTMLButtonElement>) => {

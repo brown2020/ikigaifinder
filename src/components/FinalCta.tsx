@@ -2,10 +2,12 @@
 import React from "react";
 import { useRouter } from "next/navigation";
 import { useAuthStore } from "@/zustand";
+import { useAuthModal } from "@/context/AuthModalContext";
 
 export default function FinalCta() {
   const router = useRouter();
   const { uid } = useAuthStore();
+  const { openModal } = useAuthModal();
   return (
     <section className="sm:px-10 px-5 py-12">
       <div className="container mx-auto sm:px-4">
@@ -25,7 +27,7 @@ export default function FinalCta() {
               onClick={
                 uid
                   ? () => router.push("/ikigai-finder")
-                  : () => router.push("/loginfinish")
+                  : openModal
               }
             >
               {uid ? "Open Ikigai Finder" : "Create free account"}

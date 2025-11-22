@@ -1,3 +1,4 @@
+import { Timestamp } from "firebase/firestore";
 import { QuestionStepper } from "./question";
 
 export interface navItemType {
@@ -18,7 +19,7 @@ export interface questionStepT {
   questions: QuestionStepper[];
 }
 
-export  interface ikigaiDataT {
+export interface ikigaiDataT {
   ikigai: string;
   Passion: number;
   Profession: number;
@@ -26,3 +27,15 @@ export  interface ikigaiDataT {
   Mission: number;
   OverallCompatibility: number;
 }
+
+export type ikigaiType = {
+  id: string;
+  answers: questionStepT[];
+  createdAt?: Timestamp;
+  updatedAt?: Timestamp;
+  ikigaiOptions: ikigaiDataT[];
+  ikigaiSelected: ikigaiDataT | null;
+  ikigaiGuidance: string;
+  ikigaiImage: string;
+  ikigaiCoverImage: string;
+};

@@ -5,6 +5,7 @@ import { debounce } from "lodash";
 import { useAuthStore } from "@/zustand/useAuthStore";
 import { auth } from "@/firebase/firebaseClient";
 import { useAuthState } from "react-firebase-hooks/auth";
+import { updateUserDetailsInFirestore } from "@/services/userService";
 
 const useAuthToken = (cookieName = "authToken") => {
   const [user, loading, error] = useAuthState(auth);
@@ -72,7 +73,7 @@ const useAuthToken = (cookieName = "authToken") => {
 
   useEffect(() => {
     if (user?.uid) {
-      setAuthDetails({
+      const authDetails = {
         uid: user.uid,
         authEmail: user.email || "",
         authDisplayName: user.displayName || "",
@@ -80,7 +81,10 @@ const useAuthToken = (cookieName = "authToken") => {
         authEmailVerified: user.emailVerified || false,
         authReady: true,
         authPending: false,
-      });
+      };
+      setAuthDetails(authDetails);
+      // Sync to Firestore
+      updateUserDetailsInFirestore(authDetails, user.uid);
     } else {
       clearAuthDetails();
       deleteCookie(cookieName);

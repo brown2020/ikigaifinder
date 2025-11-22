@@ -1,4 +1,3 @@
-"use client";
 import React from "react";
 import { ShieldCheck, Zap, Download, Palette } from "lucide-react";
 import SectionHeader from "@/components/SectionHeader";

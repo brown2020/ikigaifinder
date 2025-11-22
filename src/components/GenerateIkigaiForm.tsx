@@ -1,8 +1,6 @@
 "use client";
 
-import { generateIkigai } from "@/lib/generateIkigai";
 import { useIkigaiStore } from "@/zustand";
-import { readStreamableValue } from "@ai-sdk/rsc";
 import {
   Heart,
   Info,
@@ -13,11 +11,12 @@ import {
   Target,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { ClipLoader, PulseLoader } from "react-spinners";
 import { Tooltip } from "react-tooltip";
 import CircularProgressWithIcon from "./CircularProgressWithIcon";
-import { ikigaiDataT, questionStepT } from "@/types/interface";
+import { ikigaiDataT } from "@/types/interface";
+import { useIkigaiGenerator } from "@/hooks/useIkigaiGenerator";
 
 interface GenerateIkigaiFormT {
   setIsSaveIkigai: (val: boolean) => void;
@@ -30,18 +29,18 @@ export default function GenerateIkigaiForm({
   const fetchIkigaiData = useIkigaiStore((s) => s.ikigaiData);
   const updateIkigai = useIkigaiStore((s) => s.updateIkigai);
   const ikigaiLoading = useIkigaiStore((s) => s.ikigaiLoading);
+  
   const [ikigaiData, setIkigaiData] = useState<ikigaiDataT[]>([]);
-  const [isLoading, setIsLoading] = useState<boolean>(false);
   const [guidance, setGuidance] = useState<string>("");
-  const [selectedIkigai, setSelectedIkigai] = useState<ikigaiDataT | null>(
-    null
-  );
+  const [selectedIkigai, setSelectedIkigai] = useState<ikigaiDataT | null>(null);
   const [isSticky, setIsSticky] = useState(false);
-  const resultsContainerRef = useRef<HTMLDivElement>(null);
-  const resultEndRef = useRef<HTMLDivElement | null>(null);
-  useEffect(() => {
-    resultEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [ikigaiData]);
+  
+  const { generate, isLoading, resultEndRef } = useIkigaiGenerator({
+    ikigaiData,
+    setIkigaiData,
+    guidance,
+  });
+
   const isIkigaiDataExit = useMemo(() => {
     return fetchIkigaiData?.answers
       ?.map((item) => item?.questions)
@@ -49,70 +48,9 @@ export default function GenerateIkigaiForm({
       ?.every((question) => question.answer && question.answer?.length > 0);
   }, [fetchIkigaiData?.answers]);
 
-  const extractIkigaiData = (text: string) => {
-    const ikigaiArray = [];
-    const regex =
-      /(\d+)\.\s*(.*?)\n\s*-\s*Passion & Profession:\s*(\d+(?:\.\d+)?)%\s*-\s*Profession & Vocation:\s*(\d+(?:\.\d+)?)%\s*-\s*Vocation & Mission:\s*(\d+(?:\.\d+)?)%\s*-\s*Passion & Mission:\s*(\d+(?:\.\d+)?)%\s*-\s*Overall Compatibility:\s*(\d+(?:\.\d+)?)%/g;
-
-    let match;
-    while ((match = regex.exec(text)) !== null) {
-      ikigaiArray.push({
-        ikigai: match[2].trim(),
-        Passion: parseFloat(match[3]),
-        Profession: parseFloat(match[4]),
-        Vocation: parseFloat(match[5]),
-        Mission: parseFloat(match[6]),
-        OverallCompatibility: parseFloat(match[7]),
-      });
-    }
-
-    return ikigaiArray;
-  };
-
-  const getGenerateIkigaiResult = async (
-    updatedStepperData: questionStepT[]
-  ) => {
-    setIsLoading(true);
-    const questionData = updatedStepperData.map((item) => {
-      const questions = item.questions.map((q) => {
-        return {
-          question: q.label,
-          answer: q.answer || [],
-        };
-      });
-      return {
-        id: item.id,
-        questions,
-      };
-    });
-
-    const coustomPrompt = guidance
-      ? `Incorporate the following additional guidance in shaping your response: ${guidance}`
-      : "";
-    const result = await generateIkigai(questionData, coustomPrompt);
-
-    for await (const content of readStreamableValue(result)) {
-      if (content) {
-        const ikigaiList = extractIkigaiData(content);
-        if (ikigaiList.length >= 5) {
-          setIsLoading(false);
-        }
-
-        const data = [...ikigaiData, ...ikigaiList]?.filter(
-          (item, index, self) =>
-            index === self.findIndex((t) => t.ikigai === item.ikigai)
-        );
-
-        setIkigaiData(data);
-        resultEndRef.current?.scrollIntoView({ behavior: "smooth" });
-      }
-    }
-    setIsLoading(false);
-  };
-
   useEffect(() => {
     if (isIkigaiDataExit && !fetchIkigaiData?.ikigaiOptions?.length) {
-      getGenerateIkigaiResult(fetchIkigaiData?.answers);
+      generate(fetchIkigaiData?.answers);
     }
     if (fetchIkigaiData?.ikigaiOptions?.length) {
       setIkigaiData(fetchIkigaiData?.ikigaiOptions);
@@ -127,7 +65,7 @@ export default function GenerateIkigaiForm({
   };
 
   const handleGenerateIkigai = () => {
-    getGenerateIkigaiResult(fetchIkigaiData?.answers);
+    generate(fetchIkigaiData?.answers);
   };
 
   const handleSaveMyIkigai = () => {
@@ -251,7 +189,7 @@ export default function GenerateIkigaiForm({
         </div>
       </div>
 
-      <div className="w-full max-w-3xl mt-6" ref={resultsContainerRef}>
+      <div className="w-full max-w-3xl mt-6">
         {ikigaiData.length > 0 ? (
           <div className="flex flex-col md:p-4 md:border rounded-md w-full max-w-3xl">
             <ul className=" overflow-y-auto min-h-[350px] text-gray-600 ">
