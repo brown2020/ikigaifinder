@@ -1,32 +1,30 @@
 "use client";
-import { LogIn } from "lucide-react";
-import Image from "next/image";
-import { useAuthModal } from "@/context/AuthModalContext";
 
-export default function NavbarLoginItem() {
-  const { openModal } = useAuthModal();
+import React from "react";
+import { LogIn } from "lucide-react";
+import { useUIStore } from "@/zustand";
+
+// ============================================================================
+// Component
+// ============================================================================
+
+/**
+ * Navbar Login Item Component
+ * 
+ * Renders a sign-in button in the navbar for unauthenticated users
+ */
+export default function NavbarLoginItem(): React.ReactElement {
+  const openAuthModal = useUIStore((state) => state.openAuthModal);
 
   return (
-    <div>
-      <div
-        className="flex items-center gap-1 px-3 cursor-pointer"
-        onClick={openModal}
-      >
-        <div className="hidden md:flex items-center gap-1 px-3">
-            
-          <div className="aspect-square">
-            <LogIn size={28} className="h-full object-cover text-2xl w-7" />
-          </div>
-          <div className="text-lx font-medium hidden md:block">Sign In</div>
-        </div>
-        <Image
-          src={"/assets/enter.png"}
-          alt="profile"
-          width={30}
-          height={30}
-          className="filter invert md:hidden block"
-        />
-      </div>
-    </div>
+    <button
+      onClick={() => openAuthModal()}
+      className="flex items-center gap-2 px-4 py-2 text-white hover:bg-blue-700 rounded-lg transition-colors duration-200"
+      type="button"
+      aria-label="Sign in"
+    >
+      <LogIn size={20} />
+      <span className="hidden sm:inline">Sign In</span>
+    </button>
   );
 }

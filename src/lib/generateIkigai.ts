@@ -1,40 +1,76 @@
 "use server";
 
 import { createStreamableValue } from "@ai-sdk/rsc";
-import { ModelMessage, streamText } from "ai";
+import { streamText } from "ai";
 import { openai } from "@ai-sdk/openai";
-import { IKIGAI_SYSTEMPROMPT2 } from "../constants/systemPrompt";
+import { IKIGAI_SYSTEMPROMPT2 } from "@/constants/systemPrompt";
 
-type questionsAnswersT = {
+// ============================================================================
+// Types
+// ============================================================================
+
+interface QuestionAnswer {
   question: string;
   answer: string[];
-};
+}
 
-type questionsT = {
+interface QuestionSection {
   id: string;
-  questions: questionsAnswersT[];
-};
+  questions: QuestionAnswer[];
+}
 
+interface GenerateMessage {
+  role: "system" | "user";
+  content: string;
+}
+
+// ============================================================================
+// Constants
+// ============================================================================
+
+const DEFAULT_CLIENT_PROMPT = `Analyze the provided data about my interests, skills, aspirations, and potential career paths. Generate 5 unique ikigai statements that combine what I love, what I'm good at, what the world needs, and what I could be paid for, presenting each as a complete sentence without labels.
+
+For each ikigai statement, calculate and provide the percentage match between: passion & profession, profession & vocation, vocation & mission, passion & mission and Overall compatibility. Present these percentages on separate lines.`;
+
+const AI_MODEL = "gpt-4o";
+
+// ============================================================================
+// Server Action
+// ============================================================================
+
+/**
+ * Generate Ikigai suggestions using AI
+ * 
+ * Uses OpenAI's GPT-4o to analyze user's survey responses and
+ * generate personalized Ikigai statements with compatibility scores.
+ * 
+ * @param questions - Array of question sections with answers
+ * @param customPrompt - Optional additional guidance for the AI
+ * @returns Streamable value for real-time response updates
+ */
 export async function generateIkigai(
-  questions: questionsT[],
+  questions: QuestionSection[],
   customPrompt = ""
 ) {
-  const systemPrompt = IKIGAI_SYSTEMPROMPT2;
-  const defaultClientPrompt = `${customPrompt}\n\nAnalyze the provided data about my interests, skills, aspirations, and potential career paths. Generate 5 unique ikigai statements that combine what I love, what I'm good at, what the world needs, and what I could be paid for, presenting each as a complete sentence without labels.
-  
-  For each ikigai statement, calculate and provide the percentage match between: passion & profession, profession & vocation, vocation & mission, passion & mission and Overall compatibility. Present these percentages on separate lines.`;
-  const userPrompt = `${JSON.stringify(questions)}\n\n\n${defaultClientPrompt}`;
+  // Build the user prompt
+  const guidanceSection = customPrompt ? `${customPrompt}\n\n` : "";
+  const questionsJson = JSON.stringify(questions, null, 2);
+  const userPrompt = `${questionsJson}\n\n${guidanceSection}${DEFAULT_CLIENT_PROMPT}`;
 
-  const messages: ModelMessage[] = [
-    { role: "system", content: systemPrompt },
+  // Prepare messages for the AI
+  const messages: GenerateMessage[] = [
+    { role: "system", content: IKIGAI_SYSTEMPROMPT2 },
     { role: "user", content: userPrompt },
   ];
 
+  // Stream the response
   const result = streamText({
-    model: openai("gpt-4o"),
+    model: openai(AI_MODEL),
     messages,
+    temperature: 0.7, // Add some creativity while maintaining coherence
   });
 
+  // Return a streamable value for real-time updates
   const stream = createStreamableValue(result.textStream);
   return stream.value;
 }

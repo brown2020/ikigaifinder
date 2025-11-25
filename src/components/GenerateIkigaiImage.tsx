@@ -1,168 +1,239 @@
 "use client";
-import { useState } from "react";
+
+import { useState, useCallback, useMemo } from "react";
 import Image from "next/image";
 import Select from "react-select";
+import { useRouter } from "next/navigation";
+import { PulseLoader } from "react-spinners";
+import toast from "react-hot-toast";
+import { Timestamp } from "firebase/firestore";
 import { artStyles } from "@/constants/questions";
 import { selectStyles } from "@/constants/selectStyles";
-import { Timestamp } from "firebase/firestore";
 import { useAuthStore, useIkigaiStore, useProfileStore } from "@/zustand";
 import { generatePrompt } from "@/utils/promptUtils";
 import { generateImage } from "@/lib/generateImage";
+import { saveGeneratedImageHistory } from "@/services/ikigaiService";
+import { captureAndUploadImage } from "@/utils/canvasUtils";
+import { containsRestrictedContent } from "@/utils/platform";
 import SVGOverlay from "./SVGOverlay";
 import ImageSelector from "./ImageSelector";
-import { captureAndUploadImage } from "@/utils/canvasUtils";
-import { PulseLoader } from "react-spinners";
-import { useRouter } from "next/navigation";
-import { saveGeneratedImageHistory } from "@/services/ikigaiService";
+import IkigaiStepper from "./IkigaiStepper";
+import type { ImagePromptData } from "@/types";
 
-export type PromptDataType = {
-  style?: string;
-  mindset?: string;
-  grandChallenge?: string;
-  exponentialTechnology?: string;
-  freestyle?: string;
-  downloadUrl?: string;
-  prompt?: string;
-  timestamp?: Timestamp;
-  id?: string;
-};
+// ============================================================================
+// Utilities
+// ============================================================================
 
-export default function GenerateIkigaiImage() {
+/**
+ * Convert a Firestore timestamp (or timestamp-like object) to a Date
+ */
+function toDate(timestamp: unknown): Date | null {
+  if (!timestamp) return null;
+  
+  // Already a Date
+  if (timestamp instanceof Date) return timestamp;
+  
+  // Firestore Timestamp instance
+  if (timestamp instanceof Timestamp) return timestamp.toDate();
+  
+  // Plain object with seconds (from Firestore JSON)
+  if (typeof timestamp === "object" && "seconds" in timestamp) {
+    const ts = timestamp as { seconds: number; nanoseconds?: number };
+    return new Date(ts.seconds * 1000 + (ts.nanoseconds ?? 0) / 1000000);
+  }
+  
+  return null;
+}
+
+// ============================================================================
+// Component
+// ============================================================================
+
+export default function GenerateIkigaiImage(): React.ReactElement {
   const router = useRouter();
-  const { uid } = useAuthStore();
-  const fetchIkigaiData = useIkigaiStore((s) => s.ikigaiData);
-  const updateIkigai = useIkigaiStore((s) => s.updateIkigai);
-  const profile = useProfileStore((s) => s.profile);
-  const [imagePrompt, setImagePrompt] = useState<string>("");
-  const [imageStyle, setImageStyle] = useState<string>("");
-  const [loading, setLoading] = useState<boolean>(false);
-  const [saving, setSaving] = useState<boolean>(false);
-  const [promptData, setPromptData] = useState<PromptDataType>({
+
+  // Store state
+  const uid = useAuthStore((state) => state.uid);
+  const ikigaiData = useIkigaiStore((state) => state.ikigaiData);
+  const updateIkigai = useIkigaiStore((state) => state.updateIkigai);
+  const profile = useProfileStore((state) => state.profile);
+
+  // Local state
+  const [imagePrompt, setImagePrompt] = useState("");
+  const [imageStyle, setImageStyle] = useState("");
+  const [isGenerating, setIsGenerating] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
+  const [promptData, setPromptData] = useState<ImagePromptData>({
     style: "",
     freestyle: "",
     downloadUrl: "/assets/bg_image.webp",
     prompt: "",
   });
 
-  async function saveHistory(
-    promptData: PromptDataType,
-    prompt: string,
-    downloadUrl: string
-  ) {
-    if (!uid) return;
+  // Convert timestamp to Date safely
+  const updatedAtDate = useMemo(() => toDate(ikigaiData.updatedAt), [ikigaiData.updatedAt]);
 
-    const p = await saveGeneratedImageHistory(uid, promptData, prompt, downloadUrl);
-    setPromptData(p);
-    updateIkigai({
-      ikigaiImage: downloadUrl,
-    });
-  }
+  /**
+   * Save generated image to history
+   */
+  const saveHistory = useCallback(
+    async (data: ImagePromptData, prompt: string, downloadUrl: string): Promise<void> => {
+      if (!uid) return;
 
-  const handleGenerateSDXL = async (e: React.FormEvent<HTMLButtonElement>) => {
-    e.preventDefault();
-
-    try {
-      setLoading(true);
-      const prompt: string = generatePrompt(imagePrompt, imageStyle);
-
-      const response = await generateImage(prompt, uid);
-
-      const downloadURL = response.imageUrl;
-      if (!downloadURL) {
-        throw new Error("Error generating image");
+      try {
+        const saved = await saveGeneratedImageHistory(uid, data, prompt, downloadUrl);
+        setPromptData(saved);
+        await updateIkigai({ ikigaiImage: downloadUrl });
+      } catch (error) {
+        console.error("Failed to save image history:", error);
       }
-      await saveHistory(promptData, prompt, downloadURL);
-    } catch (error: unknown) {
-      if (error instanceof Error) {
-        console.log("Error generating image:", error.message);
-      } else {
-        console.log("An unknown error occurred during image generation.");
-      }
-    } finally {
-      setLoading(false);
-    }
-  };
+    },
+    [uid, updateIkigai]
+  );
 
-  const handleSaveToProfile = async () => {
-    try {
+  /**
+   * Handle image generation
+   */
+  const handleGenerateImage = useCallback(
+    async (event: React.FormEvent<HTMLButtonElement>): Promise<void> => {
+      event.preventDefault();
+
       if (!uid) {
-        console.log("No uid found, cannot save to profile");
+        toast.error("Please sign in to generate images");
         return;
       }
 
-      setSaving(true);
-      console.log("Starting image capture and upload...");
+      // Check for restricted content
+      if (containsRestrictedContent(imagePrompt)) {
+        toast.error("Your prompt contains inappropriate content. Please try again.");
+        return;
+      }
 
+      setIsGenerating(true);
+
+      try {
+        const prompt = generatePrompt(imagePrompt, imageStyle);
+        const response = await generateImage(prompt, uid);
+
+        if (response.error) {
+          toast.error(response.error);
+          return;
+        }
+
+        if (response.imageUrl) {
+          await saveHistory(promptData, prompt, response.imageUrl);
+          toast.success("Image generated successfully!");
+        }
+      } catch (error) {
+        console.error("Error generating image:", error);
+        toast.error("Failed to generate image. Please try again.");
+      } finally {
+        setIsGenerating(false);
+      }
+    },
+    [uid, imagePrompt, imageStyle, promptData, saveHistory]
+  );
+
+  /**
+   * Handle saving the ikigai image to profile
+   */
+  const handleSaveToProfile = useCallback(async (): Promise<void> => {
+    if (!uid) {
+      toast.error("Please sign in to save your Ikigai");
+      return;
+    }
+
+    setIsSaving(true);
+
+    try {
       const downloadUrl = await captureAndUploadImage(uid, "visualization");
-      console.log("Capture result:", downloadUrl);
 
       if (downloadUrl) {
-        console.log("Updating Ikigai with cover image:", downloadUrl);
         await updateIkigai({ ikigaiCoverImage: downloadUrl });
-        console.log("Ikigai update completed successfully");
+        toast.success("Ikigai saved successfully!");
 
-        // Add a small delay to ensure Firestore propagation
-        await new Promise((resolve) => setTimeout(resolve, 1000));
+        // Wait briefly for Firestore propagation
+        await new Promise((resolve) => setTimeout(resolve, 500));
 
-        console.log("Redirecting to:", `/ikigai/${uid}`);
-        // Use replace to force a fresh load of the page
-        router?.replace(`/ikigai/${uid}`);
+        router.replace(`/ikigai/${uid}`);
       } else {
-        console.log(
-          "Failed to capture and upload image - no download URL received"
-        );
-        alert("Failed to generate image. Please try again.");
+        toast.error("Failed to capture image. Please try again.");
       }
     } catch (error) {
-      console.log("Error in handleSaveToProfile:", error);
-      alert("An error occurred while saving. Please try again.");
+      console.error("Error saving to profile:", error);
+      toast.error("An error occurred while saving. Please try again.");
     } finally {
-      setSaving(false);
+      setIsSaving(false);
     }
-  };
+  }, [uid, updateIkigai, router]);
+
+  /**
+   * Handle navigation back
+   */
+  const handleBack = useCallback((): void => {
+    router.push("/generate-ikigai");
+  }, [router]);
 
   return (
-    <div className="p-10 grid md:grid-cols-2 grid-cols-1 gap-4">
-      <div className="w-full max-w-3xl">
-        <div>
-          <h1 className="text-3xl font-bold mb-4">
-            Let&apos;s make your Ikigai beautiful.
-          </h1>
+    <div className="p-10">
+      {/* Progress Stepper */}
+      <div className="w-full max-w-3xl mx-auto mb-6">
+        <IkigaiStepper currentStep={6} />
+      </div>
+
+      <div className="grid md:grid-cols-2 grid-cols-1 gap-4">
+        {/* Left Column - Form */}
+        <div className="w-full max-w-3xl">
+          <div>
+            <h1 className="text-3xl font-bold mb-4">
+              Let&apos;s make your Ikigai beautiful.
+            </h1>
+
           <p className="text-lg font-semibold mb-6">
             Create a background image that embodies your vision. Once
             you&apos;re done, you can save it, download it, or share your Ikigai
             on social media.
           </p>
+
           <p className="text-lg font-semibold mb-6">
             Type a description of the background image you desire for your
             Ikigai in this text box, or let the AI create an image based on your
             Ikigai alone.
           </p>
-          <textarea
-            className="w-full p-2 border border-gray-300 rounded-sm h-16 font-semibold "
-            autoComplete="on"
-            placeholder="Describe an image"
-            onChange={(e) => setImagePrompt(e.target.value)}
-          />
-          <div className="flex justify-between gap-2 sm:flex-row  flex-col items-end">
-            <div className="w-full sm:max-w-80">
-              <div>Artistic Style (optional)</div>
 
+          {/* Prompt Input */}
+          <textarea
+            className="w-full p-2 border border-gray-300 rounded-sm h-16 font-semibold"
+            autoComplete="on"
+            placeholder="Describe an image (e.g., 'A serene mountain landscape at sunset')"
+            onChange={(e) => setImagePrompt(e.target.value)}
+            value={imagePrompt}
+          />
+
+          {/* Style Select and Generate Button */}
+          <div className="flex justify-between gap-2 sm:flex-row flex-col items-end">
+            <div className="w-full sm:max-w-80">
+              <div className="mb-1 text-sm text-gray-600">
+                Artistic Style (optional)
+              </div>
               <Select
-                isClearable={true}
-                isSearchable={true}
+                isClearable
+                isSearchable
                 name="styles"
-                onChange={(v) => setImageStyle(v ? v.value : "")}
+                onChange={(option) => setImageStyle(option?.value ?? "")}
                 options={artStyles}
                 styles={selectStyles}
+                placeholder="Select a style..."
               />
             </div>
 
             <button
-              onClick={(e) => handleGenerateSDXL(e)}
-              className={`btn-base btn-primary-solid min-w-36 sm:w-fit w-full`}
+              onClick={handleGenerateImage}
+              className="btn-base btn-primary-solid min-w-36 sm:w-fit w-full"
+              disabled={isGenerating}
+              type="button"
             >
-              {loading ? (
+              {isGenerating ? (
                 <PulseLoader color="#fff" size={12} />
               ) : (
                 "Create Image"
@@ -170,22 +241,29 @@ export default function GenerateIkigaiImage() {
             </button>
           </div>
         </div>
+
+        {/* Image Selector */}
         <div className="mt-6">
           <ImageSelector />
         </div>
 
+        {/* Action Buttons */}
         <div className="flex justify-between gap-4 flex-wrap">
           <button
-            onClick={() => router.push("/generate-ikigai")}
+            onClick={handleBack}
             className="btn-base btn-neutral-solid min-w-36 mt-3 sm:w-fit w-full"
+            type="button"
           >
             Back to Ideas
           </button>
+
           <button
             onClick={handleSaveToProfile}
-            className={`btn-base btn-primary-solid min-w-36 mt-3 sm:w-fit w-full`}
+            className="btn-base btn-primary-solid min-w-36 mt-3 sm:w-fit w-full"
+            disabled={isSaving}
+            type="button"
           >
-            {saving ? (
+            {isSaving ? (
               <PulseLoader color="#fff" size={12} />
             ) : (
               "Save Ikigai Image"
@@ -194,27 +272,33 @@ export default function GenerateIkigaiImage() {
         </div>
       </div>
 
-      <div className="flex-1 flex items-center justify-center bg-gray-200">
-        <div
-          className="relative w-full aspect-square max-w-[600px] max-h-[600px]"
-          id="visualization"
-        >
-          <Image
-            className="object-cover w-full h-full"
-            src={fetchIkigaiData?.ikigaiImage || "/assets/bg_image.webp"}
-            alt="visualization"
-            fill
-            sizes="(max-width: 768px) 100vw, 50vw"
-          />
-          <div className="absolute inset-0 flex items-center justify-center">
-            <SVGOverlay
-              profileName={profile.firstName || ""}
-              ikigaiSelected={fetchIkigaiData?.ikigaiSelected}
-              updatedAt={fetchIkigaiData?.updatedAt?.toDate() || null}
+        {/* Right Column - Preview */}
+        <div className="flex-1 flex items-center justify-center bg-gray-200">
+          <div
+            className="relative w-full aspect-square max-w-[600px] max-h-[600px]"
+            id="visualization"
+          >
+            <Image
+              className="object-cover w-full h-full"
+              src={ikigaiData.ikigaiImage || "/assets/bg_image.webp"}
+              alt="Ikigai visualization background"
+              fill
+              sizes="(max-width: 768px) 100vw, 50vw"
+              priority
             />
+            <div className="absolute inset-0 flex items-center justify-center">
+              <SVGOverlay
+                profileName={profile.firstName ?? ""}
+                ikigaiSelected={ikigaiData.ikigaiSelected}
+                updatedAt={updatedAtDate}
+              />
+            </div>
           </div>
         </div>
       </div>
     </div>
   );
 }
+
+// Re-export type for backward compatibility
+export type { ImagePromptData as PromptDataType };

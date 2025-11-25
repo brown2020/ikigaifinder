@@ -1,13 +1,22 @@
 "use client";
-import React from "react";
-import { useRouter } from "next/navigation";
-import { useAuthStore } from "@/zustand";
-import { useAuthModal } from "@/context/AuthModalContext";
 
-export default function FinalCta() {
+import React, { useCallback } from "react";
+import { useRouter } from "next/navigation";
+import { useAuthStore, useUIStore } from "@/zustand";
+
+export default function FinalCta(): React.ReactElement {
   const router = useRouter();
-  const { uid } = useAuthStore();
-  const { openModal } = useAuthModal();
+  const uid = useAuthStore((state) => state.uid);
+  const openAuthModal = useUIStore((state) => state.openAuthModal);
+
+  const handleClick = useCallback((): void => {
+    if (uid) {
+      router.push("/ikigai-finder");
+    } else {
+      openAuthModal("/ikigai-finder");
+    }
+  }, [uid, router, openAuthModal]);
+
   return (
     <section className="sm:px-10 px-5 py-12">
       <div className="container mx-auto sm:px-4">
@@ -23,12 +32,9 @@ export default function FinalCta() {
               </p>
             </div>
             <button
-              className="btn-base btn-white"
-              onClick={
-                uid
-                  ? () => router.push("/ikigai-finder")
-                  : openModal
-              }
+              className="btn-base bg-white text-blue-600 hover:bg-blue-50"
+              onClick={handleClick}
+              type="button"
             >
               {uid ? "Open Ikigai Finder" : "Create free account"}
             </button>

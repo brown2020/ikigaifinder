@@ -1,37 +1,73 @@
 "use client";
+
 import React, { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { useAuthStore } from "@/zustand";
+import { useAuthStore, useUIStore } from "@/zustand";
 import { ClipLoader } from "react-spinners";
 
-export default function ProtectedRoute({ children }: { children: React.ReactNode }) {
+// ============================================================================
+// Types
+// ============================================================================
+
+interface ProtectedRouteProps {
+  children: React.ReactNode;
+  /** If true, opens auth modal instead of redirecting */
+  showModal?: boolean;
+  /** Custom redirect path when not authenticated */
+  redirectTo?: string;
+}
+
+// ============================================================================
+// Component
+// ============================================================================
+
+/**
+ * Protected Route Component
+ * 
+ * Wraps content that requires authentication.
+ * Redirects unauthenticated users to the home page or opens auth modal.
+ */
+export default function ProtectedRoute({
+  children,
+  showModal = false,
+  redirectTo = "/",
+}: ProtectedRouteProps): React.ReactElement {
   const router = useRouter();
   const { uid, authReady } = useAuthStore();
-  const [showLoading, setShowLoading] = useState(true);
+  const openAuthModal = useUIStore((state) => state.openAuthModal);
+  const [isAuthorized, setIsAuthorized] = useState(false);
 
   useEffect(() => {
-    // If auth is ready (initial check done)
-    if (authReady) {
-      if (!uid) {
-        router.push("/");
+    // Wait for auth state to be determined
+    if (!authReady) return;
+
+    if (!uid) {
+      if (showModal) {
+        // Open auth modal instead of redirecting
+        openAuthModal(typeof window !== "undefined" ? window.location.pathname : undefined);
       } else {
-        setShowLoading(false);
+        // Redirect to home/login page
+        router.push(redirectTo);
       }
     } else {
-        // Still waiting for auth state to be determined
-        // useAuthToken hook will set authReady=true when done
+      setIsAuthorized(true);
     }
-  }, [authReady, uid, router]);
+  }, [authReady, uid, router, showModal, redirectTo, openAuthModal]);
 
-  if (showLoading) {
-     return (
-      <div className="flex flex-col items-center justify-center h-screen w-full bg-white">
+  // Show loading while auth state is being determined
+  if (!authReady || (!uid && !isAuthorized)) {
+    return (
+      <div
+        className="flex flex-col items-center justify-center h-screen w-full bg-white"
+        role="status"
+        aria-label="Checking authentication"
+      >
         <ClipLoader color="#333b51" size={50} />
+        <span className="sr-only">Loading...</span>
       </div>
     );
   }
 
+  // Render children if authorized
   return <>{children}</>;
 }
-
-

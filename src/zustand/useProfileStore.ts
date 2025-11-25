@@ -1,81 +1,209 @@
 import { create } from "zustand";
-import { useAuthStore } from "@/zustand/useAuthStore";
-import { AnswerType } from "@/types/question";
+import { devtools } from "zustand/middleware";
+import { useAuthStore } from "./useAuthStore";
 import { fetchProfileData, updateProfileData } from "@/services/profileService";
+import type { UserProfile, SurveyAnswer } from "@/types";
 
-export type ProfileType = {
-  email: string;
-  contactEmail: string;
-  displayName: string;
-  photoUrl: string;
-  emailVerified: boolean;
-  firstName?: string;
-  lastName?: string;
-  headerUrl?: string;
-  organization?: string;
-  title?: string;
-  bio?: string;
-  interests?: string;
-  location?: string;
-  country?: string;
-  identifyWith?: string[];
-  website?: string;
-  linkedin?: string;
-  purposeId?: string;
-  moonshotId?: string;
-  answers: AnswerType[];
-};
+// ============================================================================
+// Types
+// ============================================================================
+
+/** @deprecated Use UserProfile from @/types instead */
+export type ProfileType = UserProfile;
 
 interface ProfileState {
-  profile: ProfileType;
-  ikigaiLoading: boolean;
-  fetchProfile: () => void;
-  updateProfile: (newProfile: Partial<ProfileType>) => void;
+  /** User profile data */
+  profile: UserProfile;
+  /** Whether profile is being loaded/saved */
+  isLoading: boolean;
+  /** Any error that occurred */
+  error: Error | null;
 }
 
-const defaultProfile: ProfileType = {
+interface ProfileActions {
+  /** Fetch profile from Firestore */
+  fetchProfile: () => Promise<void>;
+  /** Update profile in Firestore */
+  updateProfile: (data: Partial<UserProfile>) => Promise<void>;
+  /** Reset profile to default state */
+  resetProfile: () => void;
+  /** Clear any errors */
+  clearError: () => void;
+}
+
+type ProfileStore = ProfileState & ProfileActions;
+
+// ============================================================================
+// Default Values
+// ============================================================================
+
+const defaultProfile: UserProfile = {
   email: "",
   contactEmail: "",
   displayName: "",
   photoUrl: "",
   emailVerified: false,
-  answers: [],
+  firstName: "",
+  lastName: "",
+  headerUrl: "",
+  organization: "",
+  title: "",
+  bio: "",
+  interests: "",
+  location: "",
+  country: "",
+  identifyWith: [],
+  website: "",
+  linkedin: "",
+  purposeId: "",
+  moonshotId: "",
+  answers: [] as SurveyAnswer[],
 };
 
-const useProfileStore = create<ProfileState>((set, get) => ({
-  profile: defaultProfile,
-  ikigaiLoading: false,
+// ============================================================================
+// Store Implementation
+// ============================================================================
 
-  fetchProfile: async () => {
-    const uid = useAuthStore.getState().uid;
-    if (!uid) return;
-    try {
-      // Pass current auth state to service
-      const profile = await fetchProfileData(uid, useAuthStore.getState());
-      set({ profile });
-    } catch (error) {
-      console.log("Error fetching or creating profile:", error);
-    }
-  },
-  updateProfile: async (newProfile: Partial<ProfileType>) => {
-    const uid = useAuthStore.getState().uid;
-    if (!uid) return;
+/**
+ * Profile State Store
+ * 
+ * Manages user profile data including:
+ * - Personal information
+ * - Contact details
+ * - Social links
+ * - Survey answers
+ */
+export const useProfileStore = create<ProfileStore>()(
+  devtools(
+    (set, get) => ({
+      // Initial state
+      profile: defaultProfile,
+      isLoading: false,
+      error: null,
 
-    try {
-      const currentProfile = get().profile;
-      const updatedProfile = await updateProfileData(
-        uid, 
-        currentProfile, 
-        newProfile, 
-        useAuthStore.getState()
-      );
+      fetchProfile: async () => {
+        const uid = useAuthStore.getState().uid;
+        if (!uid) {
+          console.warn("Cannot fetch profile: No authenticated user");
+          return;
+        }
 
-      set({ profile: updatedProfile });
-      console.log("Profile updated successfully");
-    } catch (error) {
-      console.log("Error updating profile:", error);
-    }
-  },
-}));
+        set({ isLoading: true, error: null }, false, "profile/fetchStart");
+
+        try {
+          const authState = useAuthStore.getState();
+          const profile = await fetchProfileData(uid, authState);
+          set(
+            { profile, isLoading: false },
+            false,
+            "profile/fetchSuccess"
+          );
+        } catch (err) {
+          const error = err instanceof Error ? err : new Error("Failed to fetch profile");
+          set(
+            { error, isLoading: false },
+            false,
+            "profile/fetchError"
+          );
+        }
+      },
+
+      updateProfile: async (data: Partial<UserProfile>) => {
+        const uid = useAuthStore.getState().uid;
+        if (!uid) {
+          console.warn("Cannot update profile: No authenticated user");
+          return;
+        }
+
+        set({ isLoading: true, error: null }, false, "profile/updateStart");
+
+        try {
+          const currentProfile = get().profile;
+          const authState = useAuthStore.getState();
+          const updatedProfile = await updateProfileData(uid, currentProfile, data, authState);
+          set(
+            { profile: updatedProfile, isLoading: false },
+            false,
+            "profile/updateSuccess"
+          );
+        } catch (err) {
+          const error = err instanceof Error ? err : new Error("Failed to update profile");
+          set(
+            { error, isLoading: false },
+            false,
+            "profile/updateError"
+          );
+        }
+      },
+
+      resetProfile: () => {
+        set(
+          { profile: defaultProfile, error: null },
+          false,
+          "profile/reset"
+        );
+      },
+
+      clearError: () => {
+        set({ error: null }, false, "profile/clearError");
+      },
+    }),
+    { name: "profile-store" }
+  )
+);
+
+// ============================================================================
+// Selectors
+// ============================================================================
+
+/** Select the full profile */
+export const selectProfile = (state: ProfileStore) => state.profile;
+
+/** Select basic user info from profile */
+export const selectProfileUser = (state: ProfileStore) => ({
+  displayName: state.profile.displayName,
+  firstName: state.profile.firstName,
+  lastName: state.profile.lastName,
+  email: state.profile.email,
+  photoUrl: state.profile.photoUrl,
+});
+
+/** Select contact info */
+export const selectContactInfo = (state: ProfileStore) => ({
+  contactEmail: state.profile.contactEmail,
+  location: state.profile.location,
+  country: state.profile.country,
+  website: state.profile.website,
+  linkedin: state.profile.linkedin,
+});
+
+/** Select professional info */
+export const selectProfessionalInfo = (state: ProfileStore) => ({
+  organization: state.profile.organization,
+  title: state.profile.title,
+  bio: state.profile.bio,
+  interests: state.profile.interests,
+});
+
+/** Select loading/error state */
+export const selectProfileStatus = (state: ProfileStore) => ({
+  isLoading: state.isLoading,
+  error: state.error,
+});
+
+/** Get formatted display name */
+export const selectFormattedName = (state: ProfileStore) => {
+  const { firstName, lastName, displayName, email } = state.profile;
+  
+  if (firstName) {
+    return lastName ? `${firstName} ${lastName}` : firstName;
+  }
+  
+  if (displayName) {
+    return displayName;
+  }
+  
+  return email?.split("@")[0] ?? "User";
+};
 
 export default useProfileStore;

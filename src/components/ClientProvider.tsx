@@ -1,44 +1,82 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useState, useCallback } from "react";
+import dynamic from "next/dynamic";
 import { Toaster } from "react-hot-toast";
 import { ClipLoader } from "react-spinners";
 import CookieConsent from "react-cookie-consent";
 import { useInitializeStores } from "@/zustand";
-import ErrorBoundary from "./ErrorBoundary";
-import useAuthToken from "@/hook/useAuthToken";
+import { useAuthToken } from "@/hooks/use-auth-token";
 
-import { AuthModalProvider } from "@/context/AuthModalContext";
-import AuthModal from "@/components/auth/AuthModal";
+// Lazy load error boundary and auth modal for better initial load
+const ErrorBoundary = dynamic(() => import("./ErrorBoundary"), { ssr: false });
+const AuthModal = dynamic(() => import("@/components/auth/AuthModal"), { ssr: false });
 
-export function ClientProvider({ children }: { children: React.ReactNode }) {
-  const { loading } = useAuthToken(process.env.NEXT_PUBLIC_COOKIE_NAME!);
-  useInitializeStores();
+// ============================================================================
+// Types
+// ============================================================================
 
+interface ClientProviderProps {
+  children: React.ReactNode;
+}
+
+// ============================================================================
+// Utilities
+// ============================================================================
+
+/**
+ * Check if running in React Native WebView
+ */
+function isReactNativeWebView(): boolean {
+  if (typeof window === "undefined") return false;
+  return typeof window.ReactNativeWebView !== "undefined";
+}
+
+// ============================================================================
+// Viewport Height Hook
+// ============================================================================
+
+/**
+ * Custom hook to handle dynamic viewport height for mobile browsers
+ * Sets a CSS variable --vh that can be used instead of vh units
+ */
+function useViewportHeight(): void {
   useEffect(() => {
-    function adjustHeight() {
+    function adjustHeight(): void {
       const vh = window.innerHeight * 0.01;
       document.documentElement.style.setProperty("--vh", `${vh}px`);
     }
 
-    window.addEventListener("resize", adjustHeight);
-    window.addEventListener("orientationchange", adjustHeight);
-
     // Initial adjustment
     adjustHeight();
 
-    // Cleanup
+    // Listen for resize and orientation changes
+    window.addEventListener("resize", adjustHeight);
+    window.addEventListener("orientationchange", adjustHeight);
+
     return () => {
       window.removeEventListener("resize", adjustHeight);
       window.removeEventListener("orientationchange", adjustHeight);
     };
   }, []);
+}
+
+// ============================================================================
+// React Native WebView Hook
+// ============================================================================
+
+/**
+ * Custom hook to handle React Native WebView specific styling
+ */
+function useReactNativeWebView(): boolean {
+  const [isRNWebView, setIsRNWebView] = useState(false);
 
   useEffect(() => {
-    if (window.ReactNativeWebView) {
+    const isWebView = isReactNativeWebView();
+    setIsRNWebView(isWebView);
+
+    if (isWebView) {
       document.body.classList.add("noscroll");
-    } else {
-      document.body.classList.remove("noscroll");
     }
 
     return () => {
@@ -46,31 +84,114 @@ export function ClientProvider({ children }: { children: React.ReactNode }) {
     };
   }, []);
 
-  if (loading)
+  return isRNWebView;
+}
+
+// ============================================================================
+// Loading Screen Component
+// ============================================================================
+
+function LoadingScreen(): React.ReactElement {
+  return (
+    <div
+      className="flex flex-col items-center justify-center h-full"
+      style={{ backgroundColor: "#333b51" }}
+      role="status"
+      aria-label="Loading application"
+    >
+      <ClipLoader color="#fff" size={80} />
+      <span className="sr-only">Loading...</span>
+    </div>
+  );
+}
+
+// ============================================================================
+// Client Provider Component
+// ============================================================================
+
+/**
+ * Client-side provider component that wraps the application
+ * 
+ * Handles:
+ * - Authentication state initialization
+ * - Store hydration
+ * - Viewport height adjustments
+ * - React Native WebView compatibility
+ * - Cookie consent
+ * - Toast notifications
+ */
+export function ClientProvider({ children }: ClientProviderProps): React.ReactElement {
+  const { isLoading } = useAuthToken();
+  const isRNWebView = useReactNativeWebView();
+
+  // Initialize stores after auth is ready
+  useInitializeStores();
+
+  // Handle viewport height for mobile browsers
+  useViewportHeight();
+
+  // Show loading screen while auth is being determined
+  if (isLoading) {
     return (
       <ErrorBoundary>
-        <div
-          className={`flex flex-col items-center justify-center h-full bg-[#333b51]`}
-        >
-          <ClipLoader color="#fff" size={80} />
-        </div>
+        <LoadingScreen />
       </ErrorBoundary>
     );
+  }
 
   return (
     <ErrorBoundary>
-      <AuthModalProvider>
-        <div className="flex flex-col h-full">
-          {children}
-          {!window.ReactNativeWebView && (
-            <CookieConsent>
-              This app uses cookies to enhance the user experience.
-            </CookieConsent>
-          )}
-          <Toaster position="top-right" />
-          <AuthModal />
-        </div>
-      </AuthModalProvider>
+      <div className="flex flex-col h-full">
+        {children}
+
+        {/* Cookie consent - hide in React Native WebView */}
+        {!isRNWebView && (
+          <CookieConsent
+            buttonText="Accept"
+            cookieName="ikigai-cookie-consent"
+            style={{ background: "#2B373B" }}
+            buttonStyle={{ 
+              color: "#4e503b", 
+              fontSize: "13px",
+              background: "#fff",
+              borderRadius: "4px",
+              padding: "8px 16px",
+            }}
+            expires={365}
+          >
+            This app uses cookies to enhance the user experience.
+          </CookieConsent>
+        )}
+
+        {/* Global toast notifications */}
+        <Toaster
+          position="top-right"
+          toastOptions={{
+            duration: 4000,
+            style: {
+              background: "#363636",
+              color: "#fff",
+            },
+            success: {
+              iconTheme: {
+                primary: "#4ade80",
+                secondary: "#fff",
+              },
+            },
+            error: {
+              iconTheme: {
+                primary: "#f87171",
+                secondary: "#fff",
+              },
+            },
+          }}
+        />
+
+        {/* Auth modal - rendered at root level for proper z-index */}
+        <AuthModal />
+      </div>
     </ErrorBoundary>
   );
 }
+
+export default ClientProvider;

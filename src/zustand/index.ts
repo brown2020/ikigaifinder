@@ -1,5 +1,22 @@
-export { useInitializeStores } from './useInitializeStores';
+/**
+ * Centralized Zustand stores exports
+ */
 
-export { useAuthStore } from "./useAuthStore";
-export { default as useProfileStore } from './useProfileStore';
-export { useIkigaiStore, defaultIkigai } from './useIkigaiStore';
+// Store hooks
+export { useAuthStore, selectUser, selectAuthStatus, selectSubscription } from "./useAuthStore";
+export { useProfileStore, selectProfile, selectProfileUser, selectFormattedName } from "./useProfileStore";
+export { useIkigaiStore, defaultIkigai, selectIkigaiData, selectSelectedIkigai, selectIsComplete } from "./useIkigaiStore";
+export { 
+  useUIStore, 
+  selectIsAuthModalOpen, 
+  selectOpenAuthModal, 
+  selectCloseAuthModal,
+  selectIsGlobalLoading 
+} from "./useUIStore";
+
+// Store initialization
+export { useInitializeStores } from "./useInitializeStores";
+
+// Types
+export type { AuthState } from "./useAuthStore";
+export type { ProfileType } from "./useProfileStore";
