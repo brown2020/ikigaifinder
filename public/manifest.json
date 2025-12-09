@@ -1,0 +1,21 @@
+{
+  "name": "Ikigai Finder AI",
+  "short_name": "Ikigai Finder",
+  "description": "AI-powered tool to discover your Ikigai - the Japanese concept of life purpose",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#1e40af",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "/assets/logo.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ],
+  "categories": ["lifestyle", "productivity", "self-improvement"],
+  "lang": "en"
+}
+

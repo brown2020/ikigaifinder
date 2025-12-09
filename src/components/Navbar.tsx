@@ -1,5 +1,5 @@
 "use client";
-import IkigaiLogo from "@/SVGCompoenets/Ikigai-logo";
+import IkigaiLogo from "@/components/icons/IkigaiLogo";
 import NavbarMenuItems from "./NavbarMenuItems";
 import Link from "next/link";
 import NavbarLoginItem from "./NavbarLoginItem";

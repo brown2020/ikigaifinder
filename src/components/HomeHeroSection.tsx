@@ -33,6 +33,7 @@ export default function HomeHeroSection(): React.ReactElement {
           src="/assets/hero-gradient.webp"
           alt=""
           fill
+          sizes="100vw"
           style={{ objectFit: "cover" }}
           className="opacity-20"
           priority
@@ -85,13 +86,15 @@ export default function HomeHeroSection(): React.ReactElement {
             <div className="animate-float">
               <Image
                 src="/assets/home-hero.png"
-                alt="Ikigai Finder Preview"
+                alt="Ikigai Finder Preview - Example of a personalized Ikigai card"
                 width={500}
                 height={500}
+                sizes="(max-width: 768px) 100vw, 500px"
                 style={{ objectFit: "cover" }}
                 className="rounded-lg mx-auto"
-                unoptimized
                 priority
+                placeholder="blur"
+                blurDataURL="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mN8/+F9PQAJpAN4pokyXwAAAABJRU5ErkJggg=="
               />
             </div>
           </div>

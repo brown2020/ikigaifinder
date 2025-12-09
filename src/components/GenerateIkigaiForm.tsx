@@ -11,10 +11,11 @@ import {
   Target,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { ClipLoader, PulseLoader } from "react-spinners";
+import { PulseLoader } from "react-spinners";
 import { Tooltip } from "react-tooltip";
 import CircularProgressWithIcon from "./CircularProgressWithIcon";
 import IkigaiStepper from "./IkigaiStepper";
+import { IkigaiOptionsLoadingSkeleton } from "./ui/Skeleton";
 import { useIkigaiStore } from "@/zustand";
 import { useIkigaiGenerator } from "@/hooks/use-ikigai-generator";
 import type { IkigaiData } from "@/types";
@@ -58,9 +59,10 @@ export default function GenerateIkigaiForm({
   const [guidance, setGuidance] = useState("");
   const [selectedIkigai, setSelectedIkigai] = useState<IkigaiData | null>(null);
   const [isSticky, setIsSticky] = useState(false);
+  const [hasInitialized, setHasInitialized] = useState(false);
 
   // Generator hook
-  const { generate, isGenerating, resultEndRef } = useIkigaiGenerator({
+  const { generate, isGenerating, resultEndRef, error } = useIkigaiGenerator({
     ikigaiData: ikigaiOptions,
     onDataUpdate: setIkigaiOptions,
     guidance,
@@ -75,16 +77,20 @@ export default function GenerateIkigaiForm({
 
   // Initialize from store data
   useEffect(() => {
+    if (hasInitialized) return;
+
     if (hasCompletedSurvey && !ikigaiData.ikigaiOptions.length) {
       generate(ikigaiData.answers);
+      setHasInitialized(true);
     }
 
     if (ikigaiData.ikigaiOptions.length) {
       setIkigaiOptions(ikigaiData.ikigaiOptions);
       setSelectedIkigai(ikigaiData.ikigaiSelected);
       setGuidance(ikigaiData.ikigaiGuidance);
+      setHasInitialized(true);
     }
-  }, [ikigaiData, hasCompletedSurvey, generate]);
+  }, [ikigaiData, hasCompletedSurvey, generate, hasInitialized]);
 
   // Handle scroll for sticky header
   useEffect(() => {
@@ -186,6 +192,13 @@ export default function GenerateIkigaiForm({
           value={guidance}
         />
 
+        {/* Error Message */}
+        {error && (
+          <div className="mt-2 p-3 bg-red-50 border border-red-200 rounded-md text-red-700 text-sm">
+            {error.message}
+          </div>
+        )}
+
         {/* Generate Button */}
         <div
           className={`w-full bg-white pb-1 ${
@@ -230,9 +243,12 @@ export default function GenerateIkigaiForm({
               <div ref={resultEndRef} />
             </ul>
           </div>
+        ) : isGenerating ? (
+          <IkigaiOptionsLoadingSkeleton count={3} />
         ) : (
-          <div className="flex items-center justify-center h-[calc(100vh-150px)] w-full">
-            <ClipLoader color="black" size={80} />
+          <div className="flex flex-col items-center justify-center py-12 text-gray-500">
+            <Lightbulb size={48} className="mb-4 opacity-50" />
+            <p className="text-lg">Click &quot;Generate More Ideas&quot; to get started</p>
           </div>
         )}
       </div>

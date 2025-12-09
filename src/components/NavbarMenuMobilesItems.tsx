@@ -4,7 +4,7 @@ import { useState } from "react";
 import { navMobileMenu } from "@/constants/menuItems";
 import { Menu, X } from "lucide-react";
 import { useRouter } from "next/navigation";
-import IkigaiLogo from "@/SVGCompoenets/Ikigai-logo";
+import IkigaiLogo from "@/components/icons/IkigaiLogo";
 import Link from "next/link";
 
 const Drawer = () => {

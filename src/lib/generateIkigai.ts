@@ -4,6 +4,8 @@ import { createStreamableValue } from "@ai-sdk/rsc";
 import { streamText } from "ai";
 import { openai } from "@ai-sdk/openai";
 import { IKIGAI_SYSTEMPROMPT2 } from "@/constants/systemPrompt";
+import { rateLimitAI } from "./rateLimit";
+import { generateIkigaiSchema, sanitizeInput } from "./validation";
 
 // ============================================================================
 // Types
@@ -40,20 +42,47 @@ const AI_MODEL = "gpt-4o";
 
 /**
  * Generate Ikigai suggestions using AI
- * 
+ *
  * Uses OpenAI's GPT-4o to analyze user's survey responses and
  * generate personalized Ikigai statements with compatibility scores.
- * 
+ *
  * @param questions - Array of question sections with answers
  * @param customPrompt - Optional additional guidance for the AI
+ * @param userId - User ID for rate limiting (optional, falls back to anonymous)
  * @returns Streamable value for real-time response updates
+ * @throws Error with specific message if rate limit is exceeded or validation fails
  */
 export async function generateIkigai(
   questions: QuestionSection[],
-  customPrompt = ""
+  customPrompt = "",
+  userId = "anonymous"
 ) {
+  // Rate limiting check
+  const rateLimitResult = rateLimitAI(userId);
+  if (!rateLimitResult.success) {
+    throw new Error(
+      `Rate limit exceeded. Please try again in ${Math.ceil(rateLimitResult.resetIn / 1000)} seconds.`
+    );
+  }
+
+  // Validate and sanitize input
+  const validationResult = generateIkigaiSchema.safeParse({
+    questions,
+    customPrompt,
+  });
+
+  if (!validationResult.success) {
+    const errors = validationResult.error.issues
+      .map((e) => `${e.path.join(".")}: ${e.message}`)
+      .join(", ");
+    throw new Error(`Invalid input: ${errors}`);
+  }
+
+  // Sanitize the custom prompt
+  const sanitizedPrompt = customPrompt ? sanitizeInput(customPrompt) : "";
+
   // Build the user prompt
-  const guidanceSection = customPrompt ? `${customPrompt}\n\n` : "";
+  const guidanceSection = sanitizedPrompt ? `${sanitizedPrompt}\n\n` : "";
   const questionsJson = JSON.stringify(questions, null, 2);
   const userPrompt = `${questionsJson}\n\n${guidanceSection}${DEFAULT_CLIENT_PROMPT}`;
 
