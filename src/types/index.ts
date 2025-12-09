@@ -224,3 +224,4 @@ export type AnswerType = SurveyAnswer;
 /** @deprecated Use ImagePromptData instead */
 export type PromptDataType = ImagePromptData;
 
+

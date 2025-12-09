@@ -267,3 +267,4 @@ export function useAuthActions(): UseAuthActionsReturn {
 // Legacy export for backward compatibility
 export { useAuthActions as default };
 
+

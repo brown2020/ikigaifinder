@@ -131,3 +131,4 @@ export function useIkigaiGenerator({
 // Legacy export for backward compatibility
 export { useIkigaiGenerator as default };
 
+
