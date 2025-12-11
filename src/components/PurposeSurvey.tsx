@@ -2,11 +2,11 @@
 
 import { useState, useRef, useEffect } from "react";
 import { generatePurpose } from "../lib/actions";
-import { QuestionType } from "../types/question";
-import { readStreamableValue } from '@ai-sdk/rsc';
+import { readStreamableValue } from "@ai-sdk/rsc";
 import { questions } from "../constants/questions";
 import SurveyQuestion from "./SurveyQuestion";
 import GenerateImage from "./GenerateImage";
+import type { SurveyQuestion as SurveyQuestionType } from "@/types";
 
 export default function PurposeSurvey() {
   const [purposes, setPurposes] = useState<string[]>([]);
@@ -60,7 +60,7 @@ export default function PurposeSurvey() {
   };
 
   const handlePurpose = async () => {
-    const questionsData: QuestionType[] = questions.map((q) => ({
+    const questionsData: SurveyQuestionType[] = questions.map((q) => ({
       ...q,
       answer: answers[q.name],
     }));

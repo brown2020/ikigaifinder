@@ -1,7 +1,7 @@
-import { navItemType } from "@/types/interface";
+import type { NavItem } from "@/types";
 import { CircleUserIcon, GoalIcon, LogOut, LogIn, Target } from "lucide-react";
 
-export const navItems: navItemType[] = [
+export const navItems: NavItem[] = [
   {
     label: "Ikigai Finder",
     icon: GoalIcon,
@@ -31,14 +31,14 @@ export const navItems: navItemType[] = [
   },
 ];
 
-export const withoutSignInNaveBar: navItemType[] = [
+export const withoutSignInNaveBar: NavItem[] = [
   {
     label: "Sign In",
     icon: LogIn,
     path: "",
   },
 ];
-export const navMobileMenu: navItemType[] = [
+export const navMobileMenu: NavItem[] = [
   {
     label: "Ikigai Finder",
     icon: GoalIcon,

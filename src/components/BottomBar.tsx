@@ -3,7 +3,7 @@ import Image from "next/image";
 import { navMobileMenu } from "@/constants/menuItems";
 import { useAuthStore, useProfileStore } from "@/zustand";
 import { useRouter } from "next/navigation";
-import { navItemType } from "@/types/interface";
+import type { NavItem } from "@/types";
 
 export default function BottomBar() {
   const router = useRouter();
@@ -31,7 +31,7 @@ export default function BottomBar() {
     return item;
   });
 
-  const renderMenuIcon = (item: navItemType) => {
+  const renderMenuIcon = (item: NavItem) => {
     switch (true) {
       case !!item.profileUrl:
         return (
@@ -72,11 +72,11 @@ export default function BottomBar() {
                 }
               }}
               className="flex flex-col items-center justify-center"
-          >
-              <div>
-                {renderMenuIcon(item)}
-              </div>
-              <span className="text-[12px] h-3 text-center mx-auto">{item?.label}</span>
+            >
+              <div>{renderMenuIcon(item)}</div>
+              <span className="text-[12px] h-3 text-center mx-auto">
+                {item?.label}
+              </span>
             </div>
           ))}
       </nav>

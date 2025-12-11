@@ -1,11 +1,11 @@
 // SVGOverlay.tsx
-import { ikigaiDataT } from "@/types/interface";
+import type { IkigaiData } from "@/types";
 import React from "react";
 
 type SVGOverlayProps = {
   profileName: string;
   updatedAt: Date | null;
-  ikigaiSelected: ikigaiDataT | null;
+  ikigaiSelected: IkigaiData | null;
 };
 
 const SVGOverlay: React.FC<SVGOverlayProps> = ({

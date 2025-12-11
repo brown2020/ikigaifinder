@@ -3,15 +3,14 @@
 import { useState, ChangeEvent, useEffect } from "react";
 import { db, storage } from "@/firebase/firebaseClient";
 import { doc } from "firebase/firestore";
-
 import { getDownloadURL, ref, uploadBytesResumable } from "firebase/storage";
-
 import { ClipLoader } from "react-spinners";
-import { useAuthStore } from "@/zustand/useAuthStore";
-import { resizeImage } from "@/utils/resizeImage";
 import Image from "next/image";
-import useProfileStore from "@/zustand/useProfileStore";
 import { useRouter } from "next/navigation";
+import { useAuthStore } from "@/zustand/useAuthStore";
+import useProfileStore from "@/zustand/useProfileStore";
+import { resizeImage } from "@/utils/resizeImage";
+import { Button } from "./ui/Button";
 
 export default function ProfileComponent2() {
   const router = useRouter();
@@ -154,23 +153,22 @@ export default function ProfileComponent2() {
           </div>
         </div>
         <div className="flex xs:flex-row flex-col gap-3 justify-between mt-3">
-          <button
-            //   className="btn btn-blue flex-1 mx-auto w/full"
-            className="btn-base btn-primary-solid xs:w-fit w-full"
-            type="button"
+          <Button
+            variant="primary"
             disabled={!hasChanges}
             onClick={handleSubmit}
+            className="xs:w-fit w-full"
           >
             Save Profile Changes
-          </button>
+          </Button>
 
-          <button
-            type="button"
+          <Button
+            variant="neutral"
             onClick={() => router?.push("/logout")}
-            className="btn-base btn-neutral-solid xs:w-fit w-full"
+            className="xs:w-fit w-full"
           >
             Logout
-          </button>
+          </Button>
         </div>
       </div>
     </div>

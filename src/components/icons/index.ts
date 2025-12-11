@@ -6,3 +6,4 @@
 
 export { default as IkigaiLogo } from "./IkigaiLogo";
 
+

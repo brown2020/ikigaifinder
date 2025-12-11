@@ -5,7 +5,7 @@ import { navItems } from "@/constants/menuItems";
 import { ChevronDown, CircleUserIcon } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useProfileStore } from "@/zustand";
-import { navItemType } from "@/types/interface";
+import type { NavItem } from "@/types";
 
 export default function NavbarMenuItems() {
   const router = useRouter();
@@ -52,7 +52,7 @@ export default function NavbarMenuItems() {
     return item;
   });
 
-  const renderMenuIcon = (item: navItemType) => {
+  const renderMenuIcon = (item: NavItem) => {
     switch (true) {
       case !!item.profileUrl:
         return (
@@ -71,7 +71,9 @@ export default function NavbarMenuItems() {
           </div>
         );
       default:
-        return <item.icon size={28} className="h-full object-cover text-2xl w-7" />;
+        return (
+          <item.icon size={28} className="h-full object-cover text-2xl w-7" />
+        );
     }
   };
 
@@ -88,9 +90,7 @@ export default function NavbarMenuItems() {
                   : item.path && router.push(item.path)
               }
             >
-              <div className="aspect-square">
-                {renderMenuIcon(item)}
-              </div>
+              <div className="aspect-square">{renderMenuIcon(item)}</div>
               <div className="text-base font-medium">{item.label || ""}</div>
               {item.subItems && (
                 <ChevronDown
@@ -103,7 +103,7 @@ export default function NavbarMenuItems() {
 
             {item.subItems && isOpenDropdown === item.label && (
               <div className="dropdown-menu absolute right-0 mt-2 bg-white text-black rounded-lg shadow-lg z-20 min-w-52">
-                {item.subItems.map((subItem: navItemType, subIndex: number) => (
+                {item.subItems.map((subItem: NavItem, subIndex: number) => (
                   <div
                     key={subIndex}
                     className="px-4 py-2 hover:text-blue-800 cursor-pointer"

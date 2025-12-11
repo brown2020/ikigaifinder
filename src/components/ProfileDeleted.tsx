@@ -1,7 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { auth, db, storage } from "@/firebase/firebaseClient";
 import { ref, listAll, deleteObject } from "firebase/storage";
-import { useAuthStore } from "@/zustand";
 import {
   collection,
   deleteDoc,
@@ -11,7 +10,8 @@ import {
 } from "firebase/firestore";
 import { deleteUser, getAuth, signOut } from "firebase/auth";
 import { useRouter } from "next/navigation";
-import { PulseLoader } from "react-spinners";
+import { useAuthStore } from "@/zustand";
+import { Button } from "./ui/Button";
 
 interface ToastType {
   show: boolean;
@@ -146,19 +146,22 @@ export default function ProfileDeleted({
               placeholder="Type DELETE ACCOUNT to confirm"
             />
             <div className="mt-4 flex gap-2 justify-end">
-              <button
+              <Button
+                variant="neutral"
                 onClick={closeModal}
-                className="btn-base btn-neutral-solid rounded-sm px-9 py-3"
+                className="px-9 py-3"
               >
                 Cancel
-              </button>
-              <button
+              </Button>
+              <Button
+                variant="danger"
                 onClick={deleteConfirmIkigaiProfile}
-                disabled={isLoading || confirmText !== "delete account"}
-                className="btn-base btn-danger-solid rounded-sm px-9 py-3"
+                disabled={confirmText !== "delete account"}
+                isLoading={isLoading}
+                className="px-9 py-3"
               >
-                {isLoading ? <PulseLoader color="#fff" size={10} /> : "Delete"}
-              </button>
+                Delete
+              </Button>
             </div>
           </div>
         </div>

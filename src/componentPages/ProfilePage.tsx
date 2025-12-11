@@ -1,15 +1,16 @@
 "use client";
 
-import ProfileComponent from "@/components/ProfileComponent";
-import ProfileDeleted from "@/components/ProfileDeleted";
-import Toast from "@/components/Toast";
-import withAuth from "@/components/withAuth";
-import { useAuthStore, useIkigaiStore } from "@/zustand";
-import { Share } from "lucide-react";
+import { useEffect, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { Share } from "lucide-react";
+import ProfileComponent from "@/components/ProfileComponent";
+import ProfileDeleted from "@/components/ProfileDeleted";
+import Toast from "@/components/Toast";
+import { Button } from "@/components/ui/Button";
+import withAuth from "@/components/withAuth";
+import { useAuthStore, useIkigaiStore } from "@/zustand";
 
 interface toastType {
   show: boolean;
@@ -58,9 +59,7 @@ function ProfilePage() {
               </Link>
             </div>
             <Link href={`/ikigai/${uid}`} className="max-w-fit hidden sm:block">
-              <button className="btn-base btn-neutral-solid rounded-sm">
-                <Share size={30} />
-              </button>
+              <Button variant="neutral" leftIcon={<Share size={30} />} />
             </Link>
           </div>
         )}
@@ -70,12 +69,13 @@ function ProfilePage() {
         <h2 className="text-lg font-semibold text-red-500">
           Permanently Close Your Account
         </h2>
-        <button
+        <Button
+          variant="danger"
           onClick={() => setIsOpen(true)}
-          className="btn-base btn-danger-solid rounded-md px-9"
+          className="px-9"
         >
           Delete Your Account
-        </button>
+        </Button>
       </div>
       {isOpen && (
         <ProfileDeleted

@@ -2,8 +2,9 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { useForm, SubmitHandler, FieldValues } from "react-hook-form";
 import FormField from "./FormField";
+import { Button } from "./ui/Button";
 import { STEPPER_QUESTIONS_JSON } from "@/constants/questions";
-import { questionStepT } from "@/types/interface";
+import type { QuestionStep } from "@/types";
 import { useIkigaiStore } from "@/zustand";
 import { useRouter } from "next/navigation";
 import withAuth from "./withAuth";
@@ -22,7 +23,7 @@ const IkigaiStepperForm: React.FC = () => {
   const fetchIkigaiData = useIkigaiStore((s) => s.ikigaiData);
   const updateIkigai = useIkigaiStore((s) => s.updateIkigai);
   const [step, setStep] = useState<number>(1);
-  const [formData, setFormData] = useState<questionStepT[]>(
+  const [formData, setFormData] = useState<QuestionStep[]>(
     STEPPER_QUESTIONS_JSON
   );
   const currentStep = useMemo(() => {
@@ -64,7 +65,7 @@ const IkigaiStepperForm: React.FC = () => {
     );
 
     const checkAnswersMatch = (
-      mainArray: questionStepT[],
+      mainArray: QuestionStep[],
       obj: Record<string, string[]>
     ) => {
       return mainArray.every((section) =>
@@ -127,23 +128,18 @@ const IkigaiStepperForm: React.FC = () => {
 
           {/* Buttons */}
           <div className="flex justify-between">
-            <button
+            <Button
               type="button"
+              variant="neutral"
               onClick={handleBack}
-              className={`btn-base btn-neutral-solid rounded ${
-                step === 1 ? "cursor-not-allowed opacity-60" : ""
-              }`}
               disabled={step === 1}
             >
               Back
-            </button>
+            </Button>
 
-            <button
-              type="submit"
-              className={`btn-base btn-primary-solid rounded-sm`}
-            >
+            <Button type="submit" variant="primary">
               {currentStep?.button || "Continue"}
-            </button>
+            </Button>
           </div>
 
           {/* Stepper navigation bar */}

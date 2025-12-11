@@ -1,9 +1,9 @@
 import React from "react";
 import Select, { MultiValue } from "react-select";
-import { QuestionType } from "@/types/question";
+import type { SurveyQuestion as SurveyQuestionType } from "@/types";
 
 interface SurveyQuestionProps {
-  question: QuestionType;
+  question: SurveyQuestionType;
   onChange: (
     e:
       | React.ChangeEvent<
@@ -60,7 +60,7 @@ const SurveyQuestion: React.FC<SurveyQuestionProps> = ({
             <option value="" disabled>
               Select an option
             </option>
-            {question.options?.map((option, index) => (
+            {question.options?.map((option: string, index: number) => (
               <option key={index} value={option}>
                 {option}
               </option>
@@ -72,11 +72,11 @@ const SurveyQuestion: React.FC<SurveyQuestionProps> = ({
           <Select
             isMulti
             name={question.name}
-            options={question.options?.map((option) => ({
+            options={question.options?.map((option: string) => ({
               value: option,
               label: option,
             }))}
-            value={question.answer.map((value) => ({
+            value={question.answer.map((value: string) => ({
               value,
               label: value,
             }))}

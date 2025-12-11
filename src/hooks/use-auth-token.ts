@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useCallback, useRef } from "react";
+import { useEffect, useCallback, useRef } from "react";
 import { getIdToken } from "firebase/auth";
 import { deleteCookie, setCookie } from "cookies-next";
 import { debounce } from "lodash";
@@ -8,6 +8,7 @@ import { useAuthStore } from "@/zustand/useAuthStore";
 import { auth } from "@/firebase/firebaseClient";
 import { useAuthState } from "react-firebase-hooks/auth";
 import { updateUserDetailsInFirestore } from "@/services/userService";
+import { isReactNativeWebView } from "@/utils/platform";
 
 // ============================================================================
 // Constants
@@ -43,14 +44,6 @@ interface UseAuthTokenReturn {
 // ============================================================================
 
 /**
- * Check if we're running in a React Native WebView
- */
-function isReactNativeWebView(): boolean {
-  if (typeof window === "undefined") return false;
-  return typeof window.ReactNativeWebView !== "undefined";
-}
-
-/**
  * Get the last token refresh key for localStorage
  */
 function getLastTokenRefreshKey(cookieName: string): string {
@@ -63,23 +56,25 @@ function getLastTokenRefreshKey(cookieName: string): string {
 
 /**
  * Custom hook to manage Firebase authentication token
- * 
+ *
  * Handles:
  * - Token refresh on a regular interval
  * - Cookie management for auth state
  * - Syncing auth state to Zustand store
  * - Syncing user details to Firestore
  */
-export function useAuthToken(options: UseAuthTokenOptions = {}): UseAuthTokenReturn {
-  const { 
+export function useAuthToken(
+  options: UseAuthTokenOptions = {}
+): UseAuthTokenReturn {
+  const {
     cookieName = process.env.NEXT_PUBLIC_COOKIE_NAME ?? "authToken",
-    autoRefresh = true 
+    autoRefresh = true,
   } = options;
 
   const [user, isLoading, error] = useAuthState(auth);
   const setAuthDetails = useAuthStore((state) => state.setAuthDetails);
   const clearAuthDetails = useAuthStore((state) => state.clearAuthDetails);
-  
+
   const activityTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const lastTokenRefreshKey = getLastTokenRefreshKey(cookieName);
 
@@ -124,8 +119,14 @@ export function useAuthToken(options: UseAuthTokenOptions = {}): UseAuthTokenRet
     }
 
     // Only schedule if document is visible
-    if (typeof document !== "undefined" && document.visibilityState === "visible") {
-      activityTimeoutRef.current = setTimeout(refreshAuthToken, TOKEN_REFRESH_INTERVAL_MS);
+    if (
+      typeof document !== "undefined" &&
+      document.visibilityState === "visible"
+    ) {
+      activityTimeoutRef.current = setTimeout(
+        refreshAuthToken,
+        TOKEN_REFRESH_INTERVAL_MS
+      );
     }
   }, [autoRefresh, refreshAuthToken]);
 
@@ -150,7 +151,7 @@ export function useAuthToken(options: UseAuthTokenOptions = {}): UseAuthTokenRet
     return () => {
       window.removeEventListener("storage", handleStorageChange);
       handleStorageChange.cancel();
-      
+
       if (activityTimeoutRef.current) {
         clearTimeout(activityTimeoutRef.current);
       }
@@ -171,21 +172,29 @@ export function useAuthToken(options: UseAuthTokenOptions = {}): UseAuthTokenRet
       };
 
       setAuthDetails(authDetails);
-      
+
       // Sync to Firestore (fire and forget)
       updateUserDetailsInFirestore(authDetails, user.uid);
-      
+
       // IMPORTANT: Set the cookie immediately when user signs in
       // This is needed for the proxy/middleware to allow authenticated routes
       refreshAuthToken();
-      
+
       // Then schedule future token refreshes
       scheduleTokenRefresh();
     } else if (!isLoading) {
       clearAuthDetails();
       deleteCookie(cookieName);
     }
-  }, [user, isLoading, setAuthDetails, clearAuthDetails, cookieName, scheduleTokenRefresh, refreshAuthToken]);
+  }, [
+    user,
+    isLoading,
+    setAuthDetails,
+    clearAuthDetails,
+    cookieName,
+    scheduleTokenRefresh,
+    refreshAuthToken,
+  ]);
 
   return {
     uid: user?.uid,
@@ -197,4 +206,3 @@ export function useAuthToken(options: UseAuthTokenOptions = {}): UseAuthTokenRet
 
 // Default export for backward compatibility
 export default useAuthToken;
-

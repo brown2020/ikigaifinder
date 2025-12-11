@@ -1,6 +1,7 @@
 import { doc, getDoc, setDoc, Timestamp, collection } from "firebase/firestore";
 import { db } from "@/firebase/firebaseClient";
 import { STEPPER_QUESTIONS_JSON } from "@/constants/questions";
+import { IkigaiUpdateError } from "@/lib/errors";
 import type { Ikigai, QuestionStep, ImagePromptData } from "@/types";
 
 // ============================================================================
@@ -35,30 +36,12 @@ export const defaultIkigai: Ikigai = {
 };
 
 // ============================================================================
-// Error Classes
-// ============================================================================
-
-export class IkigaiNotFoundError extends Error {
-  constructor(uid: string) {
-    super(`Ikigai data not found for user: ${uid}`);
-    this.name = "IkigaiNotFoundError";
-  }
-}
-
-export class IkigaiUpdateError extends Error {
-  constructor(message: string, public readonly cause?: unknown) {
-    super(message);
-    this.name = "IkigaiUpdateError";
-  }
-}
-
-// ============================================================================
 // Service Functions
 // ============================================================================
 
 /**
  * Fetch ikigai data from Firestore
- * 
+ *
  * @param uid - User ID
  * @returns Ikigai data merged with defaults
  * @throws IkigaiNotFoundError if no data exists
@@ -91,14 +74,16 @@ export async function fetchIkigaiData(uid: string): Promise<Ikigai> {
 /**
  * Merge user answers with default question structure
  */
-function mergeAnswersWithDefaults(userAnswers?: QuestionStep[]): QuestionStep[] {
+function mergeAnswersWithDefaults(
+  userAnswers?: QuestionStep[]
+): QuestionStep[] {
   if (!userAnswers?.length) {
     return defaultIkigai.answers;
   }
 
   return defaultIkigai.answers.map((defaultStep) => {
     const userStep = userAnswers.find((a) => a.id === defaultStep.id);
-    
+
     if (!userStep) {
       return defaultStep;
     }
@@ -116,7 +101,7 @@ function mergeAnswersWithDefaults(userAnswers?: QuestionStep[]): QuestionStep[] 
 
 /**
  * Update ikigai data in Firestore
- * 
+ *
  * @param uid - User ID
  * @param currentData - Current ikigai data
  * @param updateData - Partial data to update
@@ -187,7 +172,7 @@ function removeUndefinedValues<T>(obj: T): T {
 
 /**
  * Save generated image to history collection
- * 
+ *
  * @param uid - User ID
  * @param promptData - Image generation prompt data
  * @param prompt - The actual prompt used
@@ -226,11 +211,13 @@ export async function saveGeneratedImageHistory(
 
 /**
  * Get all generated images for a user
- * 
+ *
  * @param uid - User ID
  * @returns Array of image prompt data
  */
-export async function getGeneratedImageHistory(uid: string): Promise<ImagePromptData[]> {
+export async function getGeneratedImageHistory(
+  uid: string
+): Promise<ImagePromptData[]> {
   if (!uid) {
     throw new Error("User ID is required to fetch image history");
   }

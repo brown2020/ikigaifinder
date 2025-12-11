@@ -1,5 +1,6 @@
 import { doc, getDoc, setDoc } from "firebase/firestore";
 import { db } from "@/firebase/firebaseClient";
+import { ProfileFetchError, ProfileUpdateError } from "@/lib/errors";
 import type { UserProfile } from "@/types";
 import type { AuthState } from "@/zustand/useAuthStore";
 
@@ -9,24 +10,6 @@ import type { AuthState } from "@/zustand/useAuthStore";
 
 interface ProfileDocument {
   profile: UserProfile;
-}
-
-// ============================================================================
-// Error Classes
-// ============================================================================
-
-export class ProfileFetchError extends Error {
-  constructor(message: string, public readonly cause?: unknown) {
-    super(message);
-    this.name = "ProfileFetchError";
-  }
-}
-
-export class ProfileUpdateError extends Error {
-  constructor(message: string, public readonly cause?: unknown) {
-    super(message);
-    this.name = "ProfileUpdateError";
-  }
 }
 
 // ============================================================================
@@ -95,7 +78,8 @@ function mergeProfileWithAuth(
     photoUrl: storedProfile.photoUrl ?? authState.authPhotoUrl ?? "",
     emailVerified: authState.authEmailVerified ?? false,
     firstName: storedProfile.firstName ?? extractFirstName(authState),
-    lastName: storedProfile.lastName ?? extractLastName(authState.authDisplayName),
+    lastName:
+      storedProfile.lastName ?? extractLastName(authState.authDisplayName),
     headerUrl: storedProfile.headerUrl ?? "",
     organization: storedProfile.organization ?? "",
     title: storedProfile.title ?? "",
@@ -119,7 +103,7 @@ function mergeProfileWithAuth(
 /**
  * Fetch user profile from Firestore
  * Creates a new profile if one doesn't exist
- * 
+ *
  * @param uid - User ID
  * @param authState - Current auth state for profile defaults
  * @returns User profile
@@ -138,7 +122,7 @@ export async function fetchProfileData(
 
     if (docSnap.exists()) {
       const data = docSnap.data() as ProfileDocument;
-      
+
       if (data.profile) {
         return mergeProfileWithAuth(data.profile, authState);
       }
@@ -155,7 +139,7 @@ export async function fetchProfileData(
 
 /**
  * Update user profile in Firestore
- * 
+ *
  * @param uid - User ID
  * @param currentProfile - Current profile data
  * @param updates - Partial profile updates
@@ -197,7 +181,7 @@ export async function updateProfileData(
 
 /**
  * Delete user profile from Firestore
- * 
+ *
  * @param uid - User ID
  */
 export async function deleteProfileData(uid: string): Promise<void> {

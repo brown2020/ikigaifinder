@@ -7,23 +7,28 @@ import { useIkigaiStore } from "./useIkigaiStore";
 
 /**
  * Hook to initialize Zustand stores after authentication
- * 
+ *
  * Should be called once at the app root level (in ClientProvider).
  * Automatically fetches profile and ikigai data when user is authenticated.
+ *
+ * Note: We access store methods via getState() to avoid dependency array issues
+ * that would cause unnecessary effect re-runs.
  */
 export function useInitializeStores(): void {
   const uid = useAuthStore((state) => state.uid);
-  const fetchProfile = useProfileStore((state) => state.fetchProfile);
-  const fetchIkigai = useIkigaiStore((state) => state.fetchIkigai);
 
   useEffect(() => {
     if (!uid) return;
+
+    // Access store methods directly to ensure stable references
+    const { fetchProfile } = useProfileStore.getState();
+    const { fetchIkigai } = useIkigaiStore.getState();
 
     // Fetch user data in parallel
     Promise.all([fetchProfile(), fetchIkigai()]).catch((error) => {
       console.error("Error initializing stores:", error);
     });
-  }, [uid, fetchProfile, fetchIkigai]);
+  }, [uid]);
 }
 
 export default useInitializeStores;

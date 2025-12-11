@@ -2,6 +2,7 @@
 
 import { useCallback, useState } from "react";
 import Image from "next/image";
+import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
   FacebookShareButton,
@@ -17,6 +18,7 @@ import toast from "react-hot-toast";
 import { Download, Image as ImageIcon } from "lucide-react";
 import { useIkigaiStore } from "@/zustand";
 import withAuth from "@/components/withAuth";
+import { Button } from "@/components/ui/Button";
 import { DashboardSkeleton } from "@/components/ui/Skeleton";
 
 // ============================================================================
@@ -99,12 +101,9 @@ function DashboardPage(): React.ReactElement {
           Complete your Ikigai journey to create a beautiful, shareable card
           that represents your life purpose.
         </p>
-        <a
-          href="/ikigai-finder"
-          className="btn-base btn-primary-solid"
-        >
-          Start Your Journey
-        </a>
+        <Link href="/ikigai-finder">
+          <Button variant="primary">Start Your Journey</Button>
+        </Link>
       </div>
     );
   }
@@ -113,7 +112,9 @@ function DashboardPage(): React.ReactElement {
     <div className="p-10">
       <div className="w-full max-w-3xl mx-auto">
         {/* Section Title */}
-        <h1 className="text-2xl font-bold text-center mb-6">Your Ikigai Card</h1>
+        <h1 className="text-2xl font-bold text-center mb-6">
+          Your Ikigai Card
+        </h1>
 
         {/* Ikigai Image */}
         <div className="relative">
@@ -163,24 +164,15 @@ function DashboardPage(): React.ReactElement {
           </div>
 
           {/* Download Button */}
-          <button
-            className="btn-base btn-primary-solid h-12 flex items-center justify-center gap-2 mx-auto rounded-sm mt-6 min-w-40"
+          <Button
+            variant="primary"
             onClick={handleDownload}
-            disabled={isDownloading}
-            type="button"
+            isLoading={isDownloading}
+            leftIcon={!isDownloading && <Download size={18} />}
+            className="mx-auto mt-6 min-w-40"
           >
-            {isDownloading ? (
-              <>
-                <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                Downloading...
-              </>
-            ) : (
-              <>
-                <Download size={18} />
-                Download
-              </>
-            )}
-          </button>
+            {isDownloading ? "Downloading..." : "Download"}
+          </Button>
         </div>
       </div>
     </div>

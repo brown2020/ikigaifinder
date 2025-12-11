@@ -1,16 +1,19 @@
 "use client";
 
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState } from "react";
 import dynamic from "next/dynamic";
 import { Toaster } from "react-hot-toast";
 import { ClipLoader } from "react-spinners";
 import CookieConsent from "react-cookie-consent";
 import { useInitializeStores } from "@/zustand";
 import { useAuthToken } from "@/hooks/use-auth-token";
+import { isReactNativeWebView } from "@/utils/platform";
+import ErrorBoundary from "./ErrorBoundary";
 
-// Lazy load error boundary and auth modal for better initial load
-const ErrorBoundary = dynamic(() => import("./ErrorBoundary"), { ssr: false });
-const AuthModal = dynamic(() => import("@/components/auth/AuthModal"), { ssr: false });
+// Lazy load auth modal for better initial load (it's conditionally rendered)
+const AuthModal = dynamic(() => import("@/components/auth/AuthModal"), {
+  ssr: false,
+});
 
 // ============================================================================
 // Types
@@ -18,18 +21,6 @@ const AuthModal = dynamic(() => import("@/components/auth/AuthModal"), { ssr: fa
 
 interface ClientProviderProps {
   children: React.ReactNode;
-}
-
-// ============================================================================
-// Utilities
-// ============================================================================
-
-/**
- * Check if running in React Native WebView
- */
-function isReactNativeWebView(): boolean {
-  if (typeof window === "undefined") return false;
-  return typeof window.ReactNativeWebView !== "undefined";
 }
 
 // ============================================================================
@@ -111,7 +102,7 @@ function LoadingScreen(): React.ReactElement {
 
 /**
  * Client-side provider component that wraps the application
- * 
+ *
  * Handles:
  * - Authentication state initialization
  * - Store hydration
@@ -120,7 +111,9 @@ function LoadingScreen(): React.ReactElement {
  * - Cookie consent
  * - Toast notifications
  */
-export function ClientProvider({ children }: ClientProviderProps): React.ReactElement {
+export function ClientProvider({
+  children,
+}: ClientProviderProps): React.ReactElement {
   const { isLoading } = useAuthToken();
   const isRNWebView = useReactNativeWebView();
 
@@ -150,8 +143,8 @@ export function ClientProvider({ children }: ClientProviderProps): React.ReactEl
             buttonText="Accept"
             cookieName="ikigai-cookie-consent"
             style={{ background: "#2B373B" }}
-            buttonStyle={{ 
-              color: "#4e503b", 
+            buttonStyle={{
+              color: "#4e503b",
               fontSize: "13px",
               background: "#fff",
               borderRadius: "4px",

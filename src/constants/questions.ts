@@ -1,7 +1,6 @@
-import { questionStepT } from "@/types/interface";
-import { QuestionType } from "@/types/question";
+import type { QuestionStep, SurveyQuestion } from "@/types";
 
-export const questions: QuestionType[] = [
+export const questions: SurveyQuestion[] = [
   {
     name: "lostTrackOfTime",
     headline: "Reflect on Your Interests",
@@ -113,7 +112,7 @@ export const questions: QuestionType[] = [
   },
 ];
 
-export const STEPPER_QUESTIONS_JSON: questionStepT[] = [
+export const STEPPER_QUESTIONS_JSON: QuestionStep[] = [
   {
     id: "passion",
     title: "What You Love (Passion)",
@@ -452,7 +451,9 @@ export const testData = [
     id: "hobbies",
     questions: "Which hobbies or interests make you lose track of time?",
     answer: [
-      "Building personal projects", "coding", "exploring new tech frameworks",
+      "Building personal projects",
+      "coding",
+      "exploring new tech frameworks",
     ],
   },
   {

@@ -9,7 +9,7 @@ import {
   Control,
 } from "react-hook-form";
 import CustomMultiTag from "./CustomMultiTag";
-import { QuestionStepper } from "@/types/question";
+import type { QuestionStepper } from "@/types";
 
 interface FormFieldProps {
   question: QuestionStepper;
@@ -68,7 +68,7 @@ const FormField: React.FC<FormFieldProps> = ({
             className="w-full p-2 border rounded-sm font-semibold"
           >
             <option value="">Select an option</option>
-            {question.options?.map((option) => (
+            {question.options?.map((option: string) => (
               <option key={option} value={option}>
                 {option}
               </option>
@@ -109,10 +109,7 @@ const FormField: React.FC<FormFieldProps> = ({
       <label className="block text-gray-700  font-semibold text-xl mb-2">
         {question.label}
       </label>
-      <div className="text-gray-700">
-
-      {renderField()}
-      </div>
+      <div className="text-gray-700">{renderField()}</div>
 
       <p className="text-red-500 text-sm mt-1 min-h-5">
         {errors[question.id] ? (errors[question.id]?.message as string) : ""}
