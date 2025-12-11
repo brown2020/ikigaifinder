@@ -19,7 +19,7 @@
 
 ---
 
-**Ikigai Finder AI** is a modern web application that helps users discover their *Ikigai* (生き甲斐) — the Japanese concept of "a reason for being." Through an interactive, AI-powered questionnaire, users receive personalized Ikigai statements with compatibility scores and can generate beautiful, shareable cards.
+**Ikigai Finder AI** is a modern web application that helps users discover their _Ikigai_ (生き甲斐) — the Japanese concept of "a reason for being." Through an interactive, AI-powered questionnaire, users receive personalized Ikigai statements with compatibility scores and can generate beautiful, shareable cards.
 
 ## Features
 
@@ -35,58 +35,65 @@
 ## Tech Stack
 
 ### Core Framework
-| Package | Version | Purpose |
-|---------|---------|---------|
-| [Next.js](https://nextjs.org/) | 16.x | React framework with App Router & Server Components |
-| [React](https://react.dev/) | 19.x | UI library |
-| [TypeScript](https://www.typescriptlang.org/) | 5.7+ | Type safety |
+
+| Package                                       | Version | Purpose                                             |
+| --------------------------------------------- | ------- | --------------------------------------------------- |
+| [Next.js](https://nextjs.org/)                | 16.x    | React framework with App Router & Server Components |
+| [React](https://react.dev/)                   | 19.x    | UI library                                          |
+| [TypeScript](https://www.typescriptlang.org/) | 5.7+    | Type safety                                         |
 
 ### Authentication & Backend
-| Package | Version | Purpose |
-|---------|---------|---------|
-| [Firebase](https://firebase.google.com/) | 12.x | Auth, Firestore database, Cloud Storage |
-| [Firebase Admin](https://firebase.google.com/docs/admin/setup) | 13.x | Server-side Firebase operations |
-| [cookies-next](https://github.com/andreizanik/cookies-next) | 6.x | Cookie management for auth tokens |
+
+| Package                                                        | Version | Purpose                                 |
+| -------------------------------------------------------------- | ------- | --------------------------------------- |
+| [Firebase](https://firebase.google.com/)                       | 12.x    | Auth, Firestore database, Cloud Storage |
+| [Firebase Admin](https://firebase.google.com/docs/admin/setup) | 13.x    | Server-side Firebase operations         |
+| [cookies-next](https://github.com/andreizanik/cookies-next)    | 6.x     | Cookie management for auth tokens       |
 
 ### AI & Generation
-| Package | Version | Purpose |
-|---------|---------|---------|
-| [Vercel AI SDK](https://sdk.vercel.ai/) | 5.x | Streaming AI responses |
-| [@ai-sdk/openai](https://sdk.vercel.ai/providers/ai-sdk-providers/openai) | 2.x | OpenAI GPT-4o integration |
-| [@ai-sdk/rsc](https://sdk.vercel.ai/docs/ai-sdk-rsc) | 1.x | React Server Components streaming |
+
+| Package                                                                   | Version | Purpose                           |
+| ------------------------------------------------------------------------- | ------- | --------------------------------- |
+| [Vercel AI SDK](https://sdk.vercel.ai/)                                   | 5.x     | Streaming AI responses            |
+| [@ai-sdk/openai](https://sdk.vercel.ai/providers/ai-sdk-providers/openai) | 2.x     | OpenAI GPT-4o integration         |
+| [@ai-sdk/rsc](https://sdk.vercel.ai/docs/ai-sdk-rsc)                      | 1.x     | React Server Components streaming |
 
 ### State Management
-| Package | Version | Purpose |
-|---------|---------|---------|
-| [Zustand](https://zustand-demo.pmnd.rs/) | 5.x | Lightweight global state management |
-| [react-firebase-hooks](https://github.com/CSFrequency/react-firebase-hooks) | 5.x | Firebase React hooks |
+
+| Package                                                                     | Version | Purpose                             |
+| --------------------------------------------------------------------------- | ------- | ----------------------------------- |
+| [Zustand](https://zustand-demo.pmnd.rs/)                                    | 5.x     | Lightweight global state management |
+| [react-firebase-hooks](https://github.com/CSFrequency/react-firebase-hooks) | 5.x     | Firebase React hooks                |
 
 ### UI Components
-| Package | Version | Purpose |
-|---------|---------|---------|
-| [Tailwind CSS](https://tailwindcss.com/) | 4.x | Utility-first CSS framework |
-| [Lucide React](https://lucide.dev/) | 0.559+ | Beautiful icon library |
-| [React Hook Form](https://react-hook-form.com/) | 7.x | Performant form handling |
-| [React Hot Toast](https://react-hot-toast.com/) | 2.x | Toast notifications |
-| [React Select](https://react-select.com/) | 5.x | Advanced select inputs |
-| [React Slick](https://react-slick.neostack.com/) | 0.31+ | Carousel/slider component |
-| [React Spinners](https://www.davidhu.io/react-spinners/) | 0.17+ | Loading indicators |
-| [React Tooltip](https://react-tooltip.com/) | 5.x | Tooltips |
-| [React Share](https://github.com/nygardk/react-share) | 5.x | Social sharing buttons |
-| [React Cookie Consent](https://github.com/Mastermindzh/react-cookie-consent) | 9.x | GDPR cookie consent banner |
+
+| Package                                                                      | Version | Purpose                     |
+| ---------------------------------------------------------------------------- | ------- | --------------------------- |
+| [Tailwind CSS](https://tailwindcss.com/)                                     | 4.x     | Utility-first CSS framework |
+| [Lucide React](https://lucide.dev/)                                          | 0.559+  | Beautiful icon library      |
+| [React Hook Form](https://react-hook-form.com/)                              | 7.x     | Performant form handling    |
+| [React Hot Toast](https://react-hot-toast.com/)                              | 2.x     | Toast notifications         |
+| [React Select](https://react-select.com/)                                    | 5.x     | Advanced select inputs      |
+| [React Slick](https://react-slick.neostack.com/)                             | 0.31+   | Carousel/slider component   |
+| [React Spinners](https://www.davidhu.io/react-spinners/)                     | 0.17+   | Loading indicators          |
+| [React Tooltip](https://react-tooltip.com/)                                  | 5.x     | Tooltips                    |
+| [React Share](https://github.com/nygardk/react-share)                        | 5.x     | Social sharing buttons      |
+| [React Cookie Consent](https://github.com/Mastermindzh/react-cookie-consent) | 9.x     | GDPR cookie consent banner  |
 
 ### Data Visualization
-| Package | Version | Purpose |
-|---------|---------|---------|
-| [AnyChart React](https://www.anychart.com/) | 1.4+ | Venn diagram visualization |
+
+| Package                                     | Version | Purpose                    |
+| ------------------------------------------- | ------- | -------------------------- |
+| [AnyChart React](https://www.anychart.com/) | 1.4+    | Venn diagram visualization |
 
 ### Utilities
-| Package | Version | Purpose |
-|---------|---------|---------|
-| [Zod](https://zod.dev/) | 4.x | Schema validation |
-| [Lodash](https://lodash.com/) | 4.x | Utility functions |
-| [html2canvas](https://html2canvas.hertzen.com/) | 1.4+ | Screenshot capture for sharing |
-| [react-textarea-autosize](https://github.com/Andarist/react-textarea-autosize) | 8.x | Auto-resizing textareas |
+
+| Package                                                                        | Version | Purpose                        |
+| ------------------------------------------------------------------------------ | ------- | ------------------------------ |
+| [Zod](https://zod.dev/)                                                        | 4.x     | Schema validation              |
+| [Lodash](https://lodash.com/)                                                  | 4.x     | Utility functions              |
+| [html2canvas](https://html2canvas.hertzen.com/)                                | 1.4+    | Screenshot capture for sharing |
+| [react-textarea-autosize](https://github.com/Andarist/react-textarea-autosize) | 8.x     | Auto-resizing textareas        |
 
 ## Getting Started
 
@@ -101,12 +108,14 @@
 ### Installation
 
 1. **Clone the repository:**
+
    ```bash
    git clone https://github.com/yourusername/ikigaifinder.git
    cd ikigaifinder
    ```
 
 2. **Install dependencies:**
+
    ```bash
    npm install
    # or
@@ -116,16 +125,20 @@
    ```
 
 3. **Set up environment variables:**
+
    ```bash
    cp env.sample .env.local
    ```
+
    Then edit `.env.local` with your actual credentials (see [Environment Variables](#environment-variables)).
 
 4. **Set up Firebase:**
+
    - Deploy Firestore rules: `firebase deploy --only firestore:rules`
    - Deploy Storage rules: `firebase deploy --only storage:rules`
 
 5. **Run the development server:**
+
    ```bash
    npm run dev
    ```
@@ -292,6 +305,7 @@ firebase deploy --only firestore:rules,storage:rules
 ### Other Platforms
 
 The app can be deployed to any platform that supports Next.js 16:
+
 - **Netlify** — Use the Next.js runtime
 - **AWS Amplify** — SSR support for Next.js
 - **Self-hosted** — `npm run build && npm start`
