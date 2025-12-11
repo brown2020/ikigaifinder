@@ -1,81 +1,52 @@
 "use client";
-import { useEffect, useState } from "react";
-import Image from "next/image";
-import { navItems } from "@/constants/menuItems";
-import { ChevronDown, CircleUserIcon } from "lucide-react";
+
+import { useEffect, useMemo, useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
-import { useProfileStore } from "@/zustand";
+import { ChevronDown, CircleUserIcon } from "lucide-react";
+import { navItems } from "@/constants/menuItems";
+import { useProfileStore, selectFormattedName } from "@/zustand";
+import { NavMenuIcon } from "./ui";
 import type { NavItem } from "@/types";
 
 export default function NavbarMenuItems() {
   const router = useRouter();
   const profile = useProfileStore((s) => s.profile);
+  const formattedName = useProfileStore(selectFormattedName);
   const [isOpenDropdown, setIsOpenDropdown] = useState<string | null>(null);
-  const handleClickOutside = (event: MouseEvent) => {
+
+  const handleClickOutside = useCallback((event: MouseEvent) => {
     const target = event.target as HTMLElement;
     const dropdownElements = document.querySelectorAll(".dropdown-menu");
     if (!Array.from(dropdownElements).some((el) => el.contains(target))) {
       setIsOpenDropdown(null);
     }
-  };
+  }, []);
 
   useEffect(() => {
     document.addEventListener("mousedown", handleClickOutside);
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
     };
+  }, [handleClickOutside]);
+
+  const handleDropdown = useCallback((label: string) => {
+    setIsOpenDropdown((prev) => (prev === label ? null : label));
   }, []);
 
-  const handleDropdown = (label: string) => {
-    setIsOpenDropdown(isOpenDropdown === label ? null : label);
-  };
-
-  const handleProfileName = () => {
-    if (profile?.firstName) {
-      return `${profile?.firstName} ${profile?.lastName || ""}`;
-    }
-    return profile?.email?.split("@")[0];
-  };
-
-  const navBarItems = navItems.map((item) => {
-    if (item.label === "Profile") {
-      const userName = handleProfileName();
-      return {
-        ...item,
-        label: userName,
-        icon: CircleUserIcon,
-        profileUrl: profile?.photoUrl,
-        profileName: userName?.split("")[0]?.toUpperCase(),
-      };
-    }
-
-    return item;
-  });
-
-  const renderMenuIcon = (item: NavItem) => {
-    switch (true) {
-      case !!item.profileUrl:
-        return (
-          <Image
-            src={item.profileUrl || ""}
-            alt="profile"
-            width={28}
-            height={28}
-            className="h-full object-cover text-2xl w-7 rounded-full"
-          />
-        );
-      case !!item.profileName:
-        return (
-          <div className="h-full object-cover text-lg w-6 bg-white font-medium text-black rounded-full flex items-center justify-center">
-            {item.profileName}
-          </div>
-        );
-      default:
-        return (
-          <item.icon size={28} className="h-full object-cover text-2xl w-7" />
-        );
-    }
-  };
+  const navBarItems = useMemo(() => {
+    return navItems.map((item) => {
+      if (item.label === "Profile") {
+        return {
+          ...item,
+          label: formattedName,
+          icon: CircleUserIcon,
+          profileUrl: profile?.photoUrl,
+          profileName: formattedName?.charAt(0)?.toUpperCase(),
+        };
+      }
+      return item;
+    });
+  }, [profile?.photoUrl, formattedName]);
 
   return (
     <div className="flex h-full gap-2 items-center">
@@ -90,7 +61,9 @@ export default function NavbarMenuItems() {
                   : item.path && router.push(item.path)
               }
             >
-              <div className="aspect-square">{renderMenuIcon(item)}</div>
+              <div className="aspect-square">
+                <NavMenuIcon item={item} size={28} />
+              </div>
               <div className="text-base font-medium">{item.label || ""}</div>
               {item.subItems && (
                 <ChevronDown

@@ -30,5 +30,3 @@ export function useInitializeStores(): void {
     });
   }, [uid]);
 }
-
-export default useInitializeStores;

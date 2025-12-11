@@ -66,7 +66,7 @@ const defaultProfile: UserProfile = {
 
 /**
  * Profile State Store
- * 
+ *
  * Manages user profile data including:
  * - Personal information
  * - Contact details
@@ -93,18 +93,11 @@ export const useProfileStore = create<ProfileStore>()(
         try {
           const authState = useAuthStore.getState();
           const profile = await fetchProfileData(uid, authState);
-          set(
-            { profile, isLoading: false },
-            false,
-            "profile/fetchSuccess"
-          );
+          set({ profile, isLoading: false }, false, "profile/fetchSuccess");
         } catch (err) {
-          const error = err instanceof Error ? err : new Error("Failed to fetch profile");
-          set(
-            { error, isLoading: false },
-            false,
-            "profile/fetchError"
-          );
+          const error =
+            err instanceof Error ? err : new Error("Failed to fetch profile");
+          set({ error, isLoading: false }, false, "profile/fetchError");
         }
       },
 
@@ -120,28 +113,26 @@ export const useProfileStore = create<ProfileStore>()(
         try {
           const currentProfile = get().profile;
           const authState = useAuthStore.getState();
-          const updatedProfile = await updateProfileData(uid, currentProfile, data, authState);
+          const updatedProfile = await updateProfileData(
+            uid,
+            currentProfile,
+            data,
+            authState
+          );
           set(
             { profile: updatedProfile, isLoading: false },
             false,
             "profile/updateSuccess"
           );
         } catch (err) {
-          const error = err instanceof Error ? err : new Error("Failed to update profile");
-          set(
-            { error, isLoading: false },
-            false,
-            "profile/updateError"
-          );
+          const error =
+            err instanceof Error ? err : new Error("Failed to update profile");
+          set({ error, isLoading: false }, false, "profile/updateError");
         }
       },
 
       resetProfile: () => {
-        set(
-          { profile: defaultProfile, error: null },
-          false,
-          "profile/reset"
-        );
+        set({ profile: defaultProfile, error: null }, false, "profile/reset");
       },
 
       clearError: () => {
@@ -168,23 +159,6 @@ export const selectProfileUser = (state: ProfileStore) => ({
   photoUrl: state.profile.photoUrl,
 });
 
-/** Select contact info */
-export const selectContactInfo = (state: ProfileStore) => ({
-  contactEmail: state.profile.contactEmail,
-  location: state.profile.location,
-  country: state.profile.country,
-  website: state.profile.website,
-  linkedin: state.profile.linkedin,
-});
-
-/** Select professional info */
-export const selectProfessionalInfo = (state: ProfileStore) => ({
-  organization: state.profile.organization,
-  title: state.profile.title,
-  bio: state.profile.bio,
-  interests: state.profile.interests,
-});
-
 /** Select loading/error state */
 export const selectProfileStatus = (state: ProfileStore) => ({
   isLoading: state.isLoading,
@@ -194,16 +168,14 @@ export const selectProfileStatus = (state: ProfileStore) => ({
 /** Get formatted display name */
 export const selectFormattedName = (state: ProfileStore) => {
   const { firstName, lastName, displayName, email } = state.profile;
-  
+
   if (firstName) {
     return lastName ? `${firstName} ${lastName}` : firstName;
   }
-  
+
   if (displayName) {
     return displayName;
   }
-  
+
   return email?.split("@")[0] ?? "User";
 };
-
-export default useProfileStore;

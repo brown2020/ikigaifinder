@@ -17,7 +17,6 @@ import {
 import toast from "react-hot-toast";
 import { Download, Image as ImageIcon } from "lucide-react";
 import { useIkigaiStore } from "@/zustand";
-import withAuth from "@/components/withAuth";
 import { Button } from "@/components/ui/Button";
 import { DashboardSkeleton } from "@/components/ui/Skeleton";
 
@@ -179,4 +178,4 @@ function DashboardPage(): React.ReactElement {
   );
 }
 
-export default withAuth(DashboardPage);
+export default DashboardPage;

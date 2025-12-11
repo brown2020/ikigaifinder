@@ -94,5 +94,3 @@ export const selectIsGlobalLoading = (state: UIStore) => state.isGlobalLoading;
 /** Select set global loading action */
 export const selectSetGlobalLoading = (state: UIStore) =>
   state.setGlobalLoading;
-
-export default useUIStore;

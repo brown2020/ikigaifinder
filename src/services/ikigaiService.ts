@@ -208,20 +208,3 @@ export async function saveGeneratedImageHistory(
     throw new Error("Failed to save generated image to history");
   }
 }
-
-/**
- * Get all generated images for a user
- *
- * @param uid - User ID
- * @returns Array of image prompt data
- */
-export async function getGeneratedImageHistory(
-  uid: string
-): Promise<ImagePromptData[]> {
-  if (!uid) {
-    throw new Error("User ID is required to fetch image history");
-  }
-
-  // TODO: Implement when needed
-  return [];
-}

@@ -3,11 +3,11 @@
 import { useEffect, useState } from "react";
 import dynamic from "next/dynamic";
 import { Toaster } from "react-hot-toast";
-import { ClipLoader } from "react-spinners";
 import CookieConsent from "react-cookie-consent";
 import { useInitializeStores } from "@/zustand";
 import { useAuthToken } from "@/hooks/use-auth-token";
 import { isReactNativeWebView } from "@/utils/platform";
+import { AppLoadingScreen } from "./ui";
 import ErrorBoundary from "./ErrorBoundary";
 
 // Lazy load auth modal for better initial load (it's conditionally rendered)
@@ -79,24 +79,6 @@ function useReactNativeWebView(): boolean {
 }
 
 // ============================================================================
-// Loading Screen Component
-// ============================================================================
-
-function LoadingScreen(): React.ReactElement {
-  return (
-    <div
-      className="flex flex-col items-center justify-center h-full"
-      style={{ backgroundColor: "#333b51" }}
-      role="status"
-      aria-label="Loading application"
-    >
-      <ClipLoader color="#fff" size={80} />
-      <span className="sr-only">Loading...</span>
-    </div>
-  );
-}
-
-// ============================================================================
 // Client Provider Component
 // ============================================================================
 
@@ -127,7 +109,7 @@ export function ClientProvider({
   if (isLoading) {
     return (
       <ErrorBoundary>
-        <LoadingScreen />
+        <AppLoadingScreen />
       </ErrorBoundary>
     );
   }

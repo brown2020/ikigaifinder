@@ -1,6 +1,6 @@
 /**
  * UI Components Export
- * 
+ *
  * Centralized export for all reusable UI components
  */
 
@@ -34,4 +34,8 @@ export {
   DashboardSkeleton,
 } from "./Skeleton";
 
+// Navigation components
+export { NavMenuIcon } from "./NavMenuIcon";
 
+// Loading components
+export { LoadingSpinner, AppLoadingScreen } from "./LoadingSpinner";

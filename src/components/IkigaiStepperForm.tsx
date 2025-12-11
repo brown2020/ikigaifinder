@@ -7,7 +7,6 @@ import { STEPPER_QUESTIONS_JSON } from "@/constants/questions";
 import type { QuestionStep } from "@/types";
 import { useIkigaiStore } from "@/zustand";
 import { useRouter } from "next/navigation";
-import withAuth from "./withAuth";
 
 const IkigaiStepperForm: React.FC = () => {
   const {
@@ -201,4 +200,4 @@ const IkigaiStepperForm: React.FC = () => {
   );
 };
 
-export default withAuth(IkigaiStepperForm);
+export default IkigaiStepperForm;

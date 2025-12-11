@@ -3,8 +3,7 @@
 import React, { useEffect, useRef, useState, useCallback } from "react";
 import { XIcon } from "lucide-react";
 import { useAuthStore, useUIStore } from "@/zustand";
-import LoginForm from "./LoginForm";
-import SignupForm from "./SignupForm";
+import AuthForm from "./AuthForm";
 import SocialLogin from "./SocialLogin";
 import AuthPending from "./AuthPending";
 import SignedInView from "./SignedInView";
@@ -30,7 +29,7 @@ const TAB_CLASSES = {
 
 /**
  * Authentication Modal Component
- * 
+ *
  * Renders a modal dialog for user authentication that supports:
  * - Email/password sign in and sign up
  * - Google OAuth
@@ -83,7 +82,10 @@ export default function AuthModal(): React.ReactElement | null {
    */
   const handleBackdropClick = useCallback(
     (event: React.MouseEvent<HTMLDivElement>): void => {
-      if (modalRef.current && !modalRef.current.contains(event.target as Node)) {
+      if (
+        modalRef.current &&
+        !modalRef.current.contains(event.target as Node)
+      ) {
         close();
       }
     },
@@ -111,7 +113,10 @@ export default function AuthModal(): React.ReactElement | null {
   return (
     <div
       className="fixed inset-0 flex items-center justify-center p-4 z-[999]"
-      style={{ backgroundColor: "rgba(0, 0, 0, 0.4)", backdropFilter: "blur(4px)" }}
+      style={{
+        backgroundColor: "rgba(0, 0, 0, 0.4)",
+        backdropFilter: "blur(4px)",
+      }}
       onClick={handleBackdropClick}
       role="dialog"
       aria-modal="true"
@@ -143,7 +148,9 @@ export default function AuthModal(): React.ReactElement | null {
               <button
                 onClick={() => setActiveTab("signin")}
                 className={`flex-1 py-3 px-4 text-center font-medium transition-colors duration-200 ${
-                  activeTab === "signin" ? TAB_CLASSES.active : TAB_CLASSES.inactive
+                  activeTab === "signin"
+                    ? TAB_CLASSES.active
+                    : TAB_CLASSES.inactive
                 }`}
                 type="button"
                 aria-selected={activeTab === "signin"}
@@ -153,7 +160,9 @@ export default function AuthModal(): React.ReactElement | null {
               <button
                 onClick={() => setActiveTab("signup")}
                 className={`flex-1 py-3 px-4 text-center font-medium transition-colors duration-200 ${
-                  activeTab === "signup" ? TAB_CLASSES.active : TAB_CLASSES.inactive
+                  activeTab === "signup"
+                    ? TAB_CLASSES.active
+                    : TAB_CLASSES.inactive
                 }`}
                 type="button"
                 aria-selected={activeTab === "signup"}
@@ -166,11 +175,7 @@ export default function AuthModal(): React.ReactElement | null {
             <SocialLogin onSuccess={handleSuccess} />
 
             {/* Tab content */}
-            {activeTab === "signin" ? (
-              <LoginForm onSuccess={handleSuccess} />
-            ) : (
-              <SignupForm onSuccess={handleSuccess} />
-            )}
+            <AuthForm mode={activeTab} onSuccess={handleSuccess} />
           </div>
         )}
       </div>

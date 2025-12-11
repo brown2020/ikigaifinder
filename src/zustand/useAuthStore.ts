@@ -69,7 +69,7 @@ const initialAuthState: AuthState = {
 
 /**
  * Authentication State Store
- * 
+ *
  * Manages Firebase authentication state including:
  * - User profile information
  * - Authentication status
@@ -81,19 +81,11 @@ export const useAuthStore = create<AuthStore>()(
       ...initialAuthState,
 
       setAuthDetails: (details: Partial<AuthState>) => {
-        set(
-          (state) => ({ ...state, ...details }),
-          false,
-          "auth/setDetails"
-        );
+        set((state) => ({ ...state, ...details }), false, "auth/setDetails");
       },
 
       clearAuthDetails: () => {
-        set(
-          initialAuthState,
-          false,
-          "auth/clear"
-        );
+        set(initialAuthState, false, "auth/clear");
       },
 
       isAuthenticated: () => {
@@ -129,5 +121,3 @@ export const selectSubscription = (state: AuthStore) => ({
   isPremium: state.premium,
   isAllowed: state.isAllowed,
 });
-
-export default useAuthStore;

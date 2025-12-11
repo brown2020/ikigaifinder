@@ -1,20 +1,12 @@
 "use client";
 
-import withAuth from "@/components/withAuth";
 import { auth } from "@/firebase/firebaseClient";
-import { useAuthStore } from "@/zustand";
 import { signOut } from "firebase/auth";
 import { useRouter } from "next/navigation";
-import { useEffect } from "react";
 import "react-tooltip/dist/react-tooltip.css";
 
 function LogoutPage() {
   const router = useRouter();
-  const { uid, authReady } = useAuthStore();
-
-  useEffect(() => {
-    if (!uid) router.push("/");
-  }, [authReady, router, uid]);
 
   const handleSignOut = () => {
     signOut(auth)
@@ -43,4 +35,4 @@ function LogoutPage() {
   );
 }
 
-export default withAuth(LogoutPage);
+export default LogoutPage;

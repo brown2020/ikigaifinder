@@ -198,31 +198,3 @@ export interface ModalProps {
 export interface AuthFormProps {
   onSuccess: () => void;
 }
-
-// ============================================================================
-// Legacy Type Aliases (for backward compatibility during migration)
-// ============================================================================
-
-/** @deprecated Use NavItem instead */
-export type navItemType = NavItem;
-
-/** @deprecated Use QuestionStep instead */
-export type questionStepT = QuestionStep;
-
-/** @deprecated Use IkigaiData instead */
-export type ikigaiDataT = IkigaiData;
-
-/** @deprecated Use Ikigai instead */
-export type ikigaiType = Ikigai;
-
-/** @deprecated Use SurveyQuestion instead */
-export type QuestionType = SurveyQuestion;
-
-/** @deprecated Use SurveyAnswer instead */
-export type AnswerType = SurveyAnswer;
-
-/** @deprecated Use ImagePromptData instead */
-export type PromptDataType = ImagePromptData;
-
-
-

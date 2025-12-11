@@ -1,12 +1,13 @@
 import HomePage from "@/componentPages/HomePage";
 import FooterNavBar from "@/components/FooterNavBar";
-export default function page() {
+
+export default function Home() {
   return (
-    <div>
+    <>
       <HomePage />
       <div id="recent-article">
         <FooterNavBar />
       </div>
-    </div>
+    </>
   );
 }

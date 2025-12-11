@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from "react";
 import Image from "next/image";
 import { useAuthActions } from "@/hooks/use-auth-actions";
+import { isIOSReactNativeWebView } from "@/utils/platform";
 
 // ============================================================================
 // Types
@@ -13,29 +14,18 @@ interface SocialLoginProps {
 }
 
 // ============================================================================
-// Utilities
-// ============================================================================
-
-/**
- * Check if running in iOS React Native WebView
- * (Google Sign-In is blocked in iOS WebViews)
- */
-function isIOSReactNativeWebView(): boolean {
-  if (typeof window === "undefined") return false;
-  return typeof window.ReactNativeWebView !== "undefined";
-}
-
-// ============================================================================
 // Component
 // ============================================================================
 
 /**
  * Social Login Component
- * 
+ *
  * Renders social login options (currently Google only)
  * Automatically hides in iOS WebViews where Google Sign-In isn't supported
  */
-export default function SocialLogin({ onSuccess }: SocialLoginProps): React.ReactElement | null {
+export default function SocialLogin({
+  onSuccess,
+}: SocialLoginProps): React.ReactElement | null {
   const { signInWithGoogle, isLoading } = useAuthActions();
   const [showGoogleSignIn, setShowGoogleSignIn] = useState(false);
 

@@ -6,7 +6,7 @@ import { auth } from "@/firebase/firebaseClient";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 import { FirebaseError } from "firebase/app";
-import useProfileStore from "@/zustand/useProfileStore";
+import { useProfileStore } from "@/zustand/useProfileStore";
 import { updateUserDetailsInFirestore } from "@/services/userService";
 
 export default function LoginFinishPage() {

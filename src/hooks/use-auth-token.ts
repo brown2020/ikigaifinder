@@ -203,6 +203,3 @@ export function useAuthToken(
     refreshToken: refreshAuthToken,
   };
 }
-
-// Default export for backward compatibility
-export default useAuthToken;

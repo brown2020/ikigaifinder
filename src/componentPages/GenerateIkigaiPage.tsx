@@ -1,7 +1,6 @@
 "use client";
 import GenerateIkigaiForm from "@/components/GenerateIkigaiForm";
 import GenerateIkigaiImage from "@/components/GenerateIkigaiImage";
-import withAuth from "@/components/withAuth";
 import { useSearchParams } from "next/navigation";
 import { Suspense, useState } from "react";
 
@@ -29,4 +28,4 @@ function GenerateIkigaiPage() {
   );
 }
 
-export default withAuth(GenerateIkigaiPage);
+export default GenerateIkigaiPage;

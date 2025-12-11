@@ -8,7 +8,7 @@ import { ClipLoader } from "react-spinners";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useAuthStore } from "@/zustand/useAuthStore";
-import useProfileStore from "@/zustand/useProfileStore";
+import { useProfileStore } from "@/zustand/useProfileStore";
 import { resizeImage } from "@/utils/resizeImage";
 import { Button } from "./ui/Button";
 

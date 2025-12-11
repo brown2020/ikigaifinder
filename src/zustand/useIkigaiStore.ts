@@ -1,7 +1,11 @@
 import { create } from "zustand";
 import { devtools } from "zustand/middleware";
 import { useAuthStore } from "./useAuthStore";
-import { defaultIkigai, fetchIkigaiData, updateIkigaiData } from "@/services/ikigaiService";
+import {
+  defaultIkigai,
+  fetchIkigaiData,
+  updateIkigaiData,
+} from "@/services/ikigaiService";
 import type { Ikigai, IkigaiData } from "@/types";
 
 // Re-export for backward compatibility
@@ -43,7 +47,7 @@ type IkigaiStore = IkigaiState & IkigaiActions;
 
 /**
  * Ikigai State Store
- * 
+ *
  * Manages the user's Ikigai journey including:
  * - Survey answers
  * - Generated ikigai options
@@ -75,12 +79,9 @@ export const useIkigaiStore = create<IkigaiStore>()(
             "ikigai/fetchSuccess"
           );
         } catch (err) {
-          const error = err instanceof Error ? err : new Error("Failed to fetch ikigai");
-          set(
-            { error, isLoading: false },
-            false,
-            "ikigai/fetchError"
-          );
+          const error =
+            err instanceof Error ? err : new Error("Failed to fetch ikigai");
+          set({ error, isLoading: false }, false, "ikigai/fetchError");
         }
       },
 
@@ -95,28 +96,25 @@ export const useIkigaiStore = create<IkigaiStore>()(
 
         try {
           const currentData = get().ikigaiData;
-          const updatedData = await updateIkigaiData(uid, currentData, updateData);
+          const updatedData = await updateIkigaiData(
+            uid,
+            currentData,
+            updateData
+          );
           set(
             { ikigaiData: updatedData, isLoading: false },
             false,
             "ikigai/updateSuccess"
           );
         } catch (err) {
-          const error = err instanceof Error ? err : new Error("Failed to update ikigai");
-          set(
-            { error, isLoading: false },
-            false,
-            "ikigai/updateError"
-          );
+          const error =
+            err instanceof Error ? err : new Error("Failed to update ikigai");
+          set({ error, isLoading: false }, false, "ikigai/updateError");
         }
       },
 
       resetIkigai: () => {
-        set(
-          { ikigaiData: defaultIkigai, error: null },
-          false,
-          "ikigai/reset"
-        );
+        set({ ikigaiData: defaultIkigai, error: null }, false, "ikigai/reset");
       },
 
       selectIkigai: (ikigai: IkigaiData | null) => {
@@ -161,10 +159,12 @@ export const useIkigaiStore = create<IkigaiStore>()(
 export const selectIkigaiData = (state: IkigaiStore) => state.ikigaiData;
 
 /** Select the selected ikigai option */
-export const selectSelectedIkigai = (state: IkigaiStore) => state.ikigaiData.ikigaiSelected;
+export const selectSelectedIkigai = (state: IkigaiStore) =>
+  state.ikigaiData.ikigaiSelected;
 
 /** Select ikigai options */
-export const selectIkigaiOptions = (state: IkigaiStore) => state.ikigaiData.ikigaiOptions;
+export const selectIkigaiOptions = (state: IkigaiStore) =>
+  state.ikigaiData.ikigaiOptions;
 
 /** Select answers */
 export const selectAnswers = (state: IkigaiStore) => state.ikigaiData.answers;
@@ -181,5 +181,3 @@ export const selectIsComplete = (state: IkigaiStore) => {
     step.questions.every((q) => q.answer && q.answer.length > 0)
   );
 };
-
-export default useIkigaiStore;

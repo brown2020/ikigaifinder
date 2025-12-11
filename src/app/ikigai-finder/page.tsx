@@ -1,6 +1,6 @@
 import IkigaiStepperForm from "@/components/IkigaiStepperForm";
 
-export default function IkigaiPage() {
+export default function IkigaiFinderPage() {
   return (
     <div className="flex flex-col gap-5 text-white md:p-10 sm:p-5">
       <IkigaiStepperForm />

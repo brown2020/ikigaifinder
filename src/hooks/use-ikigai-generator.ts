@@ -44,7 +44,7 @@ const DEFAULT_MIN_RESULTS = 5;
 
 /**
  * Custom hook for generating Ikigai suggestions using AI
- * 
+ *
  * Handles:
  * - Streaming AI responses
  * - Parsing ikigai data from responses
@@ -84,41 +84,52 @@ export function useIkigaiGenerator({
   /**
    * Generate ikigai suggestions from survey answers
    */
-  const generate = useCallback(async (answers: QuestionStep[]): Promise<void> => {
-    setIsGenerating(true);
-    setError(null);
+  const generate = useCallback(
+    async (answers: QuestionStep[]): Promise<void> => {
+      setIsGenerating(true);
+      setError(null);
 
-    try {
-      const questionData = prepareQuestionData(answers);
+      try {
+        const questionData = prepareQuestionData(answers);
 
-      const customPrompt = guidance
-        ? `Incorporate the following additional guidance in shaping your response: ${guidance}`
-        : "";
+        const customPrompt = guidance
+          ? `Incorporate the following additional guidance in shaping your response: ${guidance}`
+          : "";
 
-      const result = await generateIkigai(questionData, customPrompt);
+        const result = await generateIkigai(questionData, customPrompt);
 
-      for await (const content of readStreamableValue(result)) {
-        if (!content) continue;
+        for await (const content of readStreamableValue(result)) {
+          if (!content) continue;
 
-        const parsedList = extractIkigaiData(content);
+          const parsedList = extractIkigaiData(content);
 
-        // Stop loading indicator early if we have enough results
-        if (parsedList.length >= minResultsForEarlyComplete) {
-          setIsGenerating(false);
+          // Stop loading indicator early if we have enough results
+          if (parsedList.length >= minResultsForEarlyComplete) {
+            setIsGenerating(false);
+          }
+
+          const mergedData = mergeIkigaiLists(ikigaiData, parsedList);
+          onDataUpdate(mergedData);
+          scrollToResults();
         }
-
-        const mergedData = mergeIkigaiLists(ikigaiData, parsedList);
-        onDataUpdate(mergedData);
-        scrollToResults();
+      } catch (err) {
+        const error =
+          err instanceof Error ? err : new Error("Failed to generate Ikigai");
+        setError(error);
+        console.error("Error generating Ikigai:", error);
+      } finally {
+        setIsGenerating(false);
       }
-    } catch (err) {
-      const error = err instanceof Error ? err : new Error("Failed to generate Ikigai");
-      setError(error);
-      console.error("Error generating Ikigai:", error);
-    } finally {
-      setIsGenerating(false);
-    }
-  }, [ikigaiData, onDataUpdate, guidance, minResultsForEarlyComplete, prepareQuestionData, scrollToResults]);
+    },
+    [
+      ikigaiData,
+      onDataUpdate,
+      guidance,
+      minResultsForEarlyComplete,
+      prepareQuestionData,
+      scrollToResults,
+    ]
+  );
 
   return {
     generate,
@@ -127,9 +138,3 @@ export function useIkigaiGenerator({
     error,
   };
 }
-
-// Legacy export for backward compatibility
-export { useIkigaiGenerator as default };
-
-
-

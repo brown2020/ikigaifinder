@@ -1,15 +1,13 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import { Share } from "lucide-react";
 import ProfileComponent from "@/components/ProfileComponent";
 import ProfileDeleted from "@/components/ProfileDeleted";
 import Toast from "@/components/Toast";
 import { Button } from "@/components/ui/Button";
-import withAuth from "@/components/withAuth";
 import { useAuthStore, useIkigaiStore } from "@/zustand";
 
 interface toastType {
@@ -19,8 +17,7 @@ interface toastType {
 }
 
 function ProfilePage() {
-  const router = useRouter();
-  const { uid, authReady } = useAuthStore();
+  const uid = useAuthStore((s) => s.uid);
   const fetchIkigaiData = useIkigaiStore((s) => s.ikigaiData);
   const [isOpen, setIsOpen] = useState(false);
   const [toast, setToast] = useState<toastType>({
@@ -28,10 +25,6 @@ function ProfilePage() {
     type: "",
     message: "",
   });
-
-  useEffect(() => {
-    if (!uid) router.push("/");
-  }, [authReady, router, uid]);
 
   const closeToast = () => {
     setToast({ show: false, type: "", message: "" });
@@ -95,4 +88,4 @@ function ProfilePage() {
   );
 }
 
-export default withAuth(ProfilePage);
+export default ProfilePage;
