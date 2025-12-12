@@ -8,6 +8,8 @@ import { useEffect } from "react";
 import { FirebaseError } from "firebase/app";
 import { useProfileStore } from "@/zustand/useProfileStore";
 import { updateUserDetailsInFirestore } from "@/services/userService";
+import { getIdToken } from "firebase/auth";
+import { createServerSession } from "@/lib/auth/session-client";
 
 export default function LoginFinishPage() {
   const router = useRouter();
@@ -42,6 +44,11 @@ export default function LoginFinishPage() {
         );
 
         const user = userCredential.user;
+        // Create the server session cookie immediately so `proxy.ts` allows protected routes.
+        if (user) {
+          const idToken = await getIdToken(user, true);
+          await createServerSession(idToken);
+        }
         const authEmail = user?.email;
         const uid = user?.uid;
         const selectedName = name || user?.displayName || "";

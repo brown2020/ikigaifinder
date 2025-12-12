@@ -86,3 +86,4 @@ export default function IkigaiLogo({
 export { IkigaiLogo };
 
 
+

@@ -1,4 +1,4 @@
-import TermsConditions from "@/componentPages/TermsPage";
+import TermsConditions from "./_components/terms-page";
 import FooterNavBar from "@/components/FooterNavBar";
 
 export default function TermsPage() {

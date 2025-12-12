@@ -1,4 +1,4 @@
-import HomePage from "@/componentPages/HomePage";
+import HomePage from "./_components/home-page";
 import FooterNavBar from "@/components/FooterNavBar";
 
 export default function Home() {

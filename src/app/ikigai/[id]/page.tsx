@@ -1,4 +1,4 @@
-import ShareImagePage from "@/componentPages/ShareImagePage";
+import ShareImagePage from "./_components/share-image-page";
 import { adminDb } from "@/firebase/firebaseAdmin";
 import { Metadata } from "next";
 
@@ -45,14 +45,18 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     sharableUrl && imageUrl ? imageUrl : "https://assets/falcon.jpeg";
 
   return {
-    metadataBase: new URL("https://ikigaifinder.ai/"),
+    metadataBase: new URL(
+      process.env.NEXT_PUBLIC_BASE_URL || "https://ikigaifinder.ai"
+    ),
     title: "Check out my Ikigai!",
     description: "I just created my Ikigai with Ikigaifinder.ai/",
 
     openGraph: {
       title: "Check out my Ikigai!",
       description: "I just created my Ikigai with Ikigaifinder.ai/",
-      url: `https://ikigaifinder.ai/ikigai/${userId}`,
+      url: `${
+        process.env.NEXT_PUBLIC_BASE_URL || "https://ikigaifinder.ai"
+      }/ikigai/${userId}`,
       siteName: "Ikigaifinder.ai/",
       locale: "en_US",
       type: "website",

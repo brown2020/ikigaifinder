@@ -4,6 +4,7 @@ import { auth } from "@/firebase/firebaseClient";
 import { signOut } from "firebase/auth";
 import { useRouter } from "next/navigation";
 import "react-tooltip/dist/react-tooltip.css";
+import { clearServerSession } from "@/lib/auth/session-client";
 
 function LogoutPage() {
   const router = useRouter();
@@ -11,6 +12,7 @@ function LogoutPage() {
   const handleSignOut = () => {
     signOut(auth)
       .then(() => {
+        clearServerSession().catch(() => {});
         router.replace("/");
       })
       .catch((error) => {

@@ -33,7 +33,7 @@ const ICON_SIZE = 48;
 // Component
 // ============================================================================
 
-function DashboardPage(): React.ReactElement {
+export default function DashboardPage(): React.ReactElement {
   const pathname = usePathname();
   const ikigaiData = useIkigaiStore((state) => state.ikigaiData);
   const isLoading = useIkigaiStore((state) => state.isLoading);
@@ -98,8 +98,8 @@ function DashboardPage(): React.ReactElement {
           No Ikigai Card Yet
         </h2>
         <p className="text-gray-600 text-center max-w-md mb-6">
-          Complete your Ikigai journey to create a beautiful, shareable card
-          that represents your life purpose.
+          Complete your Ikigai journey to create a beautiful, shareable card that
+          represents your life purpose.
         </p>
         <Link href="/ikigai-finder">
           <Button variant="primary">Start Your Journey</Button>
@@ -179,4 +179,4 @@ function DashboardPage(): React.ReactElement {
   );
 }
 
-export default DashboardPage;
+

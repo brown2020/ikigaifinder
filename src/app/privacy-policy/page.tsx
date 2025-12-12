@@ -1,4 +1,4 @@
-import PrivacyPage from "@/componentPages/PrivacyPage";
+import PrivacyPage from "./_components/privacy-page";
 import FooterNavBar from "@/components/FooterNavBar";
 
 export default function PrivacyPolicy() {

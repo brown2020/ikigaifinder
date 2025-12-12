@@ -1,4 +1,5 @@
 "use client";
+
 import { db } from "@/firebase/firebaseClient";
 import { useAuthStore } from "@/zustand";
 import { doc, getDoc, updateDoc } from "firebase/firestore";
@@ -18,7 +19,11 @@ import {
 } from "react-share";
 import { absoluteUrl } from "@/utils/baseUrl";
 
-export default function ShareImagePage({ userId }: { userId: string }) {
+export default function ShareImagePage({
+  userId,
+}: {
+  userId: string;
+}): React.ReactElement {
   const uid = useAuthStore((s) => s.uid);
   const pathname = usePathname();
   const [sharableUrl, setSharableUrl] = useState(false);
@@ -78,11 +83,11 @@ export default function ShareImagePage({ userId }: { userId: string }) {
     const url = window.URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
-    
+
     // Create filename with "ikigai finder" and current date
-    const currentDate = new Date().toISOString().split('T')[0]; // YYYY-MM-DD format
+    const currentDate = new Date().toISOString().split("T")[0]; // YYYY-MM-DD format
     a.download = `ikigai-finder-${currentDate}.png`;
-    
+
     document.body.appendChild(a);
     a.click();
     a.remove();
@@ -155,3 +160,5 @@ export default function ShareImagePage({ userId }: { userId: string }) {
     </div>
   );
 }
+
+

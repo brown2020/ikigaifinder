@@ -1,5 +1,7 @@
 import type { NextRequest } from "next/server";
 import { NextResponse } from "next/server";
+import { adminAuth } from "@/firebase/firebaseAdmin";
+import { getSessionCookieName } from "@/lib/auth/session";
 
 /**
  * Protected routes that require authentication
@@ -10,19 +12,6 @@ const PROTECTED_ROUTES = [
   "/ikigai-finder",
   "/profile",
   "/ikigai",
-] as const;
-
-/**
- * Public routes that don't require authentication
- */
-const PUBLIC_ROUTES = [
-  "/",
-  "/about",
-  "/privacy-policy",
-  "/terms-conditions",
-  "/support",
-  "/loginfinish",
-  "/logout",
 ] as const;
 
 /**
@@ -46,26 +35,32 @@ function isApiRoute(pathname: string): boolean {
   return API_ROUTES.some((route) => pathname.startsWith(route));
 }
 
-/**
- * Get the cookie name from environment or use default
- */
-function getAuthCookieName(): string {
-  return process.env.NEXT_PUBLIC_COOKIE_NAME ?? "authToken";
+async function hasValidSessionCookie(request: NextRequest): Promise<boolean> {
+  const cookieName = getSessionCookieName();
+  const sessionCookie = request.cookies.get(cookieName)?.value;
+  if (!sessionCookie) return false;
+
+  try {
+    // Verify and check revocation. This is slightly slower but correct for security gates.
+    await adminAuth.verifySessionCookie(sessionCookie, true);
+    return true;
+  } catch {
+    return false;
+  }
 }
 
 /**
  * Next.js 16 Proxy function for route protection
- * 
+ *
  * This runs on the Node.js runtime and handles:
  * - Authentication checks via cookie presence
  * - Route protection for authenticated-only pages
  * - Redirects for unauthenticated users
  */
-export default async function proxy(request: NextRequest): Promise<NextResponse | undefined> {
+export default async function proxy(
+  request: NextRequest
+): Promise<NextResponse | undefined> {
   const { pathname } = request.nextUrl;
-  const cookieName = getAuthCookieName();
-  const authToken = request.cookies.get(cookieName)?.value;
-  const isAuthenticated = Boolean(authToken);
 
   // Skip auth check for API routes
   if (isApiRoute(pathname)) {
@@ -81,11 +76,16 @@ export default async function proxy(request: NextRequest): Promise<NextResponse 
     return NextResponse.next();
   }
 
-  // Protected route without authentication - redirect to home
-  if (isProtectedRoute(pathname) && !isAuthenticated) {
-    const redirectUrl = new URL("/", request.url);
-    redirectUrl.searchParams.set("redirect", pathname);
-    return NextResponse.redirect(redirectUrl);
+  // Only pay the verification cost for protected routes.
+  if (isProtectedRoute(pathname)) {
+    const isAuthenticated = await hasValidSessionCookie(request);
+
+    // Protected route without authentication - redirect to home
+    if (!isAuthenticated) {
+      const redirectUrl = new URL("/", request.url);
+      redirectUrl.searchParams.set("redirect", pathname);
+      return NextResponse.redirect(redirectUrl);
+    }
   }
 
   // Allow the request to continue
@@ -107,4 +107,3 @@ export const config = {
     "/((?!_next/static|_next/image|favicon.ico|assets/).*)",
   ],
 };
-

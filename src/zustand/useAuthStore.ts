@@ -76,24 +76,44 @@ const initialAuthState: AuthState = {
  * - Premium/subscription status
  */
 export const useAuthStore = create<AuthStore>()(
-  devtools(
-    (set, get) => ({
-      ...initialAuthState,
+  process.env.NODE_ENV === "development"
+    ? devtools(
+        (set, get) => ({
+          ...initialAuthState,
 
-      setAuthDetails: (details: Partial<AuthState>) => {
-        set((state) => ({ ...state, ...details }), false, "auth/setDetails");
-      },
+          setAuthDetails: (details: Partial<AuthState>) => {
+            set(
+              (state) => ({ ...state, ...details }),
+              false,
+              "auth/setDetails"
+            );
+          },
 
-      clearAuthDetails: () => {
-        set(initialAuthState, false, "auth/clear");
-      },
+          clearAuthDetails: () => {
+            set(initialAuthState, false, "auth/clear");
+          },
 
-      isAuthenticated: () => {
-        return Boolean(get().uid);
-      },
-    }),
-    { name: "auth-store" }
-  )
+          isAuthenticated: () => {
+            return Boolean(get().uid);
+          },
+        }),
+        { name: "auth-store" }
+      )
+    : (set, get) => ({
+        ...initialAuthState,
+
+        setAuthDetails: (details: Partial<AuthState>) => {
+          set((state) => ({ ...state, ...details }));
+        },
+
+        clearAuthDetails: () => {
+          set(initialAuthState);
+        },
+
+        isAuthenticated: () => {
+          return Boolean(get().uid);
+        },
+      })
 );
 
 // ============================================================================

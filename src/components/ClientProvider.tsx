@@ -7,7 +7,6 @@ import CookieConsent from "react-cookie-consent";
 import { useInitializeStores } from "@/zustand";
 import { useAuthToken } from "@/hooks/use-auth-token";
 import { isReactNativeWebView } from "@/utils/platform";
-import { AppLoadingScreen } from "./ui";
 import ErrorBoundary from "./ErrorBoundary";
 
 // Lazy load auth modal for better initial load (it's conditionally rendered)
@@ -96,7 +95,8 @@ function useReactNativeWebView(): boolean {
 export function ClientProvider({
   children,
 }: ClientProviderProps): React.ReactElement {
-  const { isLoading } = useAuthToken();
+  // Initializes the Firebase auth listener and server session cookie in the background.
+  useAuthToken();
   const isRNWebView = useReactNativeWebView();
 
   // Initialize stores after auth is ready
@@ -104,15 +104,6 @@ export function ClientProvider({
 
   // Handle viewport height for mobile browsers
   useViewportHeight();
-
-  // Show loading screen while auth is being determined
-  if (isLoading) {
-    return (
-      <ErrorBoundary>
-        <AppLoadingScreen />
-      </ErrorBoundary>
-    );
-  }
 
   return (
     <ErrorBoundary>

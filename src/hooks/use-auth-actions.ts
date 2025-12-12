@@ -13,6 +13,8 @@ import {
 } from "firebase/auth";
 import { auth } from "@/firebase/firebaseClient";
 import { useAuthStore } from "@/zustand";
+import { getIdToken } from "firebase/auth";
+import { clearServerSession, createServerSession } from "@/lib/auth/session-client";
 
 // ============================================================================
 // Types
@@ -128,6 +130,11 @@ export function useAuthActions(): UseAuthActionsReturn {
       try {
         const provider = new GoogleAuthProvider();
         await signInWithPopup(auth, provider);
+        const currentUser = auth.currentUser;
+        if (currentUser) {
+          const idToken = await getIdToken(currentUser, true);
+          await createServerSession(idToken);
+        }
         onSuccess?.();
       } catch (err) {
         handleAuthError(err);
@@ -152,6 +159,11 @@ export function useAuthActions(): UseAuthActionsReturn {
 
       try {
         await signInWithEmailAndPassword(auth, email, password);
+        const currentUser = auth.currentUser;
+        if (currentUser) {
+          const idToken = await getIdToken(currentUser, true);
+          await createServerSession(idToken);
+        }
 
         // Store for form pre-fill
         if (typeof window !== "undefined") {
@@ -184,6 +196,11 @@ export function useAuthActions(): UseAuthActionsReturn {
 
       try {
         await createUserWithEmailAndPassword(auth, email, password);
+        const currentUser = auth.currentUser;
+        if (currentUser) {
+          const idToken = await getIdToken(currentUser, true);
+          await createServerSession(idToken);
+        }
 
         // Store for form pre-fill
         if (typeof window !== "undefined") {
@@ -213,6 +230,7 @@ export function useAuthActions(): UseAuthActionsReturn {
       setError("");
 
       try {
+        await clearServerSession().catch(() => {});
         await firebaseSignOut(auth);
         clearAuthDetails();
         onSuccess?.();

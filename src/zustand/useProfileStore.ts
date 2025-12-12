@@ -74,73 +74,138 @@ const defaultProfile: UserProfile = {
  * - Survey answers
  */
 export const useProfileStore = create<ProfileStore>()(
-  devtools(
-    (set, get) => ({
-      // Initial state
-      profile: defaultProfile,
-      isLoading: false,
-      error: null,
+  process.env.NODE_ENV === "development"
+    ? devtools(
+        (set, get) => ({
+          // Initial state
+          profile: defaultProfile,
+          isLoading: false,
+          error: null,
 
-      fetchProfile: async () => {
-        const uid = useAuthStore.getState().uid;
-        if (!uid) {
-          console.warn("Cannot fetch profile: No authenticated user");
-          return;
-        }
+          fetchProfile: async () => {
+            const uid = useAuthStore.getState().uid;
+            if (!uid) {
+              console.warn("Cannot fetch profile: No authenticated user");
+              return;
+            }
 
-        set({ isLoading: true, error: null }, false, "profile/fetchStart");
+            set({ isLoading: true, error: null }, false, "profile/fetchStart");
 
-        try {
-          const authState = useAuthStore.getState();
-          const profile = await fetchProfileData(uid, authState);
-          set({ profile, isLoading: false }, false, "profile/fetchSuccess");
-        } catch (err) {
-          const error =
-            err instanceof Error ? err : new Error("Failed to fetch profile");
-          set({ error, isLoading: false }, false, "profile/fetchError");
-        }
-      },
+            try {
+              const authState = useAuthStore.getState();
+              const profile = await fetchProfileData(uid, authState);
+              set({ profile, isLoading: false }, false, "profile/fetchSuccess");
+            } catch (err) {
+              const error =
+                err instanceof Error ? err : new Error("Failed to fetch profile");
+              set({ error, isLoading: false }, false, "profile/fetchError");
+            }
+          },
 
-      updateProfile: async (data: Partial<UserProfile>) => {
-        const uid = useAuthStore.getState().uid;
-        if (!uid) {
-          console.warn("Cannot update profile: No authenticated user");
-          return;
-        }
+          updateProfile: async (data: Partial<UserProfile>) => {
+            const uid = useAuthStore.getState().uid;
+            if (!uid) {
+              console.warn("Cannot update profile: No authenticated user");
+              return;
+            }
 
-        set({ isLoading: true, error: null }, false, "profile/updateStart");
+            set({ isLoading: true, error: null }, false, "profile/updateStart");
 
-        try {
-          const currentProfile = get().profile;
-          const authState = useAuthStore.getState();
-          const updatedProfile = await updateProfileData(
-            uid,
-            currentProfile,
-            data,
-            authState
-          );
-          set(
-            { profile: updatedProfile, isLoading: false },
-            false,
-            "profile/updateSuccess"
-          );
-        } catch (err) {
-          const error =
-            err instanceof Error ? err : new Error("Failed to update profile");
-          set({ error, isLoading: false }, false, "profile/updateError");
-        }
-      },
+            try {
+              const currentProfile = get().profile;
+              const authState = useAuthStore.getState();
+              const updatedProfile = await updateProfileData(
+                uid,
+                currentProfile,
+                data,
+                authState
+              );
+              set(
+                { profile: updatedProfile, isLoading: false },
+                false,
+                "profile/updateSuccess"
+              );
+            } catch (err) {
+              const error =
+                err instanceof Error ? err : new Error("Failed to update profile");
+              set({ error, isLoading: false }, false, "profile/updateError");
+            }
+          },
 
-      resetProfile: () => {
-        set({ profile: defaultProfile, error: null }, false, "profile/reset");
-      },
+          resetProfile: () => {
+            set(
+              { profile: defaultProfile, error: null },
+              false,
+              "profile/reset"
+            );
+          },
 
-      clearError: () => {
-        set({ error: null }, false, "profile/clearError");
-      },
-    }),
-    { name: "profile-store" }
-  )
+          clearError: () => {
+            set({ error: null }, false, "profile/clearError");
+          },
+        }),
+        { name: "profile-store" }
+      )
+    : (set, get) => ({
+        // Initial state
+        profile: defaultProfile,
+        isLoading: false,
+        error: null,
+
+        fetchProfile: async () => {
+          const uid = useAuthStore.getState().uid;
+          if (!uid) {
+            console.warn("Cannot fetch profile: No authenticated user");
+            return;
+          }
+
+          set({ isLoading: true, error: null });
+
+          try {
+            const authState = useAuthStore.getState();
+            const profile = await fetchProfileData(uid, authState);
+            set({ profile, isLoading: false });
+          } catch (err) {
+            const error =
+              err instanceof Error ? err : new Error("Failed to fetch profile");
+            set({ error, isLoading: false });
+          }
+        },
+
+        updateProfile: async (data: Partial<UserProfile>) => {
+          const uid = useAuthStore.getState().uid;
+          if (!uid) {
+            console.warn("Cannot update profile: No authenticated user");
+            return;
+          }
+
+          set({ isLoading: true, error: null });
+
+          try {
+            const currentProfile = get().profile;
+            const authState = useAuthStore.getState();
+            const updatedProfile = await updateProfileData(
+              uid,
+              currentProfile,
+              data,
+              authState
+            );
+            set({ profile: updatedProfile, isLoading: false });
+          } catch (err) {
+            const error =
+              err instanceof Error ? err : new Error("Failed to update profile");
+            set({ error, isLoading: false });
+          }
+        },
+
+        resetProfile: () => {
+          set({ profile: defaultProfile, error: null });
+        },
+
+        clearError: () => {
+          set({ error: null });
+        },
+      })
 );
 
 // ============================================================================

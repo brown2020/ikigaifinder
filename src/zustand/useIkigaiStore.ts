@@ -55,100 +55,180 @@ type IkigaiStore = IkigaiState & IkigaiActions;
  * - Generated images
  */
 export const useIkigaiStore = create<IkigaiStore>()(
-  devtools(
-    (set, get) => ({
-      // Initial state
-      ikigaiData: defaultIkigai,
-      isLoading: false,
-      error: null,
+  process.env.NODE_ENV === "development"
+    ? devtools(
+        (set, get) => ({
+          // Initial state
+          ikigaiData: defaultIkigai,
+          isLoading: false,
+          error: null,
 
-      fetchIkigai: async () => {
-        const uid = useAuthStore.getState().uid;
-        if (!uid) {
-          console.warn("Cannot fetch ikigai: No authenticated user");
-          return;
-        }
+          fetchIkigai: async () => {
+            const uid = useAuthStore.getState().uid;
+            if (!uid) {
+              console.warn("Cannot fetch ikigai: No authenticated user");
+              return;
+            }
 
-        set({ isLoading: true, error: null }, false, "ikigai/fetchStart");
+            set({ isLoading: true, error: null }, false, "ikigai/fetchStart");
 
-        try {
-          const data = await fetchIkigaiData(uid);
-          set(
-            { ikigaiData: data, isLoading: false },
-            false,
-            "ikigai/fetchSuccess"
-          );
-        } catch (err) {
-          const error =
-            err instanceof Error ? err : new Error("Failed to fetch ikigai");
-          set({ error, isLoading: false }, false, "ikigai/fetchError");
-        }
-      },
+            try {
+              const data = await fetchIkigaiData(uid);
+              set(
+                { ikigaiData: data, isLoading: false },
+                false,
+                "ikigai/fetchSuccess"
+              );
+            } catch (err) {
+              const error =
+                err instanceof Error ? err : new Error("Failed to fetch ikigai");
+              set({ error, isLoading: false }, false, "ikigai/fetchError");
+            }
+          },
 
-      updateIkigai: async (updateData: Partial<Ikigai>) => {
-        const uid = useAuthStore.getState().uid;
-        if (!uid) {
-          console.warn("Cannot update ikigai: No authenticated user");
-          return;
-        }
+          updateIkigai: async (updateData: Partial<Ikigai>) => {
+            const uid = useAuthStore.getState().uid;
+            if (!uid) {
+              console.warn("Cannot update ikigai: No authenticated user");
+              return;
+            }
 
-        set({ isLoading: true, error: null }, false, "ikigai/updateStart");
+            set({ isLoading: true, error: null }, false, "ikigai/updateStart");
 
-        try {
-          const currentData = get().ikigaiData;
-          const updatedData = await updateIkigaiData(
-            uid,
-            currentData,
-            updateData
-          );
-          set(
-            { ikigaiData: updatedData, isLoading: false },
-            false,
-            "ikigai/updateSuccess"
-          );
-        } catch (err) {
-          const error =
-            err instanceof Error ? err : new Error("Failed to update ikigai");
-          set({ error, isLoading: false }, false, "ikigai/updateError");
-        }
-      },
+            try {
+              const currentData = get().ikigaiData;
+              const updatedData = await updateIkigaiData(
+                uid,
+                currentData,
+                updateData
+              );
+              set(
+                { ikigaiData: updatedData, isLoading: false },
+                false,
+                "ikigai/updateSuccess"
+              );
+            } catch (err) {
+              const error =
+                err instanceof Error ? err : new Error("Failed to update ikigai");
+              set({ error, isLoading: false }, false, "ikigai/updateError");
+            }
+          },
 
-      resetIkigai: () => {
-        set({ ikigaiData: defaultIkigai, error: null }, false, "ikigai/reset");
-      },
+          resetIkigai: () => {
+            set(
+              { ikigaiData: defaultIkigai, error: null },
+              false,
+              "ikigai/reset"
+            );
+          },
 
-      selectIkigai: (ikigai: IkigaiData | null) => {
-        set(
-          (state) => ({
+          selectIkigai: (ikigai: IkigaiData | null) => {
+            set(
+              (state) => ({
+                ikigaiData: {
+                  ...state.ikigaiData,
+                  ikigaiSelected: ikigai,
+                },
+              }),
+              false,
+              "ikigai/select"
+            );
+          },
+
+          setIkigaiOptions: (options: IkigaiData[]) => {
+            set(
+              (state) => ({
+                ikigaiData: {
+                  ...state.ikigaiData,
+                  ikigaiOptions: options,
+                },
+              }),
+              false,
+              "ikigai/setOptions"
+            );
+          },
+
+          clearError: () => {
+            set({ error: null }, false, "ikigai/clearError");
+          },
+        }),
+        { name: "ikigai-store" }
+      )
+    : (set, get) => ({
+        // Initial state
+        ikigaiData: defaultIkigai,
+        isLoading: false,
+        error: null,
+
+        fetchIkigai: async () => {
+          const uid = useAuthStore.getState().uid;
+          if (!uid) {
+            console.warn("Cannot fetch ikigai: No authenticated user");
+            return;
+          }
+
+          set({ isLoading: true, error: null });
+
+          try {
+            const data = await fetchIkigaiData(uid);
+            set({ ikigaiData: data, isLoading: false });
+          } catch (err) {
+            const error =
+              err instanceof Error ? err : new Error("Failed to fetch ikigai");
+            set({ error, isLoading: false });
+          }
+        },
+
+        updateIkigai: async (updateData: Partial<Ikigai>) => {
+          const uid = useAuthStore.getState().uid;
+          if (!uid) {
+            console.warn("Cannot update ikigai: No authenticated user");
+            return;
+          }
+
+          set({ isLoading: true, error: null });
+
+          try {
+            const currentData = get().ikigaiData;
+            const updatedData = await updateIkigaiData(
+              uid,
+              currentData,
+              updateData
+            );
+            set({ ikigaiData: updatedData, isLoading: false });
+          } catch (err) {
+            const error =
+              err instanceof Error ? err : new Error("Failed to update ikigai");
+            set({ error, isLoading: false });
+          }
+        },
+
+        resetIkigai: () => {
+          set({ ikigaiData: defaultIkigai, error: null });
+        },
+
+        selectIkigai: (ikigai: IkigaiData | null) => {
+          set((state) => ({
             ikigaiData: {
               ...state.ikigaiData,
               ikigaiSelected: ikigai,
             },
-          }),
-          false,
-          "ikigai/select"
-        );
-      },
+          }));
+        },
 
-      setIkigaiOptions: (options: IkigaiData[]) => {
-        set(
-          (state) => ({
+        setIkigaiOptions: (options: IkigaiData[]) => {
+          set((state) => ({
             ikigaiData: {
               ...state.ikigaiData,
               ikigaiOptions: options,
             },
-          }),
-          false,
-          "ikigai/setOptions"
-        );
-      },
+          }));
+        },
 
-      clearError: () => {
-        set({ error: null }, false, "ikigai/clearError");
-      },
-    }),
-    { name: "ikigai-store" }
-  )
+        clearError: () => {
+          set({ error: null });
+        },
+      })
 );
 
 // ============================================================================
