@@ -48,6 +48,18 @@ export const useUIStore = create<UIStore>((set, get) => ({
 
   // Actions
   openAuthModal: (redirectPath?: string) => {
+    if (typeof window !== "undefined") {
+      const safeRedirect =
+        redirectPath &&
+        redirectPath.startsWith("/") &&
+        !redirectPath.startsWith("//") &&
+        !redirectPath.includes("://")
+          ? redirectPath
+          : null;
+      if (safeRedirect) {
+        window.localStorage.setItem("ikigaiFinderRedirectPath", safeRedirect);
+      }
+    }
     set({
       isAuthModalOpen: true,
       authRedirectPath: redirectPath ?? null,

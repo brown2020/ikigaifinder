@@ -1,12 +1,9 @@
 "use client";
 
-import { db } from "@/firebase/firebaseClient";
 import { useAuthStore } from "@/zustand";
-import { doc, getDoc, updateDoc } from "firebase/firestore";
 import Image from "next/image";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useMemo, useState } from "react";
 import {
   FacebookShareButton,
   TwitterShareButton,
@@ -21,61 +18,53 @@ import { absoluteUrl } from "@/utils/baseUrl";
 
 export default function ShareImagePage({
   userId,
+  viewerUid,
+  initialImageUrl,
+  initialSharableUrl,
 }: {
   userId: string;
+  viewerUid: string | null;
+  initialImageUrl: string | null;
+  initialSharableUrl: boolean;
 }): React.ReactElement {
-  const uid = useAuthStore((s) => s.uid);
-  const pathname = usePathname();
-  const [sharableUrl, setSharableUrl] = useState(false);
-  const [errorMessage, setErrorMessage] = useState("");
-  const [imageUrl, setImageUrl] = useState("");
+  const clientUid = useAuthStore((s) => s.uid);
 
-  const currentPageUrl = absoluteUrl(pathname);
+  const isOwner = useMemo(() => {
+    // Prefer the server-verified uid (session cookie), fall back to client auth store.
+    const effectiveUid = viewerUid ?? clientUid ?? "";
+    return effectiveUid === userId;
+  }, [clientUid, userId, viewerUid]);
+
+  const [sharableUrl, setSharableUrl] = useState(initialSharableUrl);
+  const [errorMessage, setErrorMessage] = useState("");
+  const [imageUrl] = useState<string>(initialImageUrl ?? "");
+
+  const currentPageUrl = absoluteUrl(`/ikigai/${userId}`);
   const title = "Check out my Ikigai!";
   const bodyText = `I wanted to share my Ikigai with you. Check it out here:`;
-  const isUser = uid === userId;
-  const docRef = doc(db, `ikigaiUsers/${userId}/ikigai/main`);
 
   const toggleSharableStatus = async () => {
     try {
-      const makeSharable = !sharableUrl;
-      await updateDoc(docRef, { ikigaiSharableUrl: makeSharable });
-      setSharableUrl(makeSharable);
-    } catch (error) {
-      console.log("Error updating sharable status:", error);
+      if (!isOwner) return;
+      const nextSharable = !sharableUrl;
+      const response = await fetch("/api/ikigai/sharing", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ userId, sharable: nextSharable }),
+      });
+
+      if (!response.ok) {
+        throw new Error(`Failed to update (${response.status})`);
+      }
+
+      setSharableUrl(nextSharable);
+    } catch {
+      setErrorMessage("Failed to update share settings. Please try again.");
     }
   };
 
-  useEffect(() => {
-    const fetchImageUrl = async () => {
-      try {
-        const docSnap = await getDoc(docRef);
-        if (!docSnap.exists()) {
-          console.log("No such document!");
-          setImageUrl("");
-          setSharableUrl(false);
-          return;
-        }
-
-        const data = docSnap.data();
-        setImageUrl(data?.ikigaiCoverImage);
-        setSharableUrl(data.ikigaiSharableUrl);
-        setErrorMessage("");
-      } catch (error: unknown) {
-        if (error instanceof Error) {
-          console.log("Error getting document:", error.message);
-          setErrorMessage("Access to this image is restricted by the owner.");
-        } else {
-          console.log("An unknown error occurred while getting the document.");
-        }
-        setImageUrl("");
-        setSharableUrl(false);
-      }
-    };
-    if (userId) fetchImageUrl();
-  }, [docRef, userId]);
-
   const handleDownload = async () => {
+    if (!imageUrl) return;
     const response = await fetch(
       `/api/downloadImage?url=${encodeURIComponent(imageUrl)}`
     );
@@ -91,11 +80,19 @@ export default function ShareImagePage({
     document.body.appendChild(a);
     a.click();
     a.remove();
+    window.URL.revokeObjectURL(url);
   };
+
+  const canView = Boolean(imageUrl) && (sharableUrl || isOwner);
+  const effectiveError =
+    errorMessage ||
+    (!imageUrl
+      ? "No image is available for this Ikigai."
+      : "Access to this image is restricted by the owner.");
 
   return (
     <div className="w-full max-w-3xl mx-auto py-5 px-5">
-      {(sharableUrl || isUser) && imageUrl ? (
+      {canView ? (
         <div>
           <Image
             className="h-full w-full max-w-xl max-h-xl object-cover mx-auto shadow-md"
@@ -132,7 +129,7 @@ export default function ShareImagePage({
             )}
           </div>
 
-          {isUser && (
+          {isOwner && (
             <div className="flex items-center gap-2 justify-center mt-4">
               <button className="btn-primary2" onClick={toggleSharableStatus}>
                 {sharableUrl ? "Make Private" : "Make Sharable"}
@@ -144,13 +141,11 @@ export default function ShareImagePage({
           )}
         </div>
       ) : (
-        errorMessage && (
-          <div className="mx-auto p-6 bg-linear-to-r from-gray-100 to-gray-300 shadow-md w-full max-w-xl aspect-square">
-            <div className="text-center h-full text-xl font-bold flex items-center justify-center">
-              {errorMessage}
-            </div>
+        <div className="mx-auto p-6 bg-linear-to-r from-gray-100 to-gray-300 shadow-md w-full max-w-xl aspect-square">
+          <div className="text-center h-full text-xl font-bold flex items-center justify-center">
+            {effectiveError}
           </div>
-        )
+        </div>
       )}
       <div className="w-full">
         <Link href={"/ikigai-finder"}>
@@ -160,5 +155,3 @@ export default function ShareImagePage({
     </div>
   );
 }
-
-

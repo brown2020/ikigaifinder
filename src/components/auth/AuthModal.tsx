@@ -2,7 +2,9 @@
 
 import React, { useEffect, useRef, useState, useCallback } from "react";
 import { XIcon } from "lucide-react";
+import { useRouter } from "next/navigation";
 import { useAuthStore, useUIStore } from "@/zustand";
+import { selectAuthRedirectPath } from "@/zustand/useUIStore";
 import AuthForm from "./AuthForm";
 import SocialLogin from "./SocialLogin";
 import AuthPending from "./AuthPending";
@@ -37,8 +39,10 @@ const TAB_CLASSES = {
  * - Password reset
  */
 export default function AuthModal(): React.ReactElement | null {
+  const router = useRouter();
   const isOpen = useUIStore((state) => state.isAuthModalOpen);
   const close = useUIStore((state) => state.closeAuthModal);
+  const authRedirectPath = useUIStore(selectAuthRedirectPath);
   const { uid, authPending } = useAuthStore();
   const modalRef = useRef<HTMLDivElement>(null);
   const [activeTab, setActiveTab] = useState<AuthTab>("signin");
@@ -97,7 +101,10 @@ export default function AuthModal(): React.ReactElement | null {
    */
   const handleSuccess = useCallback((): void => {
     close();
-  }, [close]);
+    if (authRedirectPath) {
+      router.push(authRedirectPath);
+    }
+  }, [authRedirectPath, close, router]);
 
   /**
    * Handle pending auth reset
@@ -112,7 +119,7 @@ export default function AuthModal(): React.ReactElement | null {
 
   return (
     <div
-      className="fixed inset-0 flex items-center justify-center p-4 z-[999]"
+      className="fixed inset-0 flex items-center justify-center p-4 z-999"
       style={{
         backgroundColor: "rgba(0, 0, 0, 0.4)",
         backdropFilter: "blur(4px)",
@@ -124,7 +131,7 @@ export default function AuthModal(): React.ReactElement | null {
     >
       <div
         ref={modalRef}
-        className="bg-white rounded-xl shadow-2xl p-8 w-full max-w-lg relative z-[1000]"
+        className="bg-white rounded-xl shadow-2xl p-8 w-full max-w-lg relative z-1000"
       >
         {/* Close button */}
         <button
@@ -144,7 +151,11 @@ export default function AuthModal(): React.ReactElement | null {
         ) : (
           <div className="w-full">
             {/* Tab navigation */}
-            <div className="flex border-b border-gray-200 mb-6">
+            <div
+              className="flex border-b border-gray-200 mb-6"
+              role="tablist"
+              aria-label="Authentication"
+            >
               <button
                 onClick={() => setActiveTab("signin")}
                 className={`flex-1 py-3 px-4 text-center font-medium transition-colors duration-200 ${
@@ -153,7 +164,9 @@ export default function AuthModal(): React.ReactElement | null {
                     : TAB_CLASSES.inactive
                 }`}
                 type="button"
+                role="tab"
                 aria-selected={activeTab === "signin"}
+                aria-controls="auth-tabpanel"
               >
                 Sign In
               </button>
@@ -165,7 +178,9 @@ export default function AuthModal(): React.ReactElement | null {
                     : TAB_CLASSES.inactive
                 }`}
                 type="button"
+                role="tab"
                 aria-selected={activeTab === "signup"}
+                aria-controls="auth-tabpanel"
               >
                 Sign Up
               </button>
@@ -175,7 +190,9 @@ export default function AuthModal(): React.ReactElement | null {
             <SocialLogin onSuccess={handleSuccess} />
 
             {/* Tab content */}
-            <AuthForm mode={activeTab} onSuccess={handleSuccess} />
+            <div id="auth-tabpanel" role="tabpanel">
+              <AuthForm mode={activeTab} onSuccess={handleSuccess} />
+            </div>
           </div>
         )}
       </div>

@@ -14,7 +14,10 @@ import {
 import { auth } from "@/firebase/firebaseClient";
 import { useAuthStore } from "@/zustand";
 import { getIdToken } from "firebase/auth";
-import { clearServerSession, createServerSession } from "@/lib/auth/session-client";
+import {
+  clearServerSession,
+  createServerSession,
+} from "@/lib/auth/session-client";
 
 // ============================================================================
 // Types
@@ -251,12 +254,29 @@ export function useAuthActions(): UseAuthActionsReturn {
       setIsLoading(true);
       setError("");
 
-      const actionCodeSettings = {
-        url: `${
-          typeof window !== "undefined" ? window.location.origin : ""
-        }/loginfinish`,
-        handleCodeInApp: true,
-      };
+      const actionCodeSettings = (() => {
+        const origin =
+          typeof window !== "undefined" ? window.location.origin : "";
+        const redirectPath =
+          typeof window !== "undefined"
+            ? window.localStorage.getItem("ikigaiFinderRedirectPath")
+            : null;
+        const safeRedirect =
+          redirectPath &&
+          redirectPath.startsWith("/") &&
+          !redirectPath.startsWith("//") &&
+          !redirectPath.includes("://")
+            ? redirectPath
+            : null;
+        const url = `${origin}/loginfinish${
+          safeRedirect ? `?redirect=${encodeURIComponent(safeRedirect)}` : ""
+        }`;
+
+        return {
+          url,
+          handleCodeInApp: true,
+        };
+      })();
 
       try {
         await sendSignInLinkToEmail(auth, email, actionCodeSettings);

@@ -10,7 +10,7 @@ import { useUIStore } from "@/zustand";
 
 /**
  * Navbar Login Item Component
- * 
+ *
  * Renders a sign-in button in the navbar for unauthenticated users
  */
 export default function NavbarLoginItem(): React.ReactElement {
@@ -18,7 +18,19 @@ export default function NavbarLoginItem(): React.ReactElement {
 
   return (
     <button
-      onClick={() => openAuthModal()}
+      onClick={() => {
+        const url = new URL(window.location.href);
+        const redirectParam = url.searchParams.get("redirect");
+        const redirectPath =
+          redirectParam &&
+          redirectParam.startsWith("/") &&
+          !redirectParam.startsWith("//") &&
+          !redirectParam.includes("://")
+            ? redirectParam
+            : window.location.pathname;
+
+        openAuthModal(redirectPath);
+      }}
       className="flex items-center gap-2 px-4 py-2 text-white hover:bg-blue-700 rounded-lg transition-colors duration-200"
       type="button"
       aria-label="Sign in"

@@ -1,19 +1,50 @@
 import ShareImagePage from "./_components/share-image-page";
 import { adminDb } from "@/firebase/firebaseAdmin";
+import { getOptionalServerUid } from "@/lib/auth/session-server";
 import { Metadata } from "next";
 
 type Props = { params: Promise<{ id: string }> };
 
 export default async function IkigaiShare({ params }: Props) {
-  const resolvedParams = await params;
-  const { id } = resolvedParams;
+  const { id } = await params;
 
-  return <ShareImagePage userId={id} />;
+  const viewerUid = await getOptionalServerUid();
+  const isOwner = Boolean(viewerUid && viewerUid === id);
+
+  let imageUrl: string | null = null;
+  let sharableUrl = false;
+
+  try {
+    const docRef = adminDb
+      .collection("ikigaiUsers")
+      .doc(id)
+      .collection("ikigai")
+      .doc("main");
+    const docSnap = await docRef.get();
+    if (docSnap.exists) {
+      const data = docSnap.data();
+      imageUrl = (data?.ikigaiCoverImage as string | undefined) ?? null;
+      sharableUrl = Boolean(data?.ikigaiSharableUrl);
+    }
+  } catch {
+    // fall through to restricted/default view
+  }
+
+  // Never leak non-sharable image URLs to non-owners.
+  const initialImageUrl = isOwner || sharableUrl ? imageUrl : null;
+
+  return (
+    <ShareImagePage
+      userId={id}
+      viewerUid={viewerUid}
+      initialImageUrl={initialImageUrl}
+      initialSharableUrl={sharableUrl}
+    />
+  );
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
-  const resolvedParams = await params;
-  const userId = resolvedParams.id;
+  const { id: userId } = await params;
 
   let imageUrl = "";
   let sharableUrl = false;
@@ -30,15 +61,9 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       const data = docSnap.data();
       imageUrl = data?.ikigaiCoverImage || "";
       sharableUrl = data?.ikigaiSharableUrl || false;
-    } else {
-      console.log("No such document!");
     }
-  } catch (error: unknown) {
-    if (error instanceof Error) {
-      console.log("Error getting document:", error.message);
-    } else {
-      console.log("An unknown error occurred while getting the document.");
-    }
+  } catch {
+    // fall back to default social image
   }
 
   const shareUrl =

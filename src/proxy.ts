@@ -11,7 +11,6 @@ const PROTECTED_ROUTES = [
   "/generate-ikigai",
   "/ikigai-finder",
   "/profile",
-  "/ikigai",
 ] as const;
 
 /**
@@ -97,13 +96,10 @@ export default async function proxy(
  */
 export const config = {
   matcher: [
-    /*
-     * Match all request paths except:
-     * - _next/static (static files)
-     * - _next/image (image optimization files)
-     * - favicon.ico (favicon file)
-     * - public folder files
-     */
-    "/((?!_next/static|_next/image|favicon.ico|assets/).*)",
+    // Run proxy only for private route segments to avoid extra Node work on public pages.
+    "/dashboard/:path*",
+    "/generate-ikigai/:path*",
+    "/ikigai-finder/:path*",
+    "/profile/:path*",
   ],
 };

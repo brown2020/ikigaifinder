@@ -16,11 +16,11 @@ interface CardProps extends React.HTMLAttributes<HTMLDivElement> {
   clickable?: boolean;
 }
 
-interface CardHeaderProps extends React.HTMLAttributes<HTMLDivElement> {}
-interface CardTitleProps extends React.HTMLAttributes<HTMLHeadingElement> {}
-interface CardDescriptionProps extends React.HTMLAttributes<HTMLParagraphElement> {}
-interface CardContentProps extends React.HTMLAttributes<HTMLDivElement> {}
-interface CardFooterProps extends React.HTMLAttributes<HTMLDivElement> {}
+type CardHeaderProps = React.HTMLAttributes<HTMLDivElement>;
+type CardTitleProps = React.HTMLAttributes<HTMLHeadingElement>;
+type CardDescriptionProps = React.HTMLAttributes<HTMLParagraphElement>;
+type CardContentProps = React.HTMLAttributes<HTMLDivElement>;
+type CardFooterProps = React.HTMLAttributes<HTMLDivElement>;
 
 // ============================================================================
 // Components
@@ -111,19 +111,16 @@ CardTitle.displayName = "CardTitle";
  * Card Description
  * Secondary text for additional context
  */
-export const CardDescription = forwardRef<HTMLParagraphElement, CardDescriptionProps>(
-  ({ children, className, ...props }, ref) => {
-    return (
-      <p
-        ref={ref}
-        className={cn("text-sm text-gray-500", className)}
-        {...props}
-      >
-        {children}
-      </p>
-    );
-  }
-);
+export const CardDescription = forwardRef<
+  HTMLParagraphElement,
+  CardDescriptionProps
+>(({ children, className, ...props }, ref) => {
+  return (
+    <p ref={ref} className={cn("text-sm text-gray-500", className)} {...props}>
+      {children}
+    </p>
+  );
+});
 
 CardDescription.displayName = "CardDescription";
 
@@ -164,8 +161,3 @@ export const CardFooter = forwardRef<HTMLDivElement, CardFooterProps>(
 CardFooter.displayName = "CardFooter";
 
 export default Card;
-
-
-
-
-

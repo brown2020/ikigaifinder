@@ -3,7 +3,6 @@
 import { useCallback, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
 import {
   FacebookShareButton,
   TwitterShareButton,
@@ -33,15 +32,24 @@ const ICON_SIZE = 48;
 // Component
 // ============================================================================
 
-export default function DashboardPage(): React.ReactElement {
-  const pathname = usePathname();
+type DashboardPageProps = {
+  userId: string;
+  initialCoverImage?: string | null;
+};
+
+export default function DashboardPage({
+  userId,
+  initialCoverImage,
+}: DashboardPageProps): React.ReactElement {
   const ikigaiData = useIkigaiStore((state) => state.ikigaiData);
-  const isLoading = useIkigaiStore((state) => state.isLoading);
+  const isStoreLoading = useIkigaiStore((state) => state.isLoading);
   const [isDownloading, setIsDownloading] = useState(false);
   const [imageLoaded, setImageLoaded] = useState(false);
 
-  const currentPageUrl = absoluteUrl(pathname);
-  const coverImage = ikigaiData?.ikigaiCoverImage;
+  // Share the public URL, not the private dashboard route.
+  const currentPageUrl = absoluteUrl(`/ikigai/${userId}`);
+  const coverImage = initialCoverImage ?? ikigaiData?.ikigaiCoverImage;
+  const isLoading = !initialCoverImage && isStoreLoading;
 
   /**
    * Handle image download
@@ -98,8 +106,8 @@ export default function DashboardPage(): React.ReactElement {
           No Ikigai Card Yet
         </h2>
         <p className="text-gray-600 text-center max-w-md mb-6">
-          Complete your Ikigai journey to create a beautiful, shareable card that
-          represents your life purpose.
+          Complete your Ikigai journey to create a beautiful, shareable card
+          that represents your life purpose.
         </p>
         <Link href="/ikigai-finder">
           <Button variant="primary">Start Your Journey</Button>
@@ -178,5 +186,3 @@ export default function DashboardPage(): React.ReactElement {
     </div>
   );
 }
-
-

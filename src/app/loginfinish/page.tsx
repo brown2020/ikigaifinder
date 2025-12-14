@@ -17,7 +17,26 @@ export default function LoginFinishPage() {
   const updateProfile = useProfileStore((s) => s.updateProfile);
 
   useEffect(() => {
+    const sanitizeRedirectPath = (value: string | null): string | null => {
+      if (!value) return null;
+      if (!value.startsWith("/")) return null;
+      if (value.startsWith("//")) return null;
+      if (value.includes("://")) return null;
+      return value;
+    };
+
     async function attemptSignIn() {
+      let isSuccess = false;
+      const url = new URL(window.location.href);
+      const redirectFromUrl = sanitizeRedirectPath(
+        url.searchParams.get("redirect")
+      );
+      const redirectFromStorage = sanitizeRedirectPath(
+        window.localStorage.getItem("ikigaiFinderRedirectPath")
+      );
+      const redirectTarget =
+        redirectFromUrl ?? redirectFromStorage ?? "/ikigai-finder";
+
       try {
         if (!isSignInWithEmailLink(auth, window.location.href)) {
           throw new Error("Sign in link is not valid");
@@ -29,7 +48,6 @@ export default function LoginFinishPage() {
           window.localStorage.getItem("purposefinderOffersOptIn") ===
           "Accepted";
 
-        console.log("User signed in successfully:", email, name, offersOptIn);
         if (!email) {
           email = window.prompt("Please confirm your email");
           if (!email) {
@@ -53,24 +71,9 @@ export default function LoginFinishPage() {
         const uid = user?.uid;
         const selectedName = name || user?.displayName || "";
 
-        console.log(
-          "User auth data:",
-          authEmail,
-          uid,
-          selectedName,
-          offersOptIn
-        );
-
         if (!uid || !authEmail) {
           throw new Error("No user found");
         }
-
-        console.log(
-          "User signed in successfully:",
-          authEmail,
-          uid,
-          selectedName
-        );
 
         const authDetails = {
           uid,
@@ -79,8 +82,9 @@ export default function LoginFinishPage() {
           offersOptIn,
         };
         setAuthDetails(authDetails);
-        updateUserDetailsInFirestore(authDetails, uid);
+        updateUserDetailsInFirestore(authDetails, uid).catch(() => {});
         updateProfile({ firstName: selectedName });
+        isSuccess = true;
       } catch (error) {
         let errorMessage = "Unknown error signing in";
         if (error instanceof FirebaseError) {
@@ -89,16 +93,24 @@ export default function LoginFinishPage() {
           errorMessage = error.message;
         }
 
-        console.log("ERROR", errorMessage);
         alert(errorMessage);
       } finally {
         window.localStorage.removeItem("ikigaiFinderEmail");
         window.localStorage.removeItem("ikigaiFinderName");
         window.localStorage.removeItem("purposefinderOffersOptIn");
-        router.replace("/ikigai-finder");
+        if (isSuccess) {
+          window.localStorage.removeItem("ikigaiFinderRedirectPath");
+          router.replace(redirectTarget);
+        } else {
+          router.replace("/");
+        }
       }
     }
 
     attemptSignIn();
   }, [router, setAuthDetails, updateProfile]);
+
+  return (
+    <div className="p-8 text-center text-gray-700">Finishing sign-in…</div>
+  );
 }
