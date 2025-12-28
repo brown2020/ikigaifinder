@@ -48,15 +48,14 @@
 | -------------------------------------------------------------- | ------- | --------------------------------------- |
 | [Firebase](https://firebase.google.com/)                       | 12.x    | Auth, Firestore database, Cloud Storage |
 | [Firebase Admin](https://firebase.google.com/docs/admin/setup) | 13.x    | Server-side Firebase operations         |
-| [cookies-next](https://github.com/andreizanik/cookies-next)    | 6.x     | Cookie management for auth tokens       |
 
 ### AI & Generation
 
 | Package                                                                   | Version | Purpose                           |
 | ------------------------------------------------------------------------- | ------- | --------------------------------- |
-| [Vercel AI SDK](https://sdk.vercel.ai/)                                   | 5.x     | Streaming AI responses            |
-| [@ai-sdk/openai](https://sdk.vercel.ai/providers/ai-sdk-providers/openai) | 2.x     | OpenAI GPT-4o integration         |
-| [@ai-sdk/rsc](https://sdk.vercel.ai/docs/ai-sdk-rsc)                      | 1.x     | React Server Components streaming |
+| [Vercel AI SDK](https://sdk.vercel.ai/)                                   | 6.x     | Streaming AI responses            |
+| [@ai-sdk/openai](https://sdk.vercel.ai/providers/ai-sdk-providers/openai) | 3.x     | OpenAI integration                |
+| [@ai-sdk/rsc](https://sdk.vercel.ai/docs/ai-sdk-rsc)                      | 2.x     | React Server Components streaming |
 
 ### State Management
 
@@ -70,7 +69,7 @@
 | Package                                                                      | Version | Purpose                     |
 | ---------------------------------------------------------------------------- | ------- | --------------------------- |
 | [Tailwind CSS](https://tailwindcss.com/)                                     | 4.x     | Utility-first CSS framework |
-| [Lucide React](https://lucide.dev/)                                          | 0.559+  | Beautiful icon library      |
+| [Lucide React](https://lucide.dev/)                                          | 0.562+  | Beautiful icon library      |
 | [React Hook Form](https://react-hook-form.com/)                              | 7.x     | Performant form handling    |
 | [React Hot Toast](https://react-hot-toast.com/)                              | 2.x     | Toast notifications         |
 | [React Select](https://react-select.com/)                                    | 5.x     | Advanced select inputs      |
@@ -194,8 +193,12 @@ FIREWORKS_API_KEY=fw_...
 ### Application
 
 ```env
-# Cookie name for auth token storage
-NEXT_PUBLIC_COOKIE_NAME=purposefinderAuthToken
+# Cookie name for auth token storage (used by client-side helpers if needed)
+NEXT_PUBLIC_COOKIE_NAME=ikigaiAuthToken
+
+# Server session cookie settings (used by src/proxy.ts + server auth helpers)
+FIREBASE_SESSION_COOKIE_NAME=__session
+FIREBASE_SESSION_EXPIRES_DAYS=5
 
 # Base URL for metadata (optional, defaults to https://ikigaifinder.ai)
 NEXT_PUBLIC_BASE_URL=https://your-domain.com
@@ -221,7 +224,6 @@ ikigaifinder/
 │   │   ├── auth/             # Authentication (Modal, Forms)
 │   │   ├── ui/               # Reusable UI components
 │   │   └── ...               # Feature components
-│   ├── componentPages/       # Page-level components
 │   ├── constants/            # App constants & questions
 │   ├── firebase/             # Firebase client & admin setup
 │   ├── hooks/                # Custom React hooks
@@ -247,7 +249,7 @@ ikigaifinder/
 │       └── useUIStore.ts
 ├── firestore.rules           # Firestore security rules
 ├── storage.rules             # Storage security rules
-├── proxy.ts                  # Next.js 16 middleware (route protection)
+├── src/proxy.ts              # Next.js 16 proxy (route protection)
 └── ...
 ```
 
@@ -357,7 +359,9 @@ Contributions are welcome! Please follow these steps:
 
 ## License
 
-This project is open source and available under the [MIT License](LICENSE).
+This project is open source and available under the **GNU Affero General Public License v3.0 (AGPL-3.0)**.
+
+See [LICENSE.md](LICENSE.md).
 
 ---
 
