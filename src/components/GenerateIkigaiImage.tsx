@@ -4,7 +4,6 @@ import { useState, useCallback, useMemo } from "react";
 import Image from "next/image";
 import Select from "react-select";
 import { useRouter } from "next/navigation";
-import { PulseLoader } from "react-spinners";
 import toast from "react-hot-toast";
 import { Timestamp } from "firebase/firestore";
 import { artStyles } from "@/constants/questions";
@@ -18,6 +17,8 @@ import { containsRestrictedContent } from "@/utils/platform";
 import SVGOverlay from "./SVGOverlay";
 import ImageSelector from "./ImageSelector";
 import IkigaiStepper from "./IkigaiStepper";
+import { Button } from "@/components/ui/Button";
+import { Textarea } from "@/components/ui/Input";
 import type { ImagePromptData } from "@/types";
 
 // ============================================================================
@@ -95,7 +96,7 @@ export default function GenerateIkigaiImage(): React.ReactElement {
    * Handle image generation
    */
   const handleGenerateImage = useCallback(
-    async (event: React.FormEvent<HTMLButtonElement>): Promise<void> => {
+    async (event: React.MouseEvent<HTMLButtonElement>): Promise<void> => {
       event.preventDefault();
 
       if (!uid) {
@@ -202,12 +203,13 @@ export default function GenerateIkigaiImage(): React.ReactElement {
           </p>
 
           {/* Prompt Input */}
-          <textarea
-            className="w-full p-2 border border-gray-300 rounded-sm h-16 font-semibold"
-            autoComplete="on"
-            placeholder="Describe an image (e.g., 'A serene mountain landscape at sunset')"
+          <Textarea
+            label="Describe your background image (optional)"
+            helperText="Tip: include mood, lighting, colors, and setting."
+            placeholder="Example: A serene mountain landscape at sunset, soft pastel colors, cinematic lighting"
             onChange={(e) => setImagePrompt(e.target.value)}
             value={imagePrompt}
+            className="min-h-[96px]"
           />
 
           {/* Style Select and Generate Button */}
@@ -227,18 +229,16 @@ export default function GenerateIkigaiImage(): React.ReactElement {
               />
             </div>
 
-            <button
+            <Button
               onClick={handleGenerateImage}
-              className="btn-base btn-primary-solid min-w-36 sm:w-fit w-full"
-              disabled={isGenerating}
+              variant="primary"
+              isLoading={isGenerating}
+              loadingText="Creating..."
+              className="min-w-36 sm:w-fit w-full"
               type="button"
             >
-              {isGenerating ? (
-                <PulseLoader color="#fff" size={12} />
-              ) : (
-                "Create Image"
-              )}
-            </button>
+              Create image
+            </Button>
           </div>
         </div>
 
@@ -249,26 +249,25 @@ export default function GenerateIkigaiImage(): React.ReactElement {
 
         {/* Action Buttons */}
         <div className="flex justify-between gap-4 flex-wrap">
-          <button
+          <Button
             onClick={handleBack}
-            className="btn-base btn-neutral-solid min-w-36 mt-3 sm:w-fit w-full"
+            variant="neutral"
+            className="min-w-36 mt-3 sm:w-fit w-full"
             type="button"
           >
             Back to Ideas
-          </button>
+          </Button>
 
-          <button
+          <Button
             onClick={handleSaveToProfile}
-            className="btn-base btn-primary-solid min-w-36 mt-3 sm:w-fit w-full"
-            disabled={isSaving}
+            variant="primary"
+            isLoading={isSaving}
+            loadingText="Saving..."
+            className="min-w-36 mt-3 sm:w-fit w-full"
             type="button"
           >
-            {isSaving ? (
-              <PulseLoader color="#fff" size={12} />
-            ) : (
-              "Save Ikigai Image"
-            )}
-          </button>
+            Save ikigai image
+          </Button>
         </div>
       </div>
 

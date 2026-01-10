@@ -4,6 +4,7 @@ import React, { useCallback } from "react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useAuthStore, useUIStore } from "@/zustand";
+import { Button } from "@/components/ui/Button";
 
 export default function HomeHeroSection(): React.ReactElement {
   const router = useRouter();
@@ -64,20 +65,16 @@ export default function HomeHeroSection(): React.ReactElement {
 
             {/* Desktop buttons */}
             <div className="mt-6 hidden sm:flex items-center gap-3">
-              <button
-                className="btn-base btn-primary-solid"
-                onClick={handleGetStarted}
-                type="button"
-              >
+              <Button onClick={handleGetStarted} type="button" variant="primary">
                 {uid ? "Get started" : "Sign in to get started"}
-              </button>
-              <button
-                className="btn-base btn-neutral-solid"
+              </Button>
+              <Button
                 onClick={handleScrollHowItWorks}
                 type="button"
+                variant="neutral"
               >
                 See how it works
-              </button>
+              </Button>
             </div>
           </div>
 
@@ -101,20 +98,22 @@ export default function HomeHeroSection(): React.ReactElement {
 
           {/* Mobile buttons */}
           <div className="sm:hidden flex flex-col items-center gap-3 w-full">
-            <button
-              className="btn-base btn-primary-solid w-fit"
+            <Button
+              className="w-fit"
               onClick={handleGetStarted}
               type="button"
+              variant="primary"
             >
               {uid ? "Get started" : "Sign in to get started"}
-            </button>
-            <button
-              className="btn-base btn-neutral-solid w-fit"
+            </Button>
+            <Button
+              className="w-fit"
               onClick={handleScrollHowItWorks}
               type="button"
+              variant="neutral"
             >
               See how it works
-            </button>
+            </Button>
           </div>
         </div>
       </div>

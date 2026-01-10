@@ -17,6 +17,8 @@ interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   size?: ButtonSize;
   /** Show loading spinner */
   isLoading?: boolean;
+  /** Text to show while loading (defaults to "Loading...") */
+  loadingText?: string;
   /** Icon to show on the left */
   leftIcon?: React.ReactNode;
   /** Icon to show on the right */
@@ -67,6 +69,7 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
       variant = "primary",
       size = "md",
       isLoading = false,
+      loadingText = "Loading...",
       leftIcon,
       rightIcon,
       fullWidth = false,
@@ -103,13 +106,13 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
         {isLoading ? (
           <>
             <LoadingSpinner />
-            <span>Loading...</span>
+            <span>{loadingText}</span>
           </>
         ) : (
           <>
-            {leftIcon && <span className="flex-shrink-0">{leftIcon}</span>}
+            {leftIcon && <span className="shrink-0">{leftIcon}</span>}
             {children}
-            {rightIcon && <span className="flex-shrink-0">{rightIcon}</span>}
+            {rightIcon && <span className="shrink-0">{rightIcon}</span>}
           </>
         )}
       </button>
@@ -173,7 +176,7 @@ export const IconButton = forwardRef<HTMLButtonElement, IconButtonProps>(
       <Button
         ref={ref}
         size={size}
-        className={cn(iconSizeStyles[size], "!px-0", className)}
+        className={cn(iconSizeStyles[size], "px-0!", className)}
         {...props}
       >
         {icon}

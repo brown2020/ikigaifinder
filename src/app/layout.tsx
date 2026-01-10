@@ -50,9 +50,7 @@ export const metadata: Metadata = {
       "AI-powered tool to discover your Ikigai. Complete a guided survey and receive personalized purpose statements with beautiful shareable cards.",
     images: [
       {
-        url: "/assets/og-image.png",
-        width: 1200,
-        height: 630,
+        url: "/assets/ikigai-finder.webp",
         alt: "Ikigai Finder AI - Discover Your Purpose",
       },
     ],
@@ -62,7 +60,7 @@ export const metadata: Metadata = {
     title: "Ikigai Finder AI - Discover Your Life Purpose",
     description:
       "AI-powered tool to discover your Ikigai. Find the intersection of what you love, what you're good at, what the world needs, and what you can be paid for.",
-    images: ["/assets/og-image.png"],
+    images: ["/assets/ikigai-finder.webp"],
   },
   robots: {
     index: true,
