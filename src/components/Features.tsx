@@ -2,6 +2,7 @@ import React from "react";
 import { ShieldCheck, Zap, Download, Palette } from "lucide-react";
 import SectionHeader from "@/components/SectionHeader";
 import DemoImageSlick from "@/components/DemoImageSlick";
+import { Container } from "@/components/ui";
 
 export default function Features() {
   const features = [
@@ -28,9 +29,9 @@ export default function Features() {
   ];
 
   return (
-    <section className="relative sm:px-10 px-5 py-12">
+    <section className="relative py-12">
       <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,rgba(59,130,246,0.08),transparent_60%)] pointer-events-none" />
-      <div className="container mx-auto sm:px-4 relative">
+      <Container className="relative">
         <SectionHeader
           title="Why people love it"
           subtitle="Designed to be simple, respectful, and inspiring."
@@ -39,12 +40,12 @@ export default function Features() {
           <ul className="space-y-6">
             {features.map((f, i) => (
               <li key={f.title} className="flex items-start gap-4">
-                <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-500/15 to-indigo-500/15 flex items-center justify-center shrink-0">
+                <div className="w-10 h-10 rounded-full bg-linear-to-br from-blue-500/15 to-indigo-500/15 flex items-center justify-center shrink-0">
                   <f.icon className="text-blue-600" size={20} />
                 </div>
                 <div>
                   <h3 className="text-xl font-medium">{f.title}</h3>
-                  <p className="text-gray-700 mt-1">{f.description}</p>
+                  <p className="text-muted-foreground mt-1">{f.description}</p>
                   <div
                     className="h-1 w-12 rounded-full mt-3"
                     style={{
@@ -64,7 +65,7 @@ export default function Features() {
             </div>
           </div>
         </div>
-      </div>
+      </Container>
     </section>
   );
 }

@@ -1,4 +1,5 @@
 import React from "react";
+import { Container } from "@/components/ui";
 
 const testimonials = [
   {
@@ -18,9 +19,9 @@ const testimonials = [
 
 export default function Testimonials() {
   return (
-    <section className="relative sm:px-10 px-5 py-12">
+    <section className="relative py-12">
       <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,rgba(59,130,246,0.08),transparent_60%)] pointer-events-none" />
-      <div className="container mx-auto sm:px-4 relative">
+      <Container className="relative">
         <h2 className="text-3xl font-semibold text-center">
           Loved by purposeful people
         </h2>
@@ -36,14 +37,16 @@ export default function Testimonials() {
                       : "linear-gradient(to bottom,#06b6d4,#3b82f6)",
                 }}
               />
-              <blockquote className="text-gray-900 text-lg leading-relaxed">
+              <blockquote className="text-foreground text-lg leading-relaxed">
                 “{t.quote}”
               </blockquote>
-              <div className="text-sm text-gray-600 mt-2">— {t.name}</div>
+              <div className="text-sm text-muted-foreground mt-2">
+                — {t.name}
+              </div>
             </li>
           ))}
         </ul>
-      </div>
+      </Container>
     </section>
   );
 }

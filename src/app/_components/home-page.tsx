@@ -13,9 +13,7 @@ export default function HomePage(): React.ReactElement {
       </div>
       <HowItWorks />
       <Features />
-      <div className="md:px-10 p-5 py-8">
-        <IkigaiExplainer />
-      </div>
+      <IkigaiExplainer />
       <Testimonials />
       <FinalCta />
     </div>

@@ -34,6 +34,10 @@ export {
   DashboardSkeleton,
 } from "./Skeleton";
 
+// Layout components
+export { Container } from "./Container";
+export { Section } from "./Section";
+
 // Navigation components
 export { NavMenuIcon } from "./NavMenuIcon";
 
