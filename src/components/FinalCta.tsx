@@ -3,6 +3,7 @@
 import React, { useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { useAuthStore, useUIStore } from "@/zustand";
+import { Button } from "@/components/ui/Button";
 
 export default function FinalCta(): React.ReactElement {
   const router = useRouter();
@@ -31,13 +32,14 @@ export default function FinalCta(): React.ReactElement {
                 Join free and create your card in minutes.
               </p>
             </div>
-            <button
-              className="btn-base bg-white text-blue-600 hover:bg-blue-50"
+            <Button
               onClick={handleClick}
               type="button"
+              variant="neutral"
+              className="bg-white text-blue-600 hover:bg-blue-50"
             >
               {uid ? "Open Ikigai Finder" : "Create free account"}
-            </button>
+            </Button>
           </div>
         </div>
       </div>

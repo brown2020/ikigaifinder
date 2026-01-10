@@ -4,6 +4,7 @@ import React, { useCallback } from "react";
 import { Heart, Medal, PencilRuler, Rocket } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useAuthStore, useUIStore } from "@/zustand";
+import { Button } from "@/components/ui/Button";
 
 // ============================================================================
 // Constants
@@ -90,13 +91,9 @@ export default function IkigaiExplainer(): React.ReactElement {
 
         {/* CTA button */}
         <div className="pt-2">
-          <button
-            className="btn-base btn-primary-solid"
-            onClick={handleClick}
-            type="button"
-          >
+          <Button onClick={handleClick} type="button" variant="primary">
             {uid ? "Create your card" : "Sign in to create your card"}
-          </button>
+          </Button>
         </div>
       </div>
     </section>
@@ -115,7 +112,7 @@ function IkigaiCard({ item }: IkigaiCardProps): React.ReactElement {
   const IconComponent = item.icon;
 
   return (
-    <div className="rounded-2xl p-5 shadow-sm ring-1 ring-black/5 bg-gradient-to-br from-white to-white/70 backdrop-blur-sm">
+    <div className="rounded-2xl p-5 shadow-sm ring-1 ring-black/5 bg-linear-to-br from-white to-white/70 backdrop-blur-sm">
       <div className="flex items-center gap-3">
         <div
           className="w-10 h-10 rounded-full flex items-center justify-center"

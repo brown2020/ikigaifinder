@@ -11,11 +11,12 @@ import {
   Target,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { PulseLoader } from "react-spinners";
 import { Tooltip } from "react-tooltip";
 import CircularProgressWithIcon from "./CircularProgressWithIcon";
 import IkigaiStepper from "./IkigaiStepper";
 import { IkigaiOptionsLoadingSkeleton } from "./ui/Skeleton";
+import { Button } from "@/components/ui/Button";
+import { Textarea } from "@/components/ui/Input";
 import { useIkigaiStore } from "@/zustand";
 import { useIkigaiGenerator } from "@/hooks/use-ikigai-generator";
 import type { IkigaiData } from "@/types";
@@ -121,13 +122,14 @@ export default function GenerateIkigaiForm({
           Your ikigai information is currently unavailable. Please complete the
           survey first.
         </h1>
-        <button
+        <Button
           type="button"
+          variant="primary"
           onClick={handleNavigateToSurvey}
-          className="px-6 py-2 bg-gray-200 text-gray-700 rounded-sm hover:bg-gray-300 mt-6"
+          className="mt-6"
         >
-          Create Your Ikigai
-        </button>
+          Create your Ikigai
+        </Button>
       </div>
     );
   }
@@ -168,13 +170,14 @@ export default function GenerateIkigaiForm({
         </Tooltip>
 
         {/* Guidance Input */}
-        <textarea
+        <Textarea
           id="ikigai-guidance"
-          className="w-full p-2 border border-gray-300 rounded-sm h-24 font-semibold"
-          autoComplete="on"
-          placeholder="Enter your guidance here (optional)"
+          label="Guidance (optional)"
+          helperText="Add any preferences so the AI can tailor ideas better."
+          placeholder="Example: I want something creative, community-focused, and flexible."
           onChange={(e) => setGuidance(e.target.value)}
           value={guidance}
+          className="font-medium"
         />
 
         {/* Error Message */}
@@ -186,25 +189,17 @@ export default function GenerateIkigaiForm({
 
         {/* Generate Button */}
         <div className="w-full bg-white pb-2 sticky top-0 sm:top-[64px] z-10">
-          <button
+          <Button
             onClick={handleGenerateIkigai}
-            className={`btn-base btn-primary-solid mx-auto flex sm:mt-6 mt-1 min-w-56 min-h-10 ${
-              isGenerating ? "cursor-not-allowed opacity-60" : ""
-            }`}
-            disabled={isGenerating}
+            variant="primary"
+            isLoading={isGenerating}
+            loadingText="Generating..."
+            leftIcon={!isGenerating && <Lightbulb size={18} />}
+            className="mx-auto flex sm:mt-6 mt-1 min-w-56 min-h-10"
             type="button"
           >
-            {isGenerating ? (
-              <div className="flex items-center justify-center h-full py-1 w-full">
-                <PulseLoader color="#fff" size={10} />
-              </div>
-            ) : (
-              <span className="flex gap-1 items-center justify-center mx-auto">
-                <Lightbulb size={18} />
-                Generate More Ideas
-              </span>
-            )}
-          </button>
+            Generate more ideas
+          </Button>
         </div>
       </div>
 
@@ -237,21 +232,21 @@ export default function GenerateIkigaiForm({
       {/* Footer Navigation */}
       <div className="w-full max-w-3xl fixed sm:bottom-0 bottom-[52px] bg-white">
         <div className="flex justify-between items-center mt-2 max-w-3xl mb-1 px-5">
-          <button
+          <Button
             type="button"
             onClick={handleNavigateToSurvey}
-            className="btn-base btn-neutral-solid rounded-sm"
+            variant="neutral"
           >
             Back
-          </button>
-          <button
+          </Button>
+          <Button
             onClick={handleSaveMyIkigai}
-            className="btn-base btn-primary-solid rounded-sm disabled:cursor-not-allowed disabled:opacity-60"
             disabled={isGenerating || !selectedIkigai}
+            variant="primary"
             type="button"
           >
-            Save Ikigai
-          </button>
+            Save ikigai
+          </Button>
         </div>
       </div>
     </div>
@@ -274,49 +269,50 @@ function IkigaiOptionCard({
   onSelect,
 }: IkigaiOptionCardProps): React.ReactElement {
   return (
-    <li
-      className={`md:p-4 p-2 border rounded-md shadow-md cursor-pointer mt-4 hover:bg-blue-100 transition-colors duration-200 font-medium ${
-        isSelected ? "bg-blue-200 border-blue-400" : ""
-      }`}
-      onClick={() => onSelect(item)}
-      role="button"
-      tabIndex={0}
-      onKeyDown={(e) => e.key === "Enter" && onSelect(item)}
-    >
-      {item.ikigai.replace(/\*\*/g, "")}
+    <li className="mt-4">
+      <button
+        type="button"
+        className={`w-full text-left md:p-4 p-2 border rounded-md shadow-md hover:bg-blue-100 transition-colors duration-200 font-medium focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 ${
+          isSelected ? "bg-blue-200 border-blue-400" : ""
+        }`}
+        onClick={() => onSelect(item)}
+        aria-pressed={isSelected}
+      >
+        {item.ikigai.replace(/\*\*/g, "")}
 
-      <div className="flex flex-wrap xs:gap-2 gap-1 mt-4">
-        <ScoreDisplay
-          title="Ikigai"
-          value={item.OverallCompatibility}
-          color={IKIGAI_COLORS.ikigai}
-          Icon={Target}
-        />
-        <ScoreDisplay
-          title="Passion"
-          value={item.Passion}
-          color={IKIGAI_COLORS.passion}
-          Icon={Heart}
-        />
-        <ScoreDisplay
-          title="Profession"
-          value={item.Profession}
-          color={IKIGAI_COLORS.profession}
-          Icon={Medal}
-        />
-        <ScoreDisplay
-          title="Vocation"
-          value={item.Vocation}
-          color={IKIGAI_COLORS.vocation}
-          Icon={PencilRuler}
-        />
-        <ScoreDisplay
-          title="Mission"
-          value={item.Mission}
-          color={IKIGAI_COLORS.mission}
-          Icon={Rocket}
-        />
-      </div>
+        <div className="flex flex-wrap xs:gap-2 gap-1 mt-4">
+          <ScoreDisplay
+            title="Ikigai"
+            value={item.OverallCompatibility}
+            color={IKIGAI_COLORS.ikigai}
+            Icon={Target}
+          />
+          <ScoreDisplay
+            title="Passion"
+            value={item.Passion}
+            color={IKIGAI_COLORS.passion}
+            Icon={Heart}
+          />
+          <ScoreDisplay
+            title="Profession"
+            value={item.Profession}
+            color={IKIGAI_COLORS.profession}
+            Icon={Medal}
+          />
+          <ScoreDisplay
+            title="Vocation"
+            value={item.Vocation}
+            color={IKIGAI_COLORS.vocation}
+            Icon={PencilRuler}
+          />
+          <ScoreDisplay
+            title="Mission"
+            value={item.Mission}
+            color={IKIGAI_COLORS.mission}
+            Icon={Rocket}
+          />
+        </div>
+      </button>
     </li>
   );
 }

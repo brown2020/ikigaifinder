@@ -176,6 +176,7 @@ export default function DashboardPage({
             variant="primary"
             onClick={handleDownload}
             isLoading={isDownloading}
+            loadingText="Downloading..."
             leftIcon={!isDownloading && <Download size={18} />}
             className="mx-auto mt-6 min-w-40"
           >

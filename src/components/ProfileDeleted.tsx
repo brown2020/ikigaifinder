@@ -181,6 +181,7 @@ export default function ProfileDeleted({
                 onClick={deleteConfirmIkigaiProfile}
                 disabled={confirmText !== "delete account"}
                 isLoading={isLoading}
+                loadingText="Deleting..."
                 className="px-9 py-3"
               >
                 Delete

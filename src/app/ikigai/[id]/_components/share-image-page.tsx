@@ -161,6 +161,7 @@ export default function ShareImagePage({
                 variant={sharableUrl ? "neutral" : "secondary"}
                 onClick={toggleSharableStatus}
                 isLoading={isUpdatingShare}
+                loadingText="Updating..."
                 className="min-w-44"
               >
                 {sharableUrl ? "Make private" : "Make sharable"}
@@ -169,6 +170,7 @@ export default function ShareImagePage({
                 variant="primary"
                 onClick={handleDownload}
                 isLoading={isDownloading}
+                loadingText="Downloading..."
                 className="min-w-44"
               >
                 Download
