@@ -135,7 +135,9 @@ export default function GenerateIkigaiForm({
   }
 
   return (
-    <div className="md:p-10 sm:mb-7 mb-12 p-5 gap-4 flex flex-col justify-center items-center">
+    <div className="py-6">
+      <div className="mx-auto w-full max-w-3xl bg-card text-card-foreground border border-border rounded-xl shadow-md p-5 sm:p-6">
+        <div className="flex flex-col gap-4">
       {/* Progress Stepper */}
       <div className="w-full max-w-3xl mb-4">
         <IkigaiStepper currentStep={5} />
@@ -188,7 +190,7 @@ export default function GenerateIkigaiForm({
         )}
 
         {/* Generate Button */}
-        <div className="w-full bg-white pb-2 sticky top-0 sm:top-[64px] z-10">
+        <div className="w-full bg-card pb-2 sticky top-0 z-10">
           <Button
             onClick={handleGenerateIkigai}
             variant="primary"
@@ -207,7 +209,7 @@ export default function GenerateIkigaiForm({
       <div className="w-full max-w-3xl mt-6">
         {ikigaiOptions.length > 0 ? (
           <div className="flex flex-col md:p-4 md:border rounded-md w-full max-w-3xl">
-            <ul className="overflow-y-auto min-h-[350px] text-gray-600">
+            <ul className="overflow-y-auto min-h-[350px] text-muted-foreground">
               {ikigaiOptions.map((item, index) => (
                 <IkigaiOptionCard
                   key={`${item.ikigai}-${index}`}
@@ -222,31 +224,27 @@ export default function GenerateIkigaiForm({
         ) : isGenerating ? (
           <IkigaiOptionsLoadingSkeleton count={3} />
         ) : (
-          <div className="flex flex-col items-center justify-center py-12 text-gray-500">
+          <div className="flex flex-col items-center justify-center py-12 text-muted-foreground">
             <Lightbulb size={48} className="mb-4 opacity-50" />
             <p className="text-lg">Click &quot;Generate More Ideas&quot; to get started</p>
           </div>
         )}
       </div>
 
-      {/* Footer Navigation */}
-      <div className="w-full max-w-3xl fixed sm:bottom-0 bottom-[52px] bg-white">
-        <div className="flex justify-between items-center mt-2 max-w-3xl mb-1 px-5">
-          <Button
-            type="button"
-            onClick={handleNavigateToSurvey}
-            variant="neutral"
-          >
-            Back
-          </Button>
-          <Button
-            onClick={handleSaveMyIkigai}
-            disabled={isGenerating || !selectedIkigai}
-            variant="primary"
-            type="button"
-          >
-            Save ikigai
-          </Button>
+      {/* Footer Navigation (inside card) */}
+      <div className="mt-6 flex items-center justify-between">
+        <Button type="button" onClick={handleNavigateToSurvey} variant="neutral">
+          Back
+        </Button>
+        <Button
+          onClick={handleSaveMyIkigai}
+          disabled={isGenerating || !selectedIkigai}
+          variant="primary"
+          type="button"
+        >
+          Save ikigai
+        </Button>
+      </div>
         </div>
       </div>
     </div>

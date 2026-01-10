@@ -176,121 +176,123 @@ export default function GenerateIkigaiImage(): React.ReactElement {
   }, [router]);
 
   return (
-    <div className="p-10">
-      {/* Progress Stepper */}
-      <div className="w-full max-w-3xl mx-auto mb-6">
-        <IkigaiStepper currentStep={6} />
-      </div>
+    <div className="py-6">
+      <div className="mx-auto w-full max-w-6xl bg-card text-card-foreground border border-border rounded-xl shadow-md p-5 sm:p-6">
+        {/* Progress Stepper */}
+        <div className="w-full max-w-3xl mx-auto mb-6">
+          <IkigaiStepper currentStep={6} />
+        </div>
 
-      <div className="grid md:grid-cols-2 grid-cols-1 gap-4">
-        {/* Left Column - Form */}
-        <div className="w-full max-w-3xl">
-          <div>
-            <h1 className="text-3xl font-bold mb-4">
-              Let&apos;s make your Ikigai beautiful.
-            </h1>
+        <div className="grid md:grid-cols-2 grid-cols-1 gap-6">
+          {/* Left Column - Form */}
+          <div className="w-full">
+            <div>
+              <h1 className="text-3xl font-bold mb-4">
+                Let&apos;s make your Ikigai beautiful.
+              </h1>
 
-          <p className="text-lg font-semibold mb-6">
-            Create a background image that embodies your vision. Once
-            you&apos;re done, you can save it, download it, or share your Ikigai
-            on social media.
-          </p>
+              <p className="text-lg font-semibold mb-6">
+                Create a background image that embodies your vision. Once
+                you&apos;re done, you can save it, download it, or share your Ikigai
+                on social media.
+              </p>
 
-          <p className="text-lg font-semibold mb-6">
-            Type a description of the background image you desire for your
-            Ikigai in this text box, or let the AI create an image based on your
-            Ikigai alone.
-          </p>
+              <p className="text-lg font-semibold mb-6">
+                Type a description of the background image you desire for your
+                Ikigai in this text box, or let the AI create an image based on your
+                Ikigai alone.
+              </p>
 
-          {/* Prompt Input */}
-          <Textarea
-            label="Describe your background image (optional)"
-            helperText="Tip: include mood, lighting, colors, and setting."
-            placeholder="Example: A serene mountain landscape at sunset, soft pastel colors, cinematic lighting"
-            onChange={(e) => setImagePrompt(e.target.value)}
-            value={imagePrompt}
-            className="min-h-[96px]"
-          />
-
-          {/* Style Select and Generate Button */}
-          <div className="flex justify-between gap-2 sm:flex-row flex-col items-end">
-            <div className="w-full sm:max-w-80">
-              <div className="mb-1 text-sm text-gray-600">
-                Artistic Style (optional)
-              </div>
-              <Select
-                isClearable
-                isSearchable
-                name="styles"
-                onChange={(option) => setImageStyle(option?.value ?? "")}
-                options={artStyles}
-                styles={selectStyles}
-                placeholder="Select a style..."
+              {/* Prompt Input */}
+              <Textarea
+                label="Describe your background image (optional)"
+                helperText="Tip: include mood, lighting, colors, and setting."
+                placeholder="Example: A serene mountain landscape at sunset, soft pastel colors, cinematic lighting"
+                onChange={(e) => setImagePrompt(e.target.value)}
+                value={imagePrompt}
+                className="min-h-[96px]"
               />
+
+              {/* Style Select and Generate Button */}
+              <div className="flex justify-between gap-2 sm:flex-row flex-col items-end">
+                <div className="w-full sm:max-w-80">
+                  <div className="mb-1 text-sm text-muted-foreground">
+                    Artistic Style (optional)
+                  </div>
+                  <Select
+                    isClearable
+                    isSearchable
+                    name="styles"
+                    onChange={(option) => setImageStyle(option?.value ?? "")}
+                    options={artStyles}
+                    styles={selectStyles}
+                    placeholder="Select a style..."
+                  />
+                </div>
+
+                <Button
+                  onClick={handleGenerateImage}
+                  variant="primary"
+                  isLoading={isGenerating}
+                  loadingText="Creating..."
+                  className="min-w-36 sm:w-fit w-full"
+                  type="button"
+                >
+                  Create image
+                </Button>
+              </div>
             </div>
 
-            <Button
-              onClick={handleGenerateImage}
-              variant="primary"
-              isLoading={isGenerating}
-              loadingText="Creating..."
-              className="min-w-36 sm:w-fit w-full"
-              type="button"
-            >
-              Create image
-            </Button>
+            {/* Image Selector */}
+            <div className="mt-6">
+              <ImageSelector />
+            </div>
+
+            {/* Action Buttons */}
+            <div className="flex justify-between gap-4 flex-wrap mt-6">
+              <Button
+                onClick={handleBack}
+                variant="neutral"
+                className="min-w-36 sm:w-fit w-full"
+                type="button"
+              >
+                Back to Ideas
+              </Button>
+
+              <Button
+                onClick={handleSaveToProfile}
+                variant="primary"
+                isLoading={isSaving}
+                loadingText="Saving..."
+                className="min-w-36 sm:w-fit w-full"
+                type="button"
+              >
+                Save ikigai image
+              </Button>
+            </div>
           </div>
-        </div>
 
-        {/* Image Selector */}
-        <div className="mt-6">
-          <ImageSelector />
-        </div>
-
-        {/* Action Buttons */}
-        <div className="flex justify-between gap-4 flex-wrap">
-          <Button
-            onClick={handleBack}
-            variant="neutral"
-            className="min-w-36 mt-3 sm:w-fit w-full"
-            type="button"
-          >
-            Back to Ideas
-          </Button>
-
-          <Button
-            onClick={handleSaveToProfile}
-            variant="primary"
-            isLoading={isSaving}
-            loadingText="Saving..."
-            className="min-w-36 mt-3 sm:w-fit w-full"
-            type="button"
-          >
-            Save ikigai image
-          </Button>
-        </div>
-      </div>
-
-        {/* Right Column - Preview */}
-        <div className="flex-1 flex items-center justify-center bg-gray-200">
-          <div
-            className="relative w-full aspect-square max-w-[600px] max-h-[600px]"
-            id="visualization"
-          >
-            <Image
-              className="object-cover w-full h-full"
-              src={ikigaiData.ikigaiImage || "/assets/bg_image.webp"}
-              alt="Ikigai visualization background"
-              fill
-              sizes="(max-width: 768px) 100vw, 50vw"
-              priority
-            />
-            <div className="absolute inset-0 flex items-center justify-center">
-              <SVGOverlay
-                profileName={profile.firstName ?? ""}
-                ikigaiSelected={ikigaiData.ikigaiSelected}
-                updatedAt={updatedAtDate}
+          {/* Right Column - Preview */}
+          <div className="flex items-center justify-center rounded-lg bg-muted p-4">
+            <div
+              className="relative w-full aspect-square max-w-[600px] max-h-[600px]"
+              id="visualization"
+            >
+              <Image
+                className="object-cover w-full h-full rounded-md"
+                src={ikigaiData.ikigaiImage || "/assets/bg_image.webp"}
+                alt="Ikigai visualization background"
+                fill
+                sizes="(max-width: 768px) 100vw, 50vw"
+                priority
               />
+              <div className="absolute inset-0 flex items-center justify-center">
+                <SVGOverlay
+                  profileName={profile.firstName ?? ""}
+                  ikigaiSelected={ikigaiData.ikigaiSelected}
+                  updatedAt={updatedAtDate}
+                />
+              </div>
             </div>
           </div>
         </div>
