@@ -79,9 +79,10 @@ export default function NavbarMenuItems() {
                 <button
                   type="button"
                   className={[
-                    "flex items-center gap-1 px-3 pb-1 rounded-md",
-                    "hover:bg-blue-700/40 transition-colors duration-200",
-                    "focus:outline-none focus-visible:ring-2 focus-visible:ring-white/70",
+                    "flex items-center gap-2 h-10 px-3 rounded-md",
+                    "text-sm font-medium text-foreground",
+                    "hover:bg-accent transition-colors duration-200",
+                    "focus:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background",
                   ].join(" ")}
                   onClick={() => handleDropdown(key)}
                   aria-haspopup="menu"
@@ -103,10 +104,11 @@ export default function NavbarMenuItems() {
                 <Link
                   href={item.path}
                   className={[
-                    "flex items-center gap-1 px-3 pb-1 rounded-md",
-                    "hover:bg-blue-700/40 transition-colors duration-200",
-                    "focus:outline-none focus-visible:ring-2 focus-visible:ring-white/70",
-                    isActive ? "bg-blue-700/50" : "",
+                    "flex items-center gap-2 h-10 px-3 rounded-md",
+                    "text-sm font-medium text-foreground",
+                    "hover:bg-accent transition-colors duration-200",
+                    "focus:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background",
+                    isActive ? "bg-accent" : "",
                   ].join(" ")}
                   aria-current={isActive ? "page" : undefined}
                 >
@@ -122,7 +124,7 @@ export default function NavbarMenuItems() {
                   id={menuId}
                   role="menu"
                   aria-label={item.label || "Menu"}
-                  className="dropdown-menu absolute right-0 mt-2 bg-white text-black rounded-lg shadow-lg z-20 min-w-52 overflow-hidden"
+                  className="dropdown-menu absolute right-0 mt-2 rounded-lg border border-border bg-popover text-popover-foreground shadow-lg z-20 min-w-56 overflow-hidden"
                 >
                   {item.subItems?.map((subItem: NavItem, subIndex: number) => {
                     if (!subItem.path) return null;
@@ -137,9 +139,9 @@ export default function NavbarMenuItems() {
                         role="menuitem"
                         className={[
                           "px-4 py-2 block",
-                          "hover:text-blue-800 hover:bg-gray-50",
-                          "focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-600/40",
-                          isSubActive ? "text-blue-800 bg-gray-50" : "",
+                          "hover:bg-accent transition-colors",
+                          "focus:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background",
+                          isSubActive ? "bg-accent" : "",
                         ].join(" ")}
                         onClick={() => setIsOpenDropdown(null)}
                       >

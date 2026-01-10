@@ -29,7 +29,7 @@ export default function BottomBar() {
   if (!uid) return null;
 
   return (
-    <div className={`w-full py-1 bg-blue-800 text-white sm:px-10 px-5`}>
+    <div className="w-full border-t border-border/60 bg-background/95 supports-backdrop-filter:bg-background/70 backdrop-blur">
       <nav className="flex justify-between h-11" aria-label="Bottom navigation">
         {bottomMenu?.length
           ? bottomMenu.map((item) => {
@@ -42,9 +42,10 @@ export default function BottomBar() {
                   key={item.path}
                   href={item.path}
                   className={[
-                    "flex flex-col items-center justify-center rounded-md px-2",
-                    "focus:outline-none focus-visible:ring-2 focus-visible:ring-white/70",
-                    isActive ? "bg-blue-700/50" : "hover:bg-blue-700/40",
+                    "flex flex-col items-center justify-center rounded-md px-3",
+                    "text-muted-foreground hover:text-foreground hover:bg-accent transition-colors",
+                    "focus:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background",
+                    isActive ? "bg-accent text-foreground" : "",
                   ].join(" ")}
                   aria-current={isActive ? "page" : undefined}
                   aria-label={item.label || "Navigate"}

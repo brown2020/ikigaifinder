@@ -153,10 +153,10 @@ export default function RootLayout({
           >
             Skip to content
           </a>
-          <header className="sticky top-0 z-50 w-full border-b border-border/60 bg-background/80 backdrop-blur">
+          <header className="sticky top-0 z-50 w-full border-b border-border/60 bg-background/95 supports-backdrop-filter:bg-background/70 backdrop-blur">
             <Navbar />
           </header>
-          <main id="main" className="grow pt-[64px] pb-12 sm:pb-0">
+          <main id="main" className="grow pb-12 sm:pb-0 scroll-mt-20">
             {children}
           </main>
           <div className="fixed bottom-0 z-50 w-full block sm:hidden">

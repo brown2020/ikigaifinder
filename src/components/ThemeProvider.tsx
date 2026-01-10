@@ -15,14 +15,13 @@ export function ThemeProvider({
   children,
   isDisabled = false,
 }: ThemeProviderProps): React.ReactElement {
-  if (isDisabled) return <>{children}</>;
-
   return (
     <NextThemesProvider
       attribute="class"
       defaultTheme="system"
       enableSystem
       disableTransitionOnChange
+      forcedTheme={isDisabled ? "light" : undefined}
     >
       {children}
     </NextThemesProvider>

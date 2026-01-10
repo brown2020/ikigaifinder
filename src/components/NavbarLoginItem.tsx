@@ -3,6 +3,7 @@
 import React from "react";
 import { LogIn } from "lucide-react";
 import { useUIStore } from "@/zustand";
+import { Button } from "@/components/ui/Button";
 
 // ============================================================================
 // Component
@@ -17,7 +18,7 @@ export default function NavbarLoginItem(): React.ReactElement {
   const openAuthModal = useUIStore((state) => state.openAuthModal);
 
   return (
-    <button
+    <Button
       onClick={() => {
         const url = new URL(window.location.href);
         const redirectParam = url.searchParams.get("redirect");
@@ -31,12 +32,14 @@ export default function NavbarLoginItem(): React.ReactElement {
 
         openAuthModal(redirectPath);
       }}
-      className="flex items-center gap-2 px-4 py-2 text-white hover:bg-blue-700 rounded-lg transition-colors duration-200"
+      variant="secondary"
+      size="sm"
+      leftIcon={<LogIn size={18} />}
+      className="hover:bg-accent"
       type="button"
       aria-label="Sign in"
     >
-      <LogIn size={20} />
       <span className="hidden sm:inline">Sign In</span>
-    </button>
+    </Button>
   );
 }
