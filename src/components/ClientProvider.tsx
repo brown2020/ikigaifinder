@@ -8,7 +8,6 @@ import { useInitializeStores } from "@/zustand";
 import { useAuthToken } from "@/hooks/use-auth-token";
 import { isReactNativeWebView } from "@/utils/platform";
 import ErrorBoundary from "./ErrorBoundary";
-import { ThemeProvider } from "./ThemeProvider";
 
 // Lazy load auth modal for better initial load (it's conditionally rendered)
 const AuthModal = dynamic(() => import("@/components/auth/AuthModal"), {
@@ -108,57 +107,55 @@ export function ClientProvider({
 
   return (
     <ErrorBoundary>
-      <ThemeProvider isDisabled={isRNWebView}>
-        <div className="flex flex-col h-full">
-          {children}
+      <div className="flex flex-col h-full">
+        {children}
 
-          {/* Cookie consent - hide in React Native WebView */}
-          {!isRNWebView && (
-            <CookieConsent
-              buttonText="Accept"
-              cookieName="ikigai-cookie-consent"
-              style={{ background: "#2B373B" }}
-              buttonStyle={{
-                color: "#4e503b",
-                fontSize: "13px",
-                background: "#fff",
-                borderRadius: "4px",
-                padding: "8px 16px",
-              }}
-              expires={365}
-            >
-              This app uses cookies to enhance the user experience.
-            </CookieConsent>
-          )}
-
-          {/* Global toast notifications */}
-          <Toaster
-            position="top-right"
-            toastOptions={{
-              duration: 4000,
-              style: {
-                background: "#363636",
-                color: "#fff",
-              },
-              success: {
-                iconTheme: {
-                  primary: "#4ade80",
-                  secondary: "#fff",
-                },
-              },
-              error: {
-                iconTheme: {
-                  primary: "#f87171",
-                  secondary: "#fff",
-                },
-              },
+        {/* Cookie consent - hide in React Native WebView */}
+        {!isRNWebView && (
+          <CookieConsent
+            buttonText="Accept"
+            cookieName="ikigai-cookie-consent"
+            style={{ background: "#2B373B" }}
+            buttonStyle={{
+              color: "#4e503b",
+              fontSize: "13px",
+              background: "#fff",
+              borderRadius: "4px",
+              padding: "8px 16px",
             }}
-          />
+            expires={365}
+          >
+            This app uses cookies to enhance the user experience.
+          </CookieConsent>
+        )}
 
-          {/* Auth modal - rendered at root level for proper z-index */}
-          <AuthModal />
-        </div>
-      </ThemeProvider>
+        {/* Global toast notifications */}
+        <Toaster
+          position="top-right"
+          toastOptions={{
+            duration: 4000,
+            style: {
+              background: "#363636",
+              color: "#fff",
+            },
+            success: {
+              iconTheme: {
+                primary: "#4ade80",
+                secondary: "#fff",
+              },
+            },
+            error: {
+              iconTheme: {
+                primary: "#f87171",
+                secondary: "#fff",
+              },
+            },
+          }}
+        />
+
+        {/* Auth modal - rendered at root level for proper z-index */}
+        <AuthModal />
+      </div>
     </ErrorBoundary>
   );
 }

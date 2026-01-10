@@ -4,7 +4,6 @@ import NavbarMenuItems from "./NavbarMenuItems";
 import Link from "next/link";
 import NavbarLoginItem from "./NavbarLoginItem";
 import { useAuthStore } from "@/zustand";
-import ThemeToggle from "./ThemeToggle";
 
 export default function Navbar() {
   const { uid } = useAuthStore();
@@ -27,7 +26,6 @@ export default function Navbar() {
         ) : (
           <NavbarLoginItem />
         )}
-        <ThemeToggle />
       </div>
     </div>
   );
