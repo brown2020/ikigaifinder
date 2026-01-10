@@ -15,6 +15,7 @@ import {
   EmailShareButton,
 } from "react-share";
 import { absoluteUrl } from "@/utils/baseUrl";
+import { Button } from "@/components/ui/Button";
 
 export default function ShareImagePage({
   userId,
@@ -38,6 +39,8 @@ export default function ShareImagePage({
   const [sharableUrl, setSharableUrl] = useState(initialSharableUrl);
   const [errorMessage, setErrorMessage] = useState("");
   const [imageUrl] = useState<string>(initialImageUrl ?? "");
+  const [isUpdatingShare, setIsUpdatingShare] = useState(false);
+  const [isDownloading, setIsDownloading] = useState(false);
 
   const currentPageUrl = absoluteUrl(`/ikigai/${userId}`);
   const title = "Check out my Ikigai!";
@@ -46,6 +49,8 @@ export default function ShareImagePage({
   const toggleSharableStatus = async () => {
     try {
       if (!isOwner) return;
+      if (isUpdatingShare) return;
+      setIsUpdatingShare(true);
       const nextSharable = !sharableUrl;
       const response = await fetch("/api/ikigai/sharing", {
         method: "PATCH",
@@ -60,27 +65,40 @@ export default function ShareImagePage({
       setSharableUrl(nextSharable);
     } catch {
       setErrorMessage("Failed to update share settings. Please try again.");
+    } finally {
+      setIsUpdatingShare(false);
     }
   };
 
   const handleDownload = async () => {
     if (!imageUrl) return;
-    const response = await fetch(
-      `/api/downloadImage?url=${encodeURIComponent(imageUrl)}`
-    );
-    const blob = await response.blob();
-    const url = window.URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
+    if (isDownloading) return;
+    setIsDownloading(true);
+    try {
+      const response = await fetch(
+        `/api/downloadImage?url=${encodeURIComponent(imageUrl)}`
+      );
+      if (!response.ok) {
+        throw new Error(`Download failed (${response.status})`);
+      }
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
 
-    // Create filename with "ikigai finder" and current date
-    const currentDate = new Date().toISOString().split("T")[0]; // YYYY-MM-DD format
-    a.download = `ikigai-finder-${currentDate}.png`;
+      // Create filename with "ikigai finder" and current date (YYYY-MM-DD)
+      const currentDate = new Date().toISOString().split("T")[0];
+      a.download = `ikigai-finder-${currentDate}.png`;
 
-    document.body.appendChild(a);
-    a.click();
-    a.remove();
-    window.URL.revokeObjectURL(url);
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      window.URL.revokeObjectURL(url);
+    } catch {
+      setErrorMessage("Failed to download the image. Please try again.");
+    } finally {
+      setIsDownloading(false);
+    }
   };
 
   const canView = Boolean(imageUrl) && (sharableUrl || isOwner);
@@ -94,14 +112,22 @@ export default function ShareImagePage({
     <div className="w-full max-w-3xl mx-auto py-5 px-5">
       {canView ? (
         <div>
+          {errorMessage ? (
+            <div
+              className="mb-4 p-3 bg-red-50 border border-red-200 rounded-md text-red-700 text-sm"
+              role="alert"
+            >
+              {errorMessage}
+            </div>
+          ) : null}
           <Image
             className="h-full w-full max-w-xl max-h-xl object-cover mx-auto shadow-md"
             src={imageUrl}
-            alt="Visual Result"
-            height={300}
-            width={300}
+            alt="My Ikigai card"
+            height={768}
+            width={768}
+            sizes="(max-width: 768px) 100vw, 768px"
             priority
-            unoptimized
           />
           <div className="mt-6">
             {sharableUrl && (
@@ -130,13 +156,23 @@ export default function ShareImagePage({
           </div>
 
           {isOwner && (
-            <div className="flex items-center gap-2 justify-center mt-4">
-              <button className="btn-primary2" onClick={toggleSharableStatus}>
-                {sharableUrl ? "Make Private" : "Make Sharable"}
-              </button>
-              <button className="btn-primary2" onClick={handleDownload}>
+            <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 justify-center mt-6">
+              <Button
+                variant={sharableUrl ? "neutral" : "secondary"}
+                onClick={toggleSharableStatus}
+                isLoading={isUpdatingShare}
+                className="min-w-44"
+              >
+                {sharableUrl ? "Make private" : "Make sharable"}
+              </Button>
+              <Button
+                variant="primary"
+                onClick={handleDownload}
+                isLoading={isDownloading}
+                className="min-w-44"
+              >
                 Download
-              </button>
+              </Button>
             </div>
           )}
         </div>
@@ -148,8 +184,8 @@ export default function ShareImagePage({
         </div>
       )}
       <div className="w-full">
-        <Link href={"/ikigai-finder"}>
-          <button className="btn-primary2 mx-auto">Create Your Ikigai</button>
+        <Link href="/ikigai-finder" className="block w-fit mx-auto mt-6">
+          <Button variant="primary">Create your Ikigai</Button>
         </Link>
       </div>
     </div>

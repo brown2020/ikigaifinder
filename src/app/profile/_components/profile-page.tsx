@@ -6,29 +6,13 @@ import Link from "next/link";
 import { Share } from "lucide-react";
 import ProfileComponent from "@/components/ProfileComponent";
 import ProfileDeleted from "@/components/ProfileDeleted";
-import Toast from "@/components/Toast";
 import { Button } from "@/components/ui/Button";
 import { useAuthStore, useIkigaiStore } from "@/zustand";
-
-interface ToastState {
-  show: boolean;
-  type: "success" | "error" | "warning" | "";
-  message: string;
-}
 
 export default function ProfilePage(): React.ReactElement {
   const uid = useAuthStore((s) => s.uid);
   const fetchIkigaiData = useIkigaiStore((s) => s.ikigaiData);
   const [isOpen, setIsOpen] = useState(false);
-  const [toast, setToast] = useState<ToastState>({
-    show: false,
-    type: "",
-    message: "",
-  });
-
-  const closeToast = () => {
-    setToast({ show: false, type: "", message: "" });
-  };
 
   return (
     <div className="flex flex-col w-full max-w-4xl mx-auto gap-4 p-5 ">
@@ -75,14 +59,6 @@ export default function ProfilePage(): React.ReactElement {
         <ProfileDeleted
           isOpen={isOpen}
           closeModal={() => setIsOpen(false)}
-          setToast={setToast}
-        />
-      )}
-      {toast.show && (
-        <Toast
-          type={toast.type || "success"}
-          message={toast.message}
-          onClose={closeToast}
         />
       )}
     </div>

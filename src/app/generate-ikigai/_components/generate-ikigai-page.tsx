@@ -2,6 +2,7 @@
 
 import GenerateIkigaiForm from "@/components/GenerateIkigaiForm";
 import GenerateIkigaiImage from "@/components/GenerateIkigaiImage";
+import { PageLoadingSkeleton } from "@/components/ui/Skeleton";
 import { useSearchParams } from "next/navigation";
 import { Suspense, useState } from "react";
 
@@ -23,7 +24,7 @@ function GenerateIkigaiPageContent() {
 
 export default function GenerateIkigaiPage() {
   return (
-    <Suspense fallback={<div>Loading...</div>}>
+    <Suspense fallback={<PageLoadingSkeleton />}>
       <GenerateIkigaiPageContent />
     </Suspense>
   );

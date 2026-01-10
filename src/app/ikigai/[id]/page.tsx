@@ -67,29 +67,27 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   }
 
   const shareUrl =
-    sharableUrl && imageUrl ? imageUrl : "https://assets/falcon.jpeg";
+    sharableUrl && imageUrl ? imageUrl : "/assets/ikigai-finder.webp";
 
   return {
     metadataBase: new URL(
       process.env.NEXT_PUBLIC_BASE_URL || "https://ikigaifinder.ai"
     ),
     title: "Check out my Ikigai!",
-    description: "I just created my Ikigai with Ikigaifinder.ai/",
+    description: "I just created my Ikigai with Ikigai Finder AI.",
 
     openGraph: {
       title: "Check out my Ikigai!",
-      description: "I just created my Ikigai with Ikigaifinder.ai/",
+      description: "I just created my Ikigai with Ikigai Finder AI.",
       url: `${
         process.env.NEXT_PUBLIC_BASE_URL || "https://ikigaifinder.ai"
       }/ikigai/${userId}`,
-      siteName: "Ikigaifinder.ai/",
+      siteName: "Ikigai Finder AI",
       locale: "en_US",
       type: "website",
       images: [
         {
           url: shareUrl,
-          width: 512,
-          height: 512,
         },
       ],
     },
@@ -97,7 +95,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     twitter: {
       card: "summary_large_image",
       title: "Check out my Ikigai!",
-      description: "I just created my Ikigai with Ikigaifinder.ai/",
+      description: "I just created my Ikigai with Ikigai Finder AI.",
       images: [shareUrl],
     },
   };

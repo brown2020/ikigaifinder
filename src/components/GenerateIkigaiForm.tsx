@@ -58,7 +58,6 @@ export default function GenerateIkigaiForm({
   const [ikigaiOptions, setIkigaiOptions] = useState<IkigaiData[]>([]);
   const [guidance, setGuidance] = useState("");
   const [selectedIkigai, setSelectedIkigai] = useState<IkigaiData | null>(null);
-  const [isSticky, setIsSticky] = useState(false);
   const [hasInitialized, setHasInitialized] = useState(false);
 
   // Generator hook
@@ -91,20 +90,6 @@ export default function GenerateIkigaiForm({
       setHasInitialized(true);
     }
   }, [ikigaiData, hasCompletedSurvey, generate, hasInitialized]);
-
-  // Handle scroll for sticky header
-  useEffect(() => {
-    function handleScroll(): void {
-      const element = document.getElementById("img");
-      if (element) {
-        const rect = element.getBoundingClientRect();
-        setIsSticky(rect.bottom <= 0);
-      }
-    }
-
-    window.addEventListener("scroll", handleScroll);
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
 
   // Handlers
   const handleSelectIkigai = useCallback((item: IkigaiData): void => {
@@ -184,7 +169,7 @@ export default function GenerateIkigaiForm({
 
         {/* Guidance Input */}
         <textarea
-          id="img"
+          id="ikigai-guidance"
           className="w-full p-2 border border-gray-300 rounded-sm h-24 font-semibold"
           autoComplete="on"
           placeholder="Enter your guidance here (optional)"
@@ -200,11 +185,7 @@ export default function GenerateIkigaiForm({
         )}
 
         {/* Generate Button */}
-        <div
-          className={`w-full bg-white pb-1 ${
-            isSticky ? "sm:fixed sm:top-[50px] top-0 left-0 z-10" : ""
-          }`}
-        >
+        <div className="w-full bg-white pb-2 sticky top-0 sm:top-[64px] z-10">
           <button
             onClick={handleGenerateIkigai}
             className={`btn-base btn-primary-solid mx-auto flex sm:mt-6 mt-1 min-w-56 min-h-10 ${
