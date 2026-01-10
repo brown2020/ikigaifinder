@@ -144,13 +144,13 @@ export default function IkigaiStepper({
                 disabled={!isAccessible}
                 className={`
                   h-8 w-8 flex items-center justify-center rounded-full 
-                  transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-2
+                  transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 focus:ring-offset-background
                   ${
                     isCurrent
-                      ? "bg-blue-600 text-white shadow-md"
+                      ? "bg-primary text-primary-foreground shadow-md"
                       : isComplete || isAccessible
-                      ? "bg-blue-100 text-blue-600 hover:bg-blue-200 cursor-pointer"
-                      : "bg-gray-200 text-gray-400 cursor-not-allowed"
+                      ? "bg-primary/10 text-primary hover:bg-primary/15 cursor-pointer"
+                      : "bg-muted text-muted-foreground cursor-not-allowed"
                   }
                 `}
                 aria-label={`Step ${stepNumber}: ${STEP_LABELS[index]}`}
@@ -165,7 +165,7 @@ export default function IkigaiStepper({
 
       {/* Current step label */}
       <div className="text-center mt-2">
-        <span className="text-sm text-gray-600">
+        <span className="text-sm text-muted-foreground">
           Step {currentStep} of {TOTAL_STEPS}: {STEP_LABELS[currentStep - 1]}
         </span>
       </div>

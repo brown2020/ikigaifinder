@@ -7,6 +7,7 @@ import { STEPPER_QUESTIONS_JSON } from "@/constants/questions";
 import type { QuestionStep } from "@/types";
 import { useIkigaiStore } from "@/zustand";
 import { useRouter } from "next/navigation";
+import IkigaiStepper from "./IkigaiStepper";
 
 const IkigaiStepperForm: React.FC = () => {
   const {
@@ -102,12 +103,25 @@ const IkigaiStepperForm: React.FC = () => {
 
   return (
     <div className="flex justify-center gap-4">
-      <div className="mx-auto sm:p-6 p-4 py-6 bg-white shadow-md sm:rounded-sm w-full max-w-3xl">
+      <div className="mx-auto sm:p-6 p-4 py-6 bg-card text-card-foreground shadow-md border border-border rounded-xl w-full max-w-3xl">
+        <div className="mb-6">
+          <IkigaiStepper
+            currentStep={step}
+            onStepClick={(stepIndex) => {
+              if (stepIndex <= 4) {
+                handleStepClick(stepIndex);
+                return;
+              }
+              if (stepIndex === 5) router.push("/generate-ikigai");
+              if (stepIndex === 6) router.push("/generate-ikigai?step=image");
+            }}
+          />
+        </div>
         {/* Title and Description */}
-        <h2 className="text-3xl text-gray-700  font-bold mb-2">
+        <h2 className="text-3xl font-bold mb-2">
           {currentStep?.title}
         </h2>
-        <p className="text-lg text-gray-700  font-semibold mb-6">
+        <p className="text-lg text-muted-foreground font-semibold mb-6">
           {currentStep?.description}
         </p>
 
@@ -139,60 +153,6 @@ const IkigaiStepperForm: React.FC = () => {
             <Button type="submit" variant="primary">
               {currentStep?.button || "Continue"}
             </Button>
-          </div>
-
-          {/* Stepper navigation bar */}
-          <div className="flex items-center justify-center gap-2 mt-6">
-            {Array.from({ length: 6 }).map((_, index) => {
-              const stepIndex = index + 1;
-              let isDataExit = false;
-              let isCurrentStep = false;
-              let isDisabled = true;
-              let handleClick = () => {};
-
-              if (stepIndex <= 4) {
-                const item = formData[index];
-                isDataExit = item?.questions.every(
-                  (question) => question.answer && question.answer?.length > 0
-                );
-                isCurrentStep = step === stepIndex;
-                isDisabled = stepIndex > step && !isDataExit;
-                handleClick = () => handleStepClick(stepIndex);
-              } else if (stepIndex === 5) {
-                const allQuestionsAnswered = formData.every((item) =>
-                  item.questions.every((q) => q.answer && q.answer.length > 0)
-                );
-                isDataExit = allQuestionsAnswered;
-                isCurrentStep = false;
-                isDisabled = !allQuestionsAnswered;
-                handleClick = () => router.push("/generate-ikigai");
-              } else if (stepIndex === 6) {
-                const hasSelected = !!fetchIkigaiData?.ikigaiSelected;
-                isDataExit = hasSelected;
-                isCurrentStep = false;
-                isDisabled = !hasSelected;
-                handleClick = () => router.push("/generate-ikigai?step=image");
-              }
-
-              return (
-                <div key={stepIndex} className="flex items-center">
-                  <button
-                    type="button"
-                    className={`h-8 w-8 flex items-center justify-center rounded-full focus:outline-hidden ${
-                      isCurrentStep
-                        ? "bg-blue-600 text-white"
-                        : !isDisabled
-                        ? "bg-blue-100 text-blue-600 hover:bg-blue-200 cursor-pointer"
-                        : "bg-gray-300 text-gray-700"
-                    }`}
-                    onClick={handleClick}
-                    disabled={isDisabled}
-                  >
-                    {stepIndex}
-                  </button>
-                </div>
-              );
-            })}
           </div>
         </form>
       </div>

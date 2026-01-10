@@ -1,4 +1,4 @@
-export default function IkigaiFinderLayout({
+export default function GenerateIkigaiLayout({
   children,
 }: {
   children: React.ReactNode;
@@ -11,3 +11,4 @@ export default function IkigaiFinderLayout({
     </div>
   );
 }
+
