@@ -130,7 +130,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className="h-full">
+    <html lang="en" className="h-full" suppressHydrationWarning>
       <head>
         {/* Structured Data */}
         <script
@@ -147,10 +147,18 @@ export default function RootLayout({
       </head>
       <body className="flex flex-col h-full overflow-x-hidden">
         <ClientProvider>
-          <div className="sm:fixed top-0 z-50 w-full">
+          <a
+            href="#main"
+            className="sr-only focus:not-sr-only focus:absolute focus:top-2 focus:left-2 focus:z-50 focus:rounded-md focus:bg-background focus:px-3 focus:py-2 focus:text-foreground focus:ring-2 focus:ring-ring"
+          >
+            Skip to content
+          </a>
+          <header className="sticky top-0 z-50 w-full border-b border-border/60 bg-background/80 backdrop-blur">
             <Navbar />
-          </div>
-          <main className="grow sm:pt-[64px] pb-12 sm:pb-0">{children}</main>
+          </header>
+          <main id="main" className="grow pt-[64px] pb-12 sm:pb-0">
+            {children}
+          </main>
           <div className="fixed bottom-0 z-50 w-full block sm:hidden">
             <BottomBar />
           </div>
