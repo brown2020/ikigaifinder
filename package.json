@@ -18,7 +18,7 @@
     "firebase": "^12.2.1",
     "firebase-admin": "^13.5.0",
     "html2canvas": "^1.4.1",
-    "lucide-react": "^0.562.0",
+    "lucide-react": "^0.563.0",
     "next": "^16.0.3",
     "react": "^19.1.1",
     "react-cookie-consent": "^10.0.0",
