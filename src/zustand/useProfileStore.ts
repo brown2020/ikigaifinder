@@ -94,8 +94,15 @@ export const useProfileStore = create<ProfileStore>()(
             try {
               const authState = useAuthStore.getState();
               const profile = await fetchProfileData(uid, authState);
+              // Verify UID hasn't changed during async operation (prevents race condition on logout)
+              if (uid !== useAuthStore.getState().uid) {
+                console.warn("User changed during fetch, discarding result");
+                return;
+              }
               set({ profile, isLoading: false }, false, "profile/fetchSuccess");
             } catch (err) {
+              // Only set error if user hasn't changed
+              if (uid !== useAuthStore.getState().uid) return;
               const error =
                 err instanceof Error ? err : new Error("Failed to fetch profile");
               set({ error, isLoading: false }, false, "profile/fetchError");
@@ -120,12 +127,19 @@ export const useProfileStore = create<ProfileStore>()(
                 data,
                 authState
               );
+              // Verify UID hasn't changed during async operation (prevents race condition on logout)
+              if (uid !== useAuthStore.getState().uid) {
+                console.warn("User changed during update, discarding result");
+                return;
+              }
               set(
                 { profile: updatedProfile, isLoading: false },
                 false,
                 "profile/updateSuccess"
               );
             } catch (err) {
+              // Only set error if user hasn't changed
+              if (uid !== useAuthStore.getState().uid) return;
               const error =
                 err instanceof Error ? err : new Error("Failed to update profile");
               set({ error, isLoading: false }, false, "profile/updateError");
@@ -164,8 +178,15 @@ export const useProfileStore = create<ProfileStore>()(
           try {
             const authState = useAuthStore.getState();
             const profile = await fetchProfileData(uid, authState);
+            // Verify UID hasn't changed during async operation (prevents race condition on logout)
+            if (uid !== useAuthStore.getState().uid) {
+              console.warn("User changed during fetch, discarding result");
+              return;
+            }
             set({ profile, isLoading: false });
           } catch (err) {
+            // Only set error if user hasn't changed
+            if (uid !== useAuthStore.getState().uid) return;
             const error =
               err instanceof Error ? err : new Error("Failed to fetch profile");
             set({ error, isLoading: false });
@@ -190,8 +211,15 @@ export const useProfileStore = create<ProfileStore>()(
               data,
               authState
             );
+            // Verify UID hasn't changed during async operation (prevents race condition on logout)
+            if (uid !== useAuthStore.getState().uid) {
+              console.warn("User changed during update, discarding result");
+              return;
+            }
             set({ profile: updatedProfile, isLoading: false });
           } catch (err) {
+            // Only set error if user hasn't changed
+            if (uid !== useAuthStore.getState().uid) return;
             const error =
               err instanceof Error ? err : new Error("Failed to update profile");
             set({ error, isLoading: false });

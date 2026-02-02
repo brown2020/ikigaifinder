@@ -112,33 +112,3 @@ function normalizeIkigaiText(text: string): string {
     .replace(/[^\w\s]/g, "");
 }
 
-/**
- * Calculate the average compatibility score
- * 
- * @param data - Ikigai data object
- * @returns Average of all compatibility scores
- */
-export function calculateAverageScore(data: IkigaiData): number {
-  const scores = [
-    data.Passion,
-    data.Profession,
-    data.Vocation,
-    data.Mission,
-    data.OverallCompatibility,
-  ];
-
-  const sum = scores.reduce((acc, score) => acc + score, 0);
-  return Math.round(sum / scores.length);
-}
-
-/**
- * Sort ikigai data by overall compatibility (descending)
- * 
- * @param data - Array of ikigai data
- * @returns Sorted array (highest compatibility first)
- */
-export function sortByCompatibility(data: IkigaiData[]): IkigaiData[] {
-  return [...data].sort(
-    (a, b) => b.OverallCompatibility - a.OverallCompatibility
-  );
-}

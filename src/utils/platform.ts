@@ -26,24 +26,6 @@ export function isIOSReactNativeWebView(): boolean {
   return isReactNativeWebView();
 }
 
-/**
- * Check if running on the server (SSR)
- *
- * @returns true if running on the server
- */
-export function isServer(): boolean {
-  return typeof window === "undefined";
-}
-
-/**
- * Check if running in a browser
- *
- * @returns true if running in a browser environment
- */
-export function isBrowser(): boolean {
-  return !isServer();
-}
-
 // ============================================================================
 // Content Moderation
 // ============================================================================
@@ -93,30 +75,3 @@ export function containsRestrictedContent(prompt: string): boolean {
   return RESTRICTED_WORDS.some((word) => normalizedPrompt.includes(word));
 }
 
-// ============================================================================
-// Device Detection
-// ============================================================================
-
-/**
- * Check if the device is a mobile device
- *
- * @returns true if on a mobile device
- */
-export function isMobile(): boolean {
-  if (isServer()) return false;
-
-  return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
-    navigator.userAgent
-  );
-}
-
-/**
- * Check if the device is a touch device
- *
- * @returns true if the device supports touch
- */
-export function isTouchDevice(): boolean {
-  if (isServer()) return false;
-
-  return "ontouchstart" in window || navigator.maxTouchPoints > 0;
-}

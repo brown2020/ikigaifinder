@@ -107,7 +107,10 @@ export function useAuthToken(
     } else if (!isLoading) {
       clearAuthDetails();
       // Clear any existing server session cookie on sign-out.
-      clearServerSession().catch(() => {});
+      clearServerSession().catch((err) => {
+        // Log the error - if session clear fails, user may still have valid cookie
+        console.error("Failed to clear server session on logout:", err);
+      });
     }
   }, [
     user,

@@ -111,7 +111,11 @@ const FormField: React.FC<FormFieldProps> = ({
       </label>
       <div className="text-gray-700">{renderField()}</div>
 
-      <p className="text-red-500 text-sm mt-1 min-h-5">
+      <p
+        className="text-red-500 text-sm mt-1 min-h-5"
+        role="alert"
+        aria-live="polite"
+      >
         {errors[question.id] ? (errors[question.id]?.message as string) : ""}
       </p>
     </div>

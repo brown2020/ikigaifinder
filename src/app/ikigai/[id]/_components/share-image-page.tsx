@@ -16,6 +16,7 @@ import {
 } from "react-share";
 import { absoluteUrl } from "@/utils/baseUrl";
 import { Button } from "@/components/ui/Button";
+import { downloadImage } from "@/utils/downloadImage";
 
 export default function ShareImagePage({
   userId,
@@ -75,25 +76,7 @@ export default function ShareImagePage({
     if (isDownloading) return;
     setIsDownloading(true);
     try {
-      const response = await fetch(
-        `/api/downloadImage?url=${encodeURIComponent(imageUrl)}`
-      );
-      if (!response.ok) {
-        throw new Error(`Download failed (${response.status})`);
-      }
-      const blob = await response.blob();
-      const url = window.URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url;
-
-      // Create filename with "ikigai finder" and current date (YYYY-MM-DD)
-      const currentDate = new Date().toISOString().split("T")[0];
-      a.download = `ikigai-finder-${currentDate}.png`;
-
-      document.body.appendChild(a);
-      a.click();
-      a.remove();
-      window.URL.revokeObjectURL(url);
+      await downloadImage(imageUrl);
     } catch {
       setErrorMessage("Failed to download the image. Please try again.");
     } finally {

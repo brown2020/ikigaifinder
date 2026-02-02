@@ -24,8 +24,7 @@ Each statement should start with 'My Ikigai is to' and reflect a balance between
 
 Output the statements as follows: "My Ikigai is to <insert first Ikigai statement here>\nMy Ikigai is to <insert second Ikigai statement here>". Return Ikigai statements even if the survey results are incomplete or missing.`;
 
-
-// new prompt for ikigai stepper form
+// Prompt for ikigai stepper form with compatibility scores
 export const IKIGAI_SYSTEMPROMPT2 = `Your job is to help people define their Ikigai, the Japanese concept for a fulfilling and purposeful life.
 
 Here are the key elements of Ikigai:
@@ -64,21 +63,3 @@ Output the statements as follows: "1. My Ikigai is to <insert first Ikigai state
 - Passion & Mission: <insert percentage with % sign here>\n
 - Overall Compatibility: <insert percentage with % sign here>\n
 ". Return Ikigai statements even if the survey results are incomplete or missing.`;
-
-
-
-
-
-// Output the statements as follows: "My Ikigai is to <insert first Ikigai statement here>\n
-// - Passion & Profession: <insert percentage without % sign here>\n
-// - Profession & Vocation: <insert percentage without % sign here>\n
-// - Vocation & Mission: <insert percentage without % sign here>\n
-// - Passion & Mission: <insert percentage without % sign here>\n
-// - Overall Compatibility: <insert percentage without % sign here>\n
-// \nMy Ikigai is to <insert second Ikigai statement here>
-// - Passion & Profession: <insert percentage without % sign here>\n
-// - Profession & Vocation: <insert percentage without % sign here>\n
-// - Vocation & Mission: <insert percentage without % sign here>\n
-// - Passion & Mission: <insert percentage without % sign here>\n
-// - Overall Compatibility: <insert percentage without % sign here>\n
-// ". Return Ikigai statements even if the survey results are incomplete or missing.`;

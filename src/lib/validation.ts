@@ -103,46 +103,6 @@ export const questionStepSchema = z.object({
 // ============================================================================
 
 /**
- * Validate and parse data with a schema
- * Throws a formatted error if validation fails
- */
-export function validateOrThrow<T>(
-  schema: z.ZodSchema<T>,
-  data: unknown
-): T {
-  const result = schema.safeParse(data);
-
-  if (!result.success) {
-    const errors = result.error.issues
-      .map((e) => `${e.path.join(".")}: ${e.message}`)
-      .join(", ");
-    throw new Error(`Validation failed: ${errors}`);
-  }
-
-  return result.data;
-}
-
-/**
- * Safely validate data and return result
- * Returns { success: true, data } or { success: false, error }
- */
-export function validateSafe<T>(
-  schema: z.ZodSchema<T>,
-  data: unknown
-): { success: true; data: T } | { success: false; error: string } {
-  const result = schema.safeParse(data);
-
-  if (!result.success) {
-    const errors = result.error.issues
-      .map((e) => `${e.path.join(".")}: ${e.message}`)
-      .join(", ");
-    return { success: false, error: errors };
-  }
-
-  return { success: true, data: result.data };
-}
-
-/**
  * Sanitize user input to prevent XSS and injection attacks
  */
 export function sanitizeInput(input: string): string {
@@ -150,13 +110,6 @@ export function sanitizeInput(input: string): string {
     .trim()
     .replace(/[<>]/g, "") // Remove potential HTML tags
     .slice(0, 10000); // Limit length
-}
-
-/**
- * Sanitize an array of strings
- */
-export function sanitizeInputArray(inputs: string[]): string[] {
-  return inputs.map(sanitizeInput).filter((s) => s.length > 0);
 }
 
 // ============================================================================

@@ -102,6 +102,7 @@ const CustomMultiTag: React.FC<CustomMultiTagProps> = ({
                   removeTag(tag);
                 }}
                 className="ml-1 text-blue-600 hover:text-blue-800 leading-none flex items-center"
+                aria-label={`Remove ${tag}`}
               >
                 ×
               </button>
@@ -111,7 +112,7 @@ const CustomMultiTag: React.FC<CustomMultiTagProps> = ({
         <input
           ref={inputRef}
           type="text"
-          className="outline-hidden p-1 text-base font-semibold sm:max-w-max max-w-14"
+          className="outline-none p-1 text-base font-semibold sm:max-w-max max-w-14"
           placeholder={value.length === 0 ? placeholder : ""}
           value={inputValue}
           onChange={handleInputChange}

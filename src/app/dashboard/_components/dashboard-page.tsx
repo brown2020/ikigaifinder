@@ -19,6 +19,7 @@ import { useIkigaiStore } from "@/zustand";
 import { Button } from "@/components/ui/Button";
 import { DashboardSkeleton } from "@/components/ui/Skeleton";
 import { absoluteUrl } from "@/utils/baseUrl";
+import { downloadImage } from "@/utils/downloadImage";
 
 // ============================================================================
 // Constants
@@ -63,24 +64,7 @@ export default function DashboardPage({
     setIsDownloading(true);
 
     try {
-      const response = await fetch(
-        `/api/downloadImage?url=${encodeURIComponent(coverImage)}`
-      );
-
-      if (!response.ok) {
-        throw new Error("Failed to download image");
-      }
-
-      const blob = await response.blob();
-      const url = window.URL.createObjectURL(blob);
-      const link = document.createElement("a");
-      link.href = url;
-      link.download = "my-ikigai.png";
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-      window.URL.revokeObjectURL(url);
-
+      await downloadImage(coverImage, "my-ikigai.png");
       toast.success("Image downloaded successfully!");
     } catch (error) {
       console.error("Error downloading image:", error);
