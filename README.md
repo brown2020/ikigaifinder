@@ -69,7 +69,7 @@
 | Package                                                                      | Version | Purpose                     |
 | ---------------------------------------------------------------------------- | ------- | --------------------------- |
 | [Tailwind CSS](https://tailwindcss.com/)                                     | 4.x     | Utility-first CSS framework |
-| [Lucide React](https://lucide.dev/)                                          | 0.562+  | Beautiful icon library      |
+| [Lucide React](https://lucide.dev/)                                          | 0.563+  | Beautiful icon library      |
 | [React Hook Form](https://react-hook-form.com/)                              | 7.x     | Performant form handling    |
 | [React Hot Toast](https://react-hot-toast.com/)                              | 2.x     | Toast notifications         |
 | [React Select](https://react-select.com/)                                    | 5.x     | Advanced select inputs      |
@@ -77,7 +77,7 @@
 | [React Spinners](https://www.davidhu.io/react-spinners/)                     | 0.17+   | Loading indicators          |
 | [React Tooltip](https://react-tooltip.com/)                                  | 5.x     | Tooltips                    |
 | [React Share](https://github.com/nygardk/react-share)                        | 5.x     | Social sharing buttons      |
-| [React Cookie Consent](https://github.com/Mastermindzh/react-cookie-consent) | 9.x     | GDPR cookie consent banner  |
+| [React Cookie Consent](https://github.com/Mastermindzh/react-cookie-consent) | 10.x    | GDPR cookie consent banner  |
 
 ### Data Visualization
 
@@ -90,7 +90,7 @@
 | Package                                                                        | Version | Purpose                        |
 | ------------------------------------------------------------------------------ | ------- | ------------------------------ |
 | [Zod](https://zod.dev/)                                                        | 4.x     | Schema validation              |
-| [Lodash](https://lodash.com/)                                                  | 4.x     | Utility functions              |
+| [dotenv](https://github.com/motdotla/dotenv)                                   | 17.x    | Environment variable loading   |
 | [html2canvas](https://html2canvas.hertzen.com/)                                | 1.4+    | Screenshot capture for sharing |
 | [react-textarea-autosize](https://github.com/Andarist/react-textarea-autosize) | 8.x     | Auto-resizing textareas        |
 
