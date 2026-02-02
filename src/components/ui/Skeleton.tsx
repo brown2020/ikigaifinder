@@ -75,11 +75,11 @@ export function IkigaiOptionSkeleton(): React.ReactElement {
       <Skeleton className="h-5 w-4/5 mb-4" />
 
       {/* Score indicators */}
-      <div className="flex flex-wrap xs:gap-2 gap-1 mt-4">
+      <div className="flex flex-wrap gap-1 sm:gap-2 mt-4">
         {[...Array(5)].map((_, i) => (
           <div
             key={i}
-            className="md:mx-3 sm:min-w-[90px] xs:min-w-[65px] min-w-[70px] flex flex-col items-center"
+            className="md:mx-3 sm:min-w-[90px] min-w-[70px] flex flex-col items-center"
           >
             <Skeleton className="w-12 h-12 rounded-full" />
             <Skeleton className="h-3 w-16 mt-2" />

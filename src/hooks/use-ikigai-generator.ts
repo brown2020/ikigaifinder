@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef, useCallback } from "react";
+import { useState, useRef, useCallback, useEffect } from "react";
 import { generateIkigai } from "@/lib/generateIkigai";
 import { readStreamableValue } from "@ai-sdk/rsc";
 import { extractIkigaiData, mergeIkigaiLists } from "@/utils/ikigaiParser";
@@ -61,6 +61,15 @@ export function useIkigaiGenerator({
   const [error, setError] = useState<Error | null>(null);
   const resultEndRef = useRef<HTMLDivElement | null>(null);
 
+  // Track if component is mounted to prevent state updates after unmount
+  const isMountedRef = useRef(true);
+  useEffect(() => {
+    isMountedRef.current = true;
+    return () => {
+      isMountedRef.current = false;
+    };
+  }, []);
+
   /**
    * Transform question step data into AI-friendly format
    */
@@ -86,6 +95,8 @@ export function useIkigaiGenerator({
    */
   const generate = useCallback(
     async (answers: QuestionStep[]): Promise<void> => {
+      if (!isMountedRef.current) return;
+
       setIsGenerating(true);
       setError(null);
 
@@ -99,6 +110,8 @@ export function useIkigaiGenerator({
         const result = await generateIkigai(questionData, customPrompt);
 
         for await (const content of readStreamableValue(result)) {
+          // Check if component is still mounted before updating state
+          if (!isMountedRef.current) return;
           if (!content) continue;
 
           const parsedList = extractIkigaiData(content);
@@ -113,12 +126,16 @@ export function useIkigaiGenerator({
           scrollToResults();
         }
       } catch (err) {
+        // Only update error state if still mounted
+        if (!isMountedRef.current) return;
         const error =
           err instanceof Error ? err : new Error("Failed to generate Ikigai");
         setError(error);
         console.error("Error generating Ikigai:", error);
       } finally {
-        setIsGenerating(false);
+        if (isMountedRef.current) {
+          setIsGenerating(false);
+        }
       }
     },
     [

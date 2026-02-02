@@ -212,7 +212,7 @@ export default function AuthForm({
             <div className="text-right mt-2">
               <button
                 type="button"
-                className="text-sm text-blue-600 hover:text-blue-800 underline"
+                className="text-sm text-blue-600 hover:text-blue-800 underline focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 rounded"
                 onClick={handleResetPassword}
                 disabled={isLoading}
               >
@@ -280,7 +280,7 @@ export default function AuthForm({
         <button
           type="button"
           onClick={toggleMagicLink}
-          className="text-sm text-gray-600 hover:text-gray-800 underline"
+          className="text-sm text-gray-600 hover:text-gray-800 underline focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 rounded"
         >
           {isMagicLink ? "Use Email/Password" : "Use Email Link"}
         </button>

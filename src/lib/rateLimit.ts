@@ -1,9 +1,19 @@
 /**
  * Simple in-memory rate limiter for server actions
- * 
- * Note: In production with multiple server instances,
- * consider using Redis or a distributed rate limiter.
+ *
+ * WARNING: This in-memory implementation does NOT work correctly with
+ * multiple server instances (e.g., load-balanced deployments). Each instance
+ * maintains its own rate limit store, so users can bypass limits by hitting
+ * different instances. For production multi-instance deployments, replace
+ * this with Redis or a distributed rate limiter.
  */
+
+// Log warning in production if multiple instances might be deployed
+if (process.env.NODE_ENV === "production") {
+  console.warn(
+    "[rate-limit] Using in-memory rate limiter. For multi-instance deployments, consider Redis."
+  );
+}
 
 // ============================================================================
 // Types
@@ -40,8 +50,11 @@ const rateLimitStore = new Map<string, RateLimitRecord>();
 // Cleanup old entries periodically (every 5 minutes)
 const CLEANUP_INTERVAL = 5 * 60 * 1000;
 
-if (typeof setInterval !== "undefined") {
-  setInterval(() => {
+// Store interval ID for cleanup (allows proper shutdown)
+let cleanupIntervalId: ReturnType<typeof setInterval> | null = null;
+
+if (typeof setInterval !== "undefined" && !cleanupIntervalId) {
+  cleanupIntervalId = setInterval(() => {
     const now = Date.now();
     for (const [key, record] of rateLimitStore.entries()) {
       if (now - record.firstRequest > DEFAULT_WINDOW_MS * 2) {
@@ -49,6 +62,17 @@ if (typeof setInterval !== "undefined") {
       }
     }
   }, CLEANUP_INTERVAL);
+}
+
+/**
+ * Cleanup function to clear the interval (call on server shutdown)
+ */
+export function cleanupRateLimiter(): void {
+  if (cleanupIntervalId) {
+    clearInterval(cleanupIntervalId);
+    cleanupIntervalId = null;
+  }
+  rateLimitStore.clear();
 }
 
 // ============================================================================

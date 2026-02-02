@@ -74,12 +74,19 @@ export const useIkigaiStore = create<IkigaiStore>()(
 
             try {
               const data = await fetchIkigaiData(uid);
+              // Verify UID hasn't changed during async operation (prevents race condition on logout)
+              if (uid !== useAuthStore.getState().uid) {
+                console.warn("User changed during fetch, discarding result");
+                return;
+              }
               set(
                 { ikigaiData: data, isLoading: false },
                 false,
                 "ikigai/fetchSuccess"
               );
             } catch (err) {
+              // Only set error if user hasn't changed
+              if (uid !== useAuthStore.getState().uid) return;
               const error =
                 err instanceof Error ? err : new Error("Failed to fetch ikigai");
               set({ error, isLoading: false }, false, "ikigai/fetchError");
@@ -102,12 +109,19 @@ export const useIkigaiStore = create<IkigaiStore>()(
                 currentData,
                 updateData
               );
+              // Verify UID hasn't changed during async operation (prevents race condition on logout)
+              if (uid !== useAuthStore.getState().uid) {
+                console.warn("User changed during update, discarding result");
+                return;
+              }
               set(
                 { ikigaiData: updatedData, isLoading: false },
                 false,
                 "ikigai/updateSuccess"
               );
             } catch (err) {
+              // Only set error if user hasn't changed
+              if (uid !== useAuthStore.getState().uid) return;
               const error =
                 err instanceof Error ? err : new Error("Failed to update ikigai");
               set({ error, isLoading: false }, false, "ikigai/updateError");
@@ -171,8 +185,15 @@ export const useIkigaiStore = create<IkigaiStore>()(
 
           try {
             const data = await fetchIkigaiData(uid);
+            // Verify UID hasn't changed during async operation (prevents race condition on logout)
+            if (uid !== useAuthStore.getState().uid) {
+              console.warn("User changed during fetch, discarding result");
+              return;
+            }
             set({ ikigaiData: data, isLoading: false });
           } catch (err) {
+            // Only set error if user hasn't changed
+            if (uid !== useAuthStore.getState().uid) return;
             const error =
               err instanceof Error ? err : new Error("Failed to fetch ikigai");
             set({ error, isLoading: false });
@@ -195,8 +216,15 @@ export const useIkigaiStore = create<IkigaiStore>()(
               currentData,
               updateData
             );
+            // Verify UID hasn't changed during async operation (prevents race condition on logout)
+            if (uid !== useAuthStore.getState().uid) {
+              console.warn("User changed during update, discarding result");
+              return;
+            }
             set({ ikigaiData: updatedData, isLoading: false });
           } catch (err) {
+            // Only set error if user hasn't changed
+            if (uid !== useAuthStore.getState().uid) return;
             const error =
               err instanceof Error ? err : new Error("Failed to update ikigai");
             set({ error, isLoading: false });

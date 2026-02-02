@@ -130,9 +130,20 @@ export async function fetchProfileData(
 
     // No profile exists - create one
     const newProfile = createDefaultProfile(authState);
-    await setDoc(userRef, { profile: newProfile });
+    try {
+      await setDoc(userRef, { profile: newProfile });
+    } catch (writeError) {
+      throw new ProfileFetchError(
+        "Failed to create new user profile",
+        writeError
+      );
+    }
     return newProfile;
   } catch (error) {
+    // Re-throw ProfileFetchError as-is, wrap other errors
+    if (error instanceof ProfileFetchError) {
+      throw error;
+    }
     throw new ProfileFetchError("Failed to fetch user profile", error);
   }
 }
