@@ -13,9 +13,21 @@ const firebaseConfig = {
   measurementId: process.env.NEXT_PUBLIC_FIREBASE_MEASUREMENTID,
 };
 
-const app = getApps().length ? getApp() : initializeApp(firebaseConfig);
-const db = getFirestore(app);
-const auth = getAuth(app);
-const storage = getStorage(app);
+let app: ReturnType<typeof initializeApp>;
+let db: ReturnType<typeof getFirestore>;
+let auth: ReturnType<typeof getAuth>;
+let storage: ReturnType<typeof getStorage>;
+
+try {
+  app = getApps().length ? getApp() : initializeApp(firebaseConfig);
+  db = getFirestore(app);
+  auth = getAuth(app);
+  storage = getStorage(app);
+} catch (e) {
+  console.warn("Firebase client init failed:", e);
+  db = {} as ReturnType<typeof getFirestore>;
+  auth = {} as ReturnType<typeof getAuth>;
+  storage = {} as ReturnType<typeof getStorage>;
+}
 
 export { auth, db, storage };
