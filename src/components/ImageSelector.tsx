@@ -1,5 +1,5 @@
-/* eslint-disable @next/next/no-img-element */
 import React, { useEffect, useState } from "react";
+import Image from "next/image";
 
 import { db } from "@/firebase/firebaseClient";
 import {
@@ -18,7 +18,7 @@ export default function ImageSelector() {
   const useImage = fetchIkigaiData?.ikigaiImage;
   const [fileUrls, setFileUrls] = useState<string[]>([]);
 
-  const defaultImage = "/assets/bg_image.webp"
+  const defaultImage = "/assets/bg_image.webp";
 
   useEffect(() => {
     if (!uid) return;
@@ -29,16 +29,21 @@ export default function ImageSelector() {
       limit(20)
     );
 
-    const unsubscribe = onSnapshot(q, (snapshot) => {
-      const urls = snapshot.docs
-        .map((doc) => doc.data().downloadUrl)
-        .filter(Boolean);
-      setFileUrls([...urls, defaultImage]);
-      console.log("urls :>> ", urls);
-    });
+    const unsubscribe = onSnapshot(
+      q,
+      (snapshot) => {
+        const urls = snapshot.docs
+          .map((doc) => doc.data().downloadUrl as string | undefined)
+          .filter((url): url is string => Boolean(url));
+        setFileUrls([...urls, defaultImage]);
+      },
+      () => {
+        setFileUrls([defaultImage]);
+      }
+    );
 
     return () => unsubscribe();
-  }, [uid]);
+  }, [uid, defaultImage]);
 
   const handleImageClick = (url: string) => {
     updateIkigai({ ikigaiImage: url });
@@ -47,18 +52,22 @@ export default function ImageSelector() {
   return (
     <div className="flex overflow-x-auto p-2 space-x-3 bg-gray-200">
       {fileUrls.map((url, index) => (
-        <img
+        <button
           key={index}
-          src={url}
-          alt={`Cover ${index}`}
+          type="button"
           onClick={() => handleImageClick(url)}
-          className={`h-32 object-cover rounded-md cursor-pointer ring-4
-                          ${
-                            url === useImage
-                              ? "ring-yellow-500"
-                              : "ring-transparent"
-                          }`}
-        />
+          className={`shrink-0 rounded-md ring-4 focus-visible:outline-none focus-visible:ring-yellow-400 ${
+            url === useImage ? "ring-yellow-500" : "ring-transparent"
+          }`}
+        >
+          <Image
+            src={url}
+            alt={`Cover ${index}`}
+            width={128}
+            height={128}
+            className="h-32 w-auto object-cover rounded-md"
+          />
+        </button>
       ))}
     </div>
   );

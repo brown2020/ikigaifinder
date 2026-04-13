@@ -1,12 +1,12 @@
 import admin from "firebase-admin";
 import { getApps } from "firebase-admin/app";
+import type { Firestore } from "firebase-admin/firestore";
+import type { Auth } from "firebase-admin/auth";
+import type { Bucket } from "@google-cloud/storage";
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-let adminBucket: any;
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-let adminDb: any;
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-let adminAuth: any;
+let adminBucket: Bucket;
+let adminDb: Firestore;
+let adminAuth: Auth;
 
 try {
   const adminCredentials = {
@@ -33,9 +33,9 @@ try {
   adminAuth = admin.auth();
 } catch (e) {
   console.warn("Firebase admin init failed:", e);
-  adminBucket = {};
-  adminDb = {};
-  adminAuth = {};
+  adminBucket = {} as Bucket;
+  adminDb = {} as Firestore;
+  adminAuth = {} as Auth;
 }
 
 export { adminBucket, adminDb, adminAuth, admin };

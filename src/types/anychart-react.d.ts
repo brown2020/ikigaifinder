@@ -1,1 +1,0 @@
-declare module 'anychart-react';
