@@ -34,7 +34,8 @@
     "react-tooltip": "^5.30.1",
     "slick-carousel": "^1.8.1",
     "zod": "^4.3.6",
-    "zustand": "^5.0.12"
+    "zustand": "^5.0.12",
+    "cookies-next": "^5.1.0"
   },
   "devDependencies": {
     "@eslint/compat": "^2.0.5",
