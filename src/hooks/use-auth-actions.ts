@@ -18,6 +18,7 @@ import {
   clearServerSession,
   createServerSession,
 } from "@/lib/auth/session-client";
+import { deleteCookie } from "cookies-next";
 
 // ============================================================================
 // Types
@@ -233,9 +234,28 @@ export function useAuthActions(): UseAuthActionsReturn {
       setError("");
 
       try {
+        // 1. Delete the server-managed httpOnly session cookie
         await clearServerSession().catch(() => {});
+
+        // 2. Explicitly delete any client-readable auth cookies
+        deleteCookie("__session", { path: "/" });
+        deleteCookie("authToken", { path: "/" });
+
+        // 3. Clear localStorage auth artifacts
+        if (typeof window !== "undefined") {
+          window.localStorage.removeItem("ikigaiFinderEmail");
+          window.localStorage.removeItem("ikigaiFinderName");
+          window.localStorage.removeItem("ikigaiFinderRedirectPath");
+          window.localStorage.removeItem("generateEmail");
+          window.localStorage.removeItem("generateName");
+        }
+
+        // 4. Sign out from Firebase
         await firebaseSignOut(auth);
+
+        // 5. Clear all Zustand stores
         clearAuthDetails();
+
         onSuccess?.();
       } catch {
         setError("An error occurred while signing out.");
