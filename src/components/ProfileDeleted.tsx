@@ -27,10 +27,17 @@ export default function ProfileDeleted({
   const router = useRouter();
   const modalRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+  const deleteTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [confirmText, setConfirmText] = useState("");
   const authApp = getAuth();
   const user = authApp.currentUser;
+
+  useEffect(() => {
+    return () => {
+      if (deleteTimerRef.current) clearTimeout(deleteTimerRef.current);
+    };
+  }, []);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -131,7 +138,7 @@ export default function ProfileDeleted({
       if (removeIkigaiData) {
         await handleDeleteProfileData();
         toast.success("Your account has been deleted.");
-        setTimeout(handleAuthDelete, 4000);
+        deleteTimerRef.current = setTimeout(handleAuthDelete, 4000);
       }
     } catch (error) {
       console.error("Error deleting data:", error);

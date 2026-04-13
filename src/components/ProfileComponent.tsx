@@ -1,12 +1,12 @@
 "use client";
 
 import { useState, ChangeEvent, useEffect } from "react";
-import { db, storage } from "@/firebase/firebaseClient";
-import { doc } from "firebase/firestore";
+import { storage } from "@/firebase/firebaseClient";
 import { getDownloadURL, ref, uploadBytesResumable } from "firebase/storage";
 import { ClipLoader } from "react-spinners";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
+import toast from "react-hot-toast";
 import { useAuthStore } from "@/zustand/useAuthStore";
 import { useProfileStore } from "@/zustand/useProfileStore";
 import { resizeImage } from "@/utils/resizeImage";
@@ -40,11 +40,9 @@ export default function ProfileComponent2() {
       const updatedUrl = await getDownloadURL(storageRef);
       setNewProfile({ ...newProfile, photoUrl: updatedUrl });
     } catch (error: unknown) {
-      if (error instanceof Error) {
-        console.log("Error uploading file: ", error.message);
-      } else {
-        console.log("An unknown error occurred during file upload.");
-      }
+      const message =
+        error instanceof Error ? error.message : "An unknown error occurred during file upload.";
+      toast.error(message);
     } finally {
       setLoading(false);
     }
@@ -59,20 +57,16 @@ export default function ProfileComponent2() {
   const handleSubmit = async () => {
     try {
       if (!uid) throw new Error("No user found");
-      const userRef = uid ? doc(db, "users", uid) : null;
-      if (!userRef) throw new Error("Error saving to Firestore");
 
-      updateProfile({
+      await updateProfile({
         firstName: newProfile.firstName || "",
         lastName: newProfile.lastName || "",
         photoUrl: newProfile.photoUrl || "",
       });
     } catch (error: unknown) {
-      if (error instanceof Error) {
-        console.log("Error saving to Firestore:", error.message);
-      } else {
-        console.log("An unknown error occurred while saving to Firestore.");
-      }
+      const message =
+        error instanceof Error ? error.message : "An unknown error occurred while saving.";
+      toast.error(message);
     }
   };
   return (
