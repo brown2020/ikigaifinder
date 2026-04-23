@@ -27,7 +27,6 @@ yarn-error.log*
 
 # local env files
 .env*.local
-.env
 service_key.json
 
 # vercel
@@ -36,3 +35,4 @@ service_key.json
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+config.bat
