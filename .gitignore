@@ -26,8 +26,14 @@ yarn-debug.log*
 yarn-error.log*
 
 # local env files
+.env
+.env.local
+.env.production
 .env*.local
 service_key.json
+
+# malware remediation quarantine (do not commit attacker payloads)
+.malware_quarantine/
 
 # vercel
 .vercel
@@ -35,4 +41,3 @@ service_key.json
 # typescript
 *.tsbuildinfo
 next-env.d.ts
-config.bat

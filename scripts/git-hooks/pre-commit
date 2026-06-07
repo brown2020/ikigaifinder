@@ -1,0 +1,9 @@
+#!/usr/bin/env bash
+#
+# Pre-commit hook: block commits that introduce EtherHiding-style malware IOCs.
+# Enable for your clone with:
+#   git config core.hooksPath scripts/git-hooks
+set -euo pipefail
+
+REPO_ROOT="$(git rev-parse --show-toplevel)"
+exec "$REPO_ROOT/scripts/check-malware-iocs.sh" staged

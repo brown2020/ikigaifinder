@@ -64,14 +64,27 @@ const IkigaiStepperForm: React.FC = () => {
       item.id === currentStep.id ? updatedStep : item
     );
 
+    // Normalize a raw form value (string for text/select, string[] for tags)
+    // into a string array so answers can be compared element-by-element.
+    const toAnswerArray = (val: unknown): string[] => {
+      if (Array.isArray(val)) return val.map(String);
+      if (val === undefined || val === null || val === "") return [];
+      return [String(val)];
+    };
+
     const checkAnswersMatch = (
       mainArray: QuestionStep[],
-      obj: Record<string, string[]>
+      obj: Record<string, string | string[] | undefined>
     ) => {
       return mainArray.every((section) =>
-        section.questions.every(
-          (question) => obj?.[question.id]?.[0] === question?.answer?.[0]
-        )
+        section.questions.every((question) => {
+          const submitted = toAnswerArray(obj?.[question.id]);
+          const stored = question?.answer ?? [];
+          return (
+            submitted.length === stored.length &&
+            submitted.every((value, index) => value === stored[index])
+          );
+        })
       );
     };
 

@@ -1,8 +1,12 @@
 export function resizeImage(file: File): Promise<Blob> {
   return new Promise((resolve, reject) => {
     const img = new Image();
-    img.src = URL.createObjectURL(file);
+    const objectUrl = URL.createObjectURL(file);
+    img.src = objectUrl;
     img.onload = () => {
+      // Free the object URL as soon as the image is decoded to avoid a leak.
+      URL.revokeObjectURL(objectUrl);
+
       const canvas = document.createElement("canvas");
       const ctx = canvas.getContext("2d");
       canvas.width = 1024;
@@ -28,12 +32,13 @@ export function resizeImage(file: File): Promise<Blob> {
         if (blob) {
           resolve(blob);
         } else {
-          reject("Failed to create blob from image.");
+          reject(new Error("Failed to create blob from image."));
         }
       }, "image/png");
     };
     img.onerror = () => {
-      reject("Failed to load image.");
+      URL.revokeObjectURL(objectUrl);
+      reject(new Error("Failed to load image."));
     };
   });
 }
