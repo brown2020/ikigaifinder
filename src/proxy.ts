@@ -21,7 +21,7 @@ const API_ROUTES = ["/api"] as const;
 /**
  * Check if the given pathname matches any of the protected routes
  */
-function isProtectedRoute(pathname: string): boolean {
+export function isProtectedRoute(pathname: string): boolean {
   return PROTECTED_ROUTES.some(
     (route) => pathname === route || pathname.startsWith(`${route}/`)
   );
@@ -30,7 +30,7 @@ function isProtectedRoute(pathname: string): boolean {
 /**
  * Check if the given pathname is an API route
  */
-function isApiRoute(pathname: string): boolean {
+export function isApiRoute(pathname: string): boolean {
   return API_ROUTES.some((route) => pathname.startsWith(route));
 }
 

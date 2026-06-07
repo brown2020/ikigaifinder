@@ -1,6 +1,7 @@
 "use server";
 
 import { adminBucket } from "@/firebase/firebaseAdmin";
+import { getOptionalServerUid } from "@/lib/auth/session-server";
 import { rateLimitImageGen } from "./rateLimit";
 import { generateImageSchema, sanitizeInput } from "./validation";
 
@@ -68,14 +69,22 @@ const MAX_PROMPT_LENGTH = 1000;
  * - Input validation and sanitization
  * - Error handling with user-friendly messages
  *
+ * The authenticated user is derived from the verified server session cookie,
+ * never from a client-supplied value, since this writes to Firebase Storage
+ * with the Admin SDK (which bypasses Storage security rules).
+ *
  * @param prompt - Text description of the image to generate
- * @param uid - User ID for organizing storage and rate limiting
  * @returns Object with imageUrl on success, or error message on failure
  */
 export async function generateImage(
-  prompt: string,
-  uid: string
+  prompt: string
 ): Promise<ImageGenerationResult> {
+  // Derive the user from the verified session cookie (server-side source of truth).
+  const uid = await getOptionalServerUid();
+  if (!uid) {
+    return { error: "You must be signed in to generate images." };
+  }
+
   // Validate required inputs
   const validationResult = generateImageSchema.safeParse({ prompt, uid });
 

@@ -114,7 +114,7 @@ export default function GenerateIkigaiImage(): React.ReactElement {
 
       try {
         const prompt = generatePrompt(imagePrompt, imageStyle);
-        const response = await generateImage(prompt, uid);
+        const response = await generateImage(prompt);
 
         if (response.error) {
           toast.error(response.error);

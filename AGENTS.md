@@ -166,7 +166,7 @@ npm run lint && npm run build
 - **`src/lib/generateImage.ts`** — uses an effectively permanent signed-URL expiry (`03-17-2125`); be intentional if you change URL lifetime.
 - **`service_key.json`** and **`.env*.local`** — secrets, gitignored. Never read, print, or commit them.
 - **Generated/derived files** — `package-lock.json`, `tsconfig.tsbuildinfo`, `.next/`, `next-env.d.ts`. Don't hand-edit; change the source and regenerate.
-- **Known dead code (verify before relying on it):** `src/lib/actions.ts` (`generatePurpose`), `createAIStreamWithMessages` in `src/lib/ai/stream.ts`, and components `PurposeSurvey`, `SurveyQuestion`, `VennDiagram`, `RenderIkigaiDetails`, `GenerateImage` (no imports/usages found).
+- **Now-orphaned exports (safe to remove in a future focused pass):** after consolidating to the single GPT‑4o generation path, `IKIGAI_SYSTEMPROMPT` in `src/constants/systemPrompt.ts`, the `questions` constant in `src/constants/questions.ts`, and the `SurveyQuestion` type in `src/types/index.ts` are no longer referenced by runtime code. They are harmless but dead; verify before relying on them.
 
 ## Git workflow expectations (main and dev)
 

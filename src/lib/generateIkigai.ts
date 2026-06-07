@@ -4,6 +4,7 @@ import { createStreamableValue } from "@ai-sdk/rsc";
 import { streamText } from "ai";
 import { openai } from "@ai-sdk/openai";
 import { IKIGAI_SYSTEMPROMPT2 } from "@/constants/systemPrompt";
+import { getOptionalServerUid } from "@/lib/auth/session-server";
 import { rateLimitAI } from "./rateLimit";
 import { generateIkigaiSchema, sanitizeInput } from "./validation";
 
@@ -46,19 +47,24 @@ const AI_MODEL = "gpt-4o";
  * Uses OpenAI's GPT-4o to analyze user's survey responses and
  * generate personalized Ikigai statements with compatibility scores.
  *
+ * The rate-limit identity is derived from the verified server session cookie
+ * (falling back to "anonymous" only when no session is present), so limits are
+ * enforced per authenticated user rather than from a client-supplied value.
+ *
  * @param questions - Array of question sections with answers
  * @param customPrompt - Optional additional guidance for the AI
- * @param userId - User ID for rate limiting (optional, falls back to anonymous)
  * @returns Streamable value for real-time response updates
  * @throws Error with specific message if rate limit is exceeded or validation fails
  */
 export async function generateIkigai(
   questions: QuestionSection[],
-  customPrompt = "",
-  userId = "anonymous"
+  customPrompt = ""
 ) {
+  // Derive the rate-limit identity from the verified session (server source of truth).
+  const uid = await getOptionalServerUid();
+
   // Rate limiting check
-  const rateLimitResult = rateLimitAI(userId);
+  const rateLimitResult = rateLimitAI(uid ?? "anonymous");
   if (!rateLimitResult.success) {
     throw new Error(
       `Rate limit exceeded. Please try again in ${Math.ceil(rateLimitResult.resetIn / 1000)} seconds.`

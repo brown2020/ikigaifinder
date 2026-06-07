@@ -86,15 +86,11 @@ A working end-to-end flow exists: authenticate → questionnaire → streaming G
 
 ### Known limitations
 
-- **Rate limiting is effectively global, not per-user [inferred]:** `use-ikigai-generator.ts` calls `generateIkigai(questionData, customPrompt)` without a `userId`, so the server action falls back to the `"anonymous"` key. All users share one bucket, and the limit isn't enforced per authenticated user.
+- **Rate limiting identity is now derived server-side:** `generateIkigai` and `generateImage` resolve the user from the verified session cookie (`getOptionalServerUid`) rather than a client-supplied value, so limits apply per authenticated user. The underlying store is still in-memory (see below).
 - **Not horizontally scalable for limits:** the in-memory store resets per instance/cold start.
 - **Signed image URLs are effectively permanent** (`03-17-2125` expiry) — no rotation/expiry strategy.
 - **Generation errors are low-visibility:** failures are logged and set in state but lack a clear in-product retry/empty-state. **[inferred]**
-- **Abandoned/partial code increases confusion and risk [inferred, verified no usages]:**
-  - `src/lib/actions.ts` → `generatePurpose` (uses a different model, `gpt-4.1`) — defined, never called.
-  - `createAIStreamWithMessages` in `src/lib/ai/stream.ts` — unused.
-  - Components `PurposeSurvey`, `SurveyQuestion`, `VennDiagram`, `RenderIkigaiDetails`, `GenerateImage` — no imports/usages.
-  - Two parallel system prompts (`IKIGAI_SYSTEMPROMPT` vs `IKIGAI_SYSTEMPROMPT2`).
+- **Abandoned/partial code (largely removed):** the divergent second AI text path (`src/lib/actions.ts` → `generatePurpose`, which used `gpt-4.1`) and its `src/lib/ai/stream.ts` helpers, plus the unused `GenerateImage` and `SurveyQuestion` components, have been removed. Remaining now-orphaned exports (`IKIGAI_SYSTEMPROMPT`, the `questions` constant, the `SurveyQuestion` type) are harmless leftovers slated for a future focused cleanup.
 - **No automated tests and no CI.**
 - **Legal pages** (privacy policy, terms) were last dated 2022 per prior planning notes.
 
@@ -104,13 +100,9 @@ A working end-to-end flow exists: authenticate → questionnaire → streaming G
 
 Product-oriented, ordered by impact and dependency. Each item is sized for one clean commit sequence on `dev`. (This list supersedes the historical `IMPROVEMENT_PLAN.md`.)
 
-### M1 — Per-user generation limits that actually protect the product
+### M1 — Per-user generation limits that actually protect the product — DONE
 - **User value:** one user (or a bot) can no longer exhaust generation capacity for everyone; authenticated users get fair, predictable access.
-- **Implementation intent:** pass the authenticated `uid` from `use-ikigai-generator.ts` into `generateIkigai(...)`; key `rateLimitAI` on that `uid`; keep `"anonymous"` only as the unauthenticated fallback. Apply the same pattern to image generation.
-- **Acceptance criteria:**
-  - The ikigai server action receives and uses the real `uid` when the user is signed in.
-  - Two different signed-in users have independent limits; exceeding a limit returns the existing friendly message.
-  - `npm run lint && npm run build` pass.
+- **Implemented:** both `generateIkigai` and `generateImage` now derive the user from the verified session cookie (`getOptionalServerUid`) server-side and key rate limiting on that uid (stronger than trusting a client-passed value). `generateImage` also rejects unauthenticated calls before any Admin-SDK write. Remaining future work: replace the in-memory limiter with a distributed store before multi-instance scale.
 
 ### M2 — Resilient generation UX (error + retry + empty states)
 - **User value:** a failed or empty AI response no longer dead-ends the core workflow; users can recover in place.
@@ -149,12 +141,10 @@ Product-oriented, ordered by impact and dependency. Each item is sized for one c
   - Submitting guidance produces visibly adjusted statements merged into the list.
   - Guidance persists with the saved ikigai; lint + build pass.
 
-### M7 — Consolidate AI generation paths and retire dead code
+### M7 — Consolidate AI generation paths and retire dead code — MOSTLY DONE
 - **User value (product reliability):** removes a second, divergent generation path (`generatePurpose`, `gpt-4.1`) and unused UI so future product work can't accidentally ship via the wrong, untested path.
-- **Implementation intent:** confirm-no-usage, then remove `generatePurpose`, `createAIStreamWithMessages`, and the unused components; collapse to a single documented system prompt. Keep strictly to verified-dead code.
-- **Acceptance criteria:**
-  - Only one ikigai generation path remains; no imports break.
-  - `AGENTS.md`/`spec.md` updated to drop the dead-code caution; lint + build pass.
+- **Implemented:** removed `src/lib/actions.ts`, `src/lib/ai/stream.ts`, and the unused `GenerateImage`/`SurveyQuestion` components; a single GPT‑4o path (`generateIkigai`) remains.
+- **Remaining (small):** delete the now-orphaned `IKIGAI_SYSTEMPROMPT` constant, the `questions` constant, and the `SurveyQuestion` type once confirmed unneeded.
 
 ### M8 — Refresh legal/compliance pages
 - **User value:** accurate, current privacy/terms increase trust and reduce legal risk.
