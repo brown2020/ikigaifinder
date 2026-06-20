@@ -91,7 +91,7 @@ A working end-to-end flow exists: authenticate → questionnaire → streaming G
 - **Signed image URLs are effectively permanent** (`03-17-2125` expiry) — no rotation/expiry strategy.
 - **Generation errors are low-visibility:** failures are logged and set in state but lack a clear in-product retry/empty-state. **[inferred]**
 - **Abandoned/partial code (largely removed):** the divergent second AI text path (`src/lib/actions.ts` → `generatePurpose`, which used `gpt-4.1`) and its `src/lib/ai/stream.ts` helpers, plus the unused `GenerateImage` and `SurveyQuestion` components, have been removed. Remaining now-orphaned exports (`IKIGAI_SYSTEMPROMPT`, the `questions` constant, the `SurveyQuestion` type) are harmless leftovers slated for a future focused cleanup.
-- **Minimal automated-test setup:** `npm test` runs Vitest, but no test files are currently committed and no CI is configured. The practical regression gate remains `npm run lint && npm run build`.
+- **Minimal automated-test setup:** `npm test` runs Vitest and currently covers route-protection helpers plus ikigai parsing; no CI is configured. The practical regression gate remains `npm run lint && npm run build`.
 - **Legal pages** (privacy policy, terms) were last dated 2022 per prior planning notes.
 
 ---

@@ -92,13 +92,13 @@ npm run dev        # local dev server (DO NOT run in autonomous validation — l
 npm run build      # production build; runs TypeScript type-checking
 npm run start      # serve a production build
 npm run lint       # ESLint
-npm test           # Vitest one-shot runner (currently no committed test files)
+npm test           # Vitest one-shot runner (currently proxy + parser coverage)
 npx tsc --noEmit   # standalone type-check (no dedicated npm script exists)
 ```
 
 ## Canonical validation/check command
 
-Vitest is wired as a one-shot runner via `npm test`, but this repo currently has no committed test files and no CI. The canonical, non-interactive regression check is:
+Vitest is wired as a one-shot runner via `npm test` and currently covers `src/proxy.ts` plus the ikigai parser. The canonical, non-interactive regression check is:
 
 ```bash
 npm run lint && npm run build
@@ -151,7 +151,7 @@ npm run lint && npm run build
 
 ## Testing expectations
 
-- No automated test files currently exist. Do **not** scaffold a large test suite as part of an unrelated change.
+- Automated tests currently cover route-protection helpers and ikigai parsing. Do **not** scaffold a large test suite as part of an unrelated change.
 - If you add tests, use the existing Vitest runner (`npm test`), keep them non-interactive, and add them alongside the feature they cover rather than as a separate cleanup pass.
 - Until meaningful tests exist, `npm run lint && npm run build` is the regression gate.
 

@@ -12,22 +12,22 @@
 ## Current State
 
 - Phase: Preflight and Repo Docs
-- Task: T-001
+- Task: T-002
 - Status: In progress
-- Last command: `npm run lint`
+- Last command: `npm run build`
 - Last result: Passed
-- Last pushed commit: 90a142f42a8abef391fe23ca85a91e64e33d581d
-- Branch sync: `dev` matches `origin/dev` after fast-forward pull; dry-run push reported `Everything up-to-date`.
-- Working tree: Dirty with safe in-scope run reports/docs only.
-- Next action: Inspect diff, commit and push preflight/report/docs checkpoint.
+- Last pushed commit: 8283054e186cd647ce9d55b05a54feb6617b738a
+- Branch sync: `dev` matches `origin/dev`.
+- Working tree: Dirty with safe in-scope baseline report/docs updates only.
+- Next action: Commit and push baseline validation checkpoint.
 
 ## Dirty File Classification
 
 | Path | Classification | Owner/Reason |
 | --- | --- | --- |
-| `agent-runs/2026-06-20-codebase-pass/` | Safe-to-commit | Run reports created by this workflow |
-| `AGENTS.md` | Safe-to-commit | Evidence-backed repo guidance drift fix |
-| `spec.md` | Safe-to-commit | Evidence-backed current-state validation note |
+| `agent-runs/2026-06-20-codebase-pass/` | Safe-to-commit | Run reports updated by this workflow |
+| `AGENTS.md` | Safe-to-commit | Evidence-backed test coverage correction |
+| `spec.md` | Safe-to-commit | Evidence-backed current-state validation correction |
 
 ## Blockers
 

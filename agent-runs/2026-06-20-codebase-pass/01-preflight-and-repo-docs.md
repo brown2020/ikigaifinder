@@ -16,9 +16,9 @@ Preflighted the repository, verified Git access/sync, created the run ledger, ma
 
 - Branch: `dev`
 - Upstream: `origin/dev`
-- Commit: pending preflight checkpoint
-- Pushed to: pending
-- Sync status: Clean and synced before run report creation; run reports/docs are now safe in-scope dirty files.
+- Commit: 8283054e186cd647ce9d55b05a54feb6617b738a
+- Pushed to: `origin/dev`
+- Sync status: Post-push `dev` matched `origin/dev`.
 
 ## Loop
 
@@ -27,14 +27,14 @@ Preflighted the repository, verified Git access/sync, created the run ledger, ma
 - Verify gate: plan/state/queue/report written; docs cite current scripts/files; no roadmap priority invented; lint/closest gate passes before push.
 - Stop condition: preflight report/docs committed and pushed, or Git/quality gate blocks.
 - Attempt: 1/1 planning, 1/2 docs sweep
-- Result: In progress; awaiting lint and commit-push checkpoint.
+- Result: Passed; preflight docs/report checkpoint was pushed.
 
 ## Run State
 
-- Current phase: Preflight and Repo Docs
-- Current task: T-001
-- Last pushed commit: 90a142f42a8abef391fe23ca85a91e64e33d581d
-- Next action: run lint, inspect diff, commit and push preflight checkpoint.
+- Current phase: Baseline Validation
+- Current task: T-002
+- Last pushed commit: 8283054e186cd647ce9d55b05a54feb6617b738a
+- Next action: run and record baseline commands.
 - Blockers: None.
 
 ## Commands Run
@@ -96,12 +96,12 @@ Checks performed and results: Git remote read passed; fast-forward pull reported
 
 ## Commit-Push Checkpoint
 
-- Status inspected: Pre-edit status was clean on `dev...origin/dev`; current dirty files are run reports/docs only.
-- Diff checked: Pending
-- Files staged: Pending
-- Dry-run push: Preflight dry-run passed; checkpoint dry-run pending.
-- Push: Pending
-- Post-push sync: Pending
+- Status inspected: Clean before phase; staged files were preflight docs/reports only.
+- Diff checked: `git diff --check` passed.
+- Files staged: `AGENTS.md`, `spec.md`, `agent-runs/2026-06-20-codebase-pass/`.
+- Dry-run push: Passed.
+- Push: Passed to `origin/dev`.
+- Post-push sync: `dev...origin/dev` clean.
 
 ## Stabilization
 
@@ -119,4 +119,4 @@ Live AI/Firebase behavior cannot be exercised without secrets/accounts. Build/li
 
 ## Recommended Next Step
 
-Run lint, commit/push the preflight docs checkpoint, then proceed to baseline validation.
+Proceed to baseline validation.
