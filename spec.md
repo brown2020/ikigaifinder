@@ -90,7 +90,7 @@ A working end-to-end flow exists: authenticate → questionnaire → streaming G
 - **Not horizontally scalable for limits:** the in-memory store resets per instance/cold start.
 - **Signed image URLs are effectively permanent** (`03-17-2125` expiry) — no rotation/expiry strategy.
 - **Generation errors are low-visibility:** failures are logged and set in state but lack a clear in-product retry/empty-state. **[inferred]**
-- **Abandoned/partial code (largely removed):** the divergent second AI text path (`src/lib/actions.ts` → `generatePurpose`, which used `gpt-4.1`) and its `src/lib/ai/stream.ts` helpers, plus the unused `GenerateImage` and `SurveyQuestion` components, have been removed. Remaining now-orphaned exports (`IKIGAI_SYSTEMPROMPT`, the `questions` constant, the `SurveyQuestion` type) are harmless leftovers slated for a future focused cleanup.
+- **Abandoned/partial code removed:** the divergent second AI text path (`src/lib/actions.ts` → `generatePurpose`, which used `gpt-4.1`) and its `src/lib/ai/stream.ts` helpers, unused legacy generation/questionnaire exports, and unused `GenerateImage`/`SurveyQuestion` components have been removed. A single GPT‑4o path (`generateIkigai`) remains.
 - **Minimal automated-test setup:** `npm test` runs Vitest and currently covers route-protection helpers plus ikigai parsing; no CI is configured. The practical regression gate remains `npm run lint && npm run build`.
 - **Legal pages** (privacy policy, terms) were last dated 2022 per prior planning notes.
 
@@ -141,10 +141,9 @@ Product-oriented, ordered by impact and dependency. Each item is sized for one c
   - Submitting guidance produces visibly adjusted statements merged into the list.
   - Guidance persists with the saved ikigai; lint + build pass.
 
-### M7 — Consolidate AI generation paths and retire dead code — MOSTLY DONE
+### M7 — Consolidate AI generation paths and retire dead code — DONE
 - **User value (product reliability):** removes a second, divergent generation path (`generatePurpose`, `gpt-4.1`) and unused UI so future product work can't accidentally ship via the wrong, untested path.
-- **Implemented:** removed `src/lib/actions.ts`, `src/lib/ai/stream.ts`, and the unused `GenerateImage`/`SurveyQuestion` components; a single GPT‑4o path (`generateIkigai`) remains.
-- **Remaining (small):** delete the now-orphaned `IKIGAI_SYSTEMPROMPT` constant, the `questions` constant, and the `SurveyQuestion` type once confirmed unneeded.
+- **Implemented:** removed `src/lib/actions.ts`, `src/lib/ai/stream.ts`, the unused `GenerateImage`/`SurveyQuestion` components, the legacy `IKIGAI_SYSTEMPROMPT`, the unused `questions` constant, the unused `SurveyQuestion` type, and the unused `testData` fixture; a single GPT‑4o path (`generateIkigai`) remains.
 
 ### M8 — Refresh legal/compliance pages
 - **User value:** accurate, current privacy/terms increase trust and reduce legal risk.

@@ -48,17 +48,6 @@ export interface QuestionStep {
   questions: QuestionStepper[];
 }
 
-export interface SurveyQuestion {
-  name: string;
-  headline: string;
-  information: string;
-  instructions: string;
-  questionType: "select" | "multiselect" | "textarea" | "text";
-  question: string;
-  answer: string[];
-  options?: string[];
-}
-
 export interface SurveyAnswer {
   id: string;
   type:
