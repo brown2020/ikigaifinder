@@ -47,8 +47,6 @@ src/
 ├── lib/
 │   ├── generateIkigai.ts     # SERVER ACTION: GPT-4o ikigai generation (rate-limited, validated)
 │   ├── generateImage.ts      # SERVER ACTION: Fireworks SDXL → Firebase Storage → signed URL
-│   ├── actions.ts            # SERVER ACTION generatePurpose (LEGACY/UNUSED — see caution list)
-│   ├── ai/stream.ts          # Shared streaming helpers
 │   ├── rateLimit.ts          # In-memory rate limiter (NOT distributed)
 │   ├── validation.ts         # Zod schemas + sanitizeInput()
 │   ├── errors.ts             # Custom error classes
@@ -94,12 +92,13 @@ npm run dev        # local dev server (DO NOT run in autonomous validation — l
 npm run build      # production build; runs TypeScript type-checking
 npm run start      # serve a production build
 npm run lint       # ESLint
+npm test           # Vitest one-shot runner (currently no committed test files)
 npx tsc --noEmit   # standalone type-check (no dedicated npm script exists)
 ```
 
 ## Canonical validation/check command
 
-There is no test runner and no CI in this repo. The canonical, non-interactive check is:
+Vitest is wired as a one-shot runner via `npm test`, but this repo currently has no committed test files and no CI. The canonical, non-interactive regression check is:
 
 ```bash
 npm run lint && npm run build
@@ -152,9 +151,9 @@ npm run lint && npm run build
 
 ## Testing expectations
 
-- No automated tests currently exist. Do **not** scaffold a large test suite as part of an unrelated change.
-- If you add tests, use a CI-safe runner (Vitest is the recommended choice), keep them non-interactive, and wire a `test` script in `package.json`. Add tests alongside the feature they cover, not as a separate cleanup pass.
-- Until a runner exists, `npm run lint && npm run build` is the regression gate.
+- No automated test files currently exist. Do **not** scaffold a large test suite as part of an unrelated change.
+- If you add tests, use the existing Vitest runner (`npm test`), keep them non-interactive, and add them alongside the feature they cover rather than as a separate cleanup pass.
+- Until meaningful tests exist, `npm run lint && npm run build` is the regression gate.
 
 ## Files and systems requiring extra caution
 
