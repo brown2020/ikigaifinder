@@ -11,21 +11,21 @@
 
 ## Current State
 
-- Phase: Package and Dead-Code Cleanup
-- Task: T-005
+- Phase: Review
+- Task: T-006
 - Status: In progress
 - Last command: `npm run lint`
 - Last result: Passed
-- Last pushed commit: e45b7cd8cd7fbb314d12543a45d6cbe094940797
+- Last pushed commit: 3ac88396f7d2992cadc8e25e4fd77a3b8d268d95
 - Branch sync: `dev` matches `origin/dev`.
-- Working tree: Dirty with safe in-scope package/dead-code report updates only.
-- Next action: Inspect diff, commit and push package/dead-code report checkpoint.
+- Working tree: Dirty with safe in-scope review report updates only.
+- Next action: Inspect diff, commit and push review report checkpoint.
 
 ## Dirty File Classification
 
 | Path | Classification | Owner/Reason |
 | --- | --- | --- |
-| `agent-runs/2026-06-20-codebase-pass/` | Safe-to-commit | Package/dead-code report and queue updated |
+| `agent-runs/2026-06-20-codebase-pass/` | Safe-to-commit | Review report and queue updated |
 
 ## Blockers
 
