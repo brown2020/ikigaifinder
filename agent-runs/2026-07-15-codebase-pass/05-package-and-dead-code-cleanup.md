@@ -62,12 +62,12 @@ npm run build
 
 - Removed unused direct packages `anychart`, `anychart-react`, `dotenv`, and `react-textarea-autosize`; repository search found no imports. Removed the dead `.anychart-credits` rule and stale README entries.
 - Updated the AI stack to `ai` 7.0.29, `@ai-sdk/openai` 4.0.15, and `@ai-sdk/rsc` 3.0.29.
-- Updated Firebase to 12.16.0 and Firebase Admin to 14.1.0; updated Next.js/eslint-config-next to 16.2.10, Lucide to 1.24.0, Node types to 26.1.1, React Hook Form to 7.81.0, Tailwind/PostCSS patches, Vitest 4.1.10, and the remaining stale patch/minor releases.
+- Updated Firebase to 12.16.0 and Firebase Admin to 14.1.0; updated Next.js/eslint-config-next to 16.2.10, Lucide to 1.24.0, Node 22 types to 22.20.1, React Hook Form to 7.81.0, Tailwind/PostCSS patches, Vitest 4.1.10, and the remaining stale patch/minor releases.
 - Added jQuery 4.0.0 to satisfy the committed `slick-carousel` peer dependency.
 - Updated all compatible transitives with `npm update` and used narrow overrides for patched PostCSS/Google request dependencies plus valid `yaml`/`picomatch` resolution; the package count fell from 768 to 749.
 - Reviewed five install lifecycle scripts and pinned approvals by package/version in `allowScripts`; npm reports no unreviewed scripts.
 - Audit improved from 18 findings (7 high, 11 moderate) to zero.
-- TypeScript 7.0.2 and ESLint 10.7.0 were tested and deferred because their current lint peers do not support them; latest compatible TypeScript 6.0.3 and ESLint 9.39.5 are installed.
+- TypeScript 7.0.2 and ESLint 10.7.0 were tested and deferred because their current lint peers do not support them; latest compatible TypeScript 6.0.3 and ESLint 9.39.5 are installed. `@types/node` 26 is deferred so compile-time APIs remain aligned with the Node 22 minimum runtime.
 
 ## Changes Made
 

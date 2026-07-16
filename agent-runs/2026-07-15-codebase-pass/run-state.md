@@ -11,29 +11,28 @@
 
 ## Current State
 
-- Phase: Review
+- Phase: Stabilization
 - Task: T-006
 - Status: In progress
-- Last command: `npm run build` after fresh `npm ci`
-- Last result: Pass; lint/typecheck/16 tests/build/tree/audit all clean
-- Last pushed commit: `a9df82a`
-- Branch sync: `dev` matched `origin/dev` at `a9df82a` before package edits
-- Working tree: In-scope package, compatibility, docs, and report changes owned by T-003/T-004/T-005
-- Next action: Run strict diff review, complete reports, then checkpoint package batch
+- Last command: Judge Loop after Node type/runtime alignment
+- Last result: PASS; all review-fix gates clean
+- Last pushed commit: `c36dc48`
+- Branch sync: `dev` matched `origin/dev` at `c36dc48` before review fix
+- Working tree: Node-type alignment plus review/state/report updates owned by T-006
+- Next action: Checkpoint review, then run stabilization completion criteria
 
 ## Dirty File Classification
 
 | Path | Classification | Owner/Reason |
 | --- | --- | --- |
-| `package.json`, `package-lock.json` | In-scope source | T-003/T-004 dependency cleanup/update |
-| `src/firebase/firebaseAdmin.ts` | In-scope source | T-005 Firebase Admin 14 compatibility |
-| `src/app/globals.css`, `README.md` | In-scope source/docs | T-003 dead dependency references |
-| `AGENTS.md`, `spec.md` | Safe-to-commit docs | T-005 verified stack/compatibility guidance |
-| Execution/package/state/queue reports | Safe-to-commit | T-003/T-004/T-005 evidence and resume state |
+| `package.json`, `package-lock.json` | In-scope source | T-006 align Node type surface to runtime |
+| `AGENTS.md` | Safe-to-commit docs | T-006 record runtime/type alignment rule |
+| Package/review/state/queue reports | Safe-to-commit | T-006 review evidence and resume state |
 
 ## Blockers
 
 - TypeScript 7 and ESLint 10 deferred until current lint peers support them.
+- `@types/node` 26 deferred while Node 22 remains the minimum supported runtime.
 - Cold installs retain an upstream `node-domexception` deprecation notice from the latest Google Cloud `node-fetch` chain; no safe non-fork replacement is published.
 
 ## Deferred Items

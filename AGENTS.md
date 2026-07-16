@@ -167,6 +167,7 @@ npm run lint && npm run build
 - **`service_key.json`** and **`.env*.local`** — secrets, gitignored. Never read, print, or commit them.
 - **Generated/derived files** — `package-lock.json`, `tsconfig.tsbuildinfo`, `.next/`, `next-env.d.ts`. Don't hand-edit; change the source and regenerate.
 - **Dependency policy** — `package.json` intentionally pins reviewed install scripts with `allowScripts` and uses overrides to keep Next/Firebase transitive dependencies on patched compatible releases. Review changed lifecycle scripts before re-approving them, and require a clean audit plus full validation before removing overrides.
+- **Node types** — keep `@types/node` on the latest 22.x release while Node 22 is the minimum supported runtime; newer type majors can expose APIs unavailable in production.
 - **TypeScript 7** — currently incompatible with the latest `typescript-eslint` parser used by `eslint-config-next` (which supports TypeScript `<6.1`); keep TypeScript on the latest 6.x release until that peer range advances.
 - **ESLint 10** — `eslint-config-next` still installs React/import/accessibility plugins whose peer ranges stop at ESLint 9; keep ESLint on the latest 9.x release until those peers add ESLint 10 support.
 
