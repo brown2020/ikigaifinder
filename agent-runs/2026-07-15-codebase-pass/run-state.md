@@ -13,19 +13,19 @@
 
 - Phase: Integrator
 - Task: T-006
-- Status: In progress
-- Last command: Final remote read/dry-run push plus lint stabilization gate
-- Last result: PASS; completion criteria satisfied
-- Last pushed commit: `2f1ba0c`
-- Branch sync: `dev` matches `origin/dev` at `2f1ba0c`
-- Working tree: Stabilization/state/queue report edits only; owned by T-006
-- Next action: Checkpoint stabilization report, then complete final integrator report
+- Status: Complete pending final report checkpoint
+- Last command: Final integrator report assembly
+- Last result: All source/stabilization completion criteria pass
+- Last pushed commit: `c8f1c5e`
+- Branch sync: `dev` matches `origin/dev` at `c8f1c5e` before final report edits
+- Working tree: Final integrator/report/state/queue edits only; owned by T-006
+- Next action: Lint, commit/push final report, fetch, and verify clean synchronized `dev`
 
 ## Dirty File Classification
 
 | Path | Classification | Owner/Reason |
 | --- | --- | --- |
-| Stabilization/state/queue reports | Safe-to-commit | T-006 completion evidence and resume state |
+| Integrator/final/state/queue reports | Safe-to-commit | T-006 final handoff evidence |
 
 ## Blockers
 
