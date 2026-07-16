@@ -40,22 +40,22 @@
 | --------------------------------------------- | ------- | --------------------------------------------------- |
 | [Next.js](https://nextjs.org/)                | 16.x    | React framework with App Router & Server Components |
 | [React](https://react.dev/)                   | 19.x    | UI library                                          |
-| [TypeScript](https://www.typescriptlang.org/) | 5.7+    | Type safety                                         |
+| [TypeScript](https://www.typescriptlang.org/) | 6.x     | Type safety                                         |
 
 ### Authentication & Backend
 
 | Package                                                        | Version | Purpose                                 |
 | -------------------------------------------------------------- | ------- | --------------------------------------- |
 | [Firebase](https://firebase.google.com/)                       | 12.x    | Auth, Firestore database, Cloud Storage |
-| [Firebase Admin](https://firebase.google.com/docs/admin/setup) | 13.x    | Server-side Firebase operations         |
+| [Firebase Admin](https://firebase.google.com/docs/admin/setup) | 14.x    | Server-side Firebase operations         |
 
 ### AI & Generation
 
 | Package                                                                   | Version | Purpose                           |
 | ------------------------------------------------------------------------- | ------- | --------------------------------- |
-| [Vercel AI SDK](https://sdk.vercel.ai/)                                   | 6.x     | Streaming AI responses            |
-| [@ai-sdk/openai](https://sdk.vercel.ai/providers/ai-sdk-providers/openai) | 3.x     | OpenAI integration                |
-| [@ai-sdk/rsc](https://sdk.vercel.ai/docs/ai-sdk-rsc)                      | 2.x     | React Server Components streaming |
+| [Vercel AI SDK](https://sdk.vercel.ai/)                                   | 7.x     | Streaming AI responses            |
+| [@ai-sdk/openai](https://sdk.vercel.ai/providers/ai-sdk-providers/openai) | 4.x     | OpenAI integration                |
+| [@ai-sdk/rsc](https://sdk.vercel.ai/docs/ai-sdk-rsc)                      | 3.x     | React Server Components streaming |
 
 ### State Management
 
@@ -69,37 +69,29 @@
 | Package                                                                      | Version | Purpose                     |
 | ---------------------------------------------------------------------------- | ------- | --------------------------- |
 | [Tailwind CSS](https://tailwindcss.com/)                                     | 4.x     | Utility-first CSS framework |
-| [Lucide React](https://lucide.dev/)                                          | 0.563+  | Beautiful icon library      |
+| [Lucide React](https://lucide.dev/)                                          | 1.x     | Beautiful icon library      |
 | [React Hook Form](https://react-hook-form.com/)                              | 7.x     | Performant form handling    |
 | [React Hot Toast](https://react-hot-toast.com/)                              | 2.x     | Toast notifications         |
 | [React Select](https://react-select.com/)                                    | 5.x     | Advanced select inputs      |
 | [React Slick](https://react-slick.neostack.com/)                             | 0.31+   | Carousel/slider component   |
 | [React Spinners](https://www.davidhu.io/react-spinners/)                     | 0.17+   | Loading indicators          |
-| [React Tooltip](https://react-tooltip.com/)                                  | 5.x     | Tooltips                    |
+| [React Tooltip](https://react-tooltip.com/)                                  | 6.x     | Tooltips                    |
 | [React Share](https://github.com/nygardk/react-share)                        | 5.x     | Social sharing buttons      |
 | [React Cookie Consent](https://github.com/Mastermindzh/react-cookie-consent) | 10.x    | GDPR cookie consent banner  |
 
-### Data Visualization
-
-| Package                                     | Version | Purpose                    |
-| ------------------------------------------- | ------- | -------------------------- |
-| [AnyChart React](https://www.anychart.com/) | 1.4+    | Venn diagram visualization |
-
 ### Utilities
 
-| Package                                                                        | Version | Purpose                        |
-| ------------------------------------------------------------------------------ | ------- | ------------------------------ |
-| [Zod](https://zod.dev/)                                                        | 4.x     | Schema validation              |
-| [dotenv](https://github.com/motdotla/dotenv)                                   | 17.x    | Environment variable loading   |
-| [html2canvas](https://html2canvas.hertzen.com/)                                | 1.4+    | Screenshot capture for sharing |
-| [react-textarea-autosize](https://github.com/Andarist/react-textarea-autosize) | 8.x     | Auto-resizing textareas        |
+| Package                                         | Version | Purpose                        |
+| ----------------------------------------------- | ------- | ------------------------------ |
+| [Zod](https://zod.dev/)                         | 4.x     | Schema validation              |
+| [html2canvas](https://html2canvas.hertzen.com/) | 1.4+    | Screenshot capture for sharing |
 
 ## Getting Started
 
 ### Prerequisites
 
-- **Node.js** 18.17 or later
-- **npm**, **yarn**, **pnpm**, or **bun**
+- **Node.js** 22 or later
+- **npm** (the repository uses `package-lock.json`)
 - **Firebase Project** with Firestore, Storage, and Authentication enabled
 - **OpenAI API Key** for GPT-4o access
 - **Fireworks AI API Key** for image generation
@@ -117,10 +109,6 @@
 
    ```bash
    npm install
-   # or
-   yarn install
-   # or
-   pnpm install
    ```
 
 3. **Set up environment variables:**

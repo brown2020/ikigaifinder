@@ -121,7 +121,3 @@
     border-color: var(--color-border, currentColor);
   }
 }
-
-.anychart-credits {
-  @apply hidden;
-}

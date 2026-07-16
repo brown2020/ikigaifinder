@@ -79,6 +79,9 @@ A working end-to-end flow exists: authenticate → questionnaire → streaming G
 
 ### Existing technical constraints
 
+- Node.js 22+ is required by the current AI SDK 7 and Firebase Admin 14 releases.
+- TypeScript remains on the latest 6.x release because the current `typescript-eslint` parser used by `eslint-config-next` supports TypeScript `<6.1`; TypeScript 7 causes the lint toolchain to crash.
+- ESLint remains on the latest 9.x release because the React/import/accessibility plugins bundled by the current `eslint-config-next` release do not yet declare ESLint 10 compatibility.
 - In-memory rate limiter — correct only for single-instance deployments.
 - Free-text AI output parsed by regex (`ikigaiParser.ts`) — depends on the model following the prompt's formatting.
 - Firebase project required (Auth + Firestore + Storage) with rules deployed manually (no `firebase.json`/`.firebaserc` committed). **[inferred]**
