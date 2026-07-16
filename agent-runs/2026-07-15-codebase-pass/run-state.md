@@ -11,23 +11,21 @@
 
 ## Current State
 
-- Phase: Stabilization
+- Phase: Integrator
 - Task: T-006
 - Status: In progress
-- Last command: Judge Loop after Node type/runtime alignment
-- Last result: PASS; all review-fix gates clean
-- Last pushed commit: `c36dc48`
-- Branch sync: `dev` matched `origin/dev` at `c36dc48` before review fix
-- Working tree: Node-type alignment plus review/state/report updates owned by T-006
-- Next action: Checkpoint review, then run stabilization completion criteria
+- Last command: Final remote read/dry-run push plus lint stabilization gate
+- Last result: PASS; completion criteria satisfied
+- Last pushed commit: `2f1ba0c`
+- Branch sync: `dev` matches `origin/dev` at `2f1ba0c`
+- Working tree: Stabilization/state/queue report edits only; owned by T-006
+- Next action: Checkpoint stabilization report, then complete final integrator report
 
 ## Dirty File Classification
 
 | Path | Classification | Owner/Reason |
 | --- | --- | --- |
-| `package.json`, `package-lock.json` | In-scope source | T-006 align Node type surface to runtime |
-| `AGENTS.md` | Safe-to-commit docs | T-006 record runtime/type alignment rule |
-| Package/review/state/queue reports | Safe-to-commit | T-006 review evidence and resume state |
+| Stabilization/state/queue reports | Safe-to-commit | T-006 completion evidence and resume state |
 
 ## Blockers
 
