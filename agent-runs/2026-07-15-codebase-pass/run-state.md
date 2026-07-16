@@ -11,21 +11,21 @@
 
 ## Current State
 
-- Phase: Baseline Validation
+- Phase: Findings Backlog
 - Task: T-002
 - Status: In progress
-- Last command: `npm ls --all --parseable`
-- Last result: Application gates pass; dependency tree has reproducible invalid/extraneous/missing-peer findings
-- Last pushed commit: `a50eaa0`
-- Branch sync: `dev` matched `origin/dev` at `a50eaa0` before baseline report edits
-- Working tree: Baseline/state/queue report changes only; owned by T-002
-- Next action: Commit/push baseline checkpoint, then complete findings backlog
+- Last command: Repository-wide dependency usage searches
+- Last result: Four unused directs and one dead CSS rule proven; update/compatibility queue prioritized
+- Last pushed commit: `d258db5`
+- Branch sync: `dev` matched `origin/dev` at `d258db5` before findings report edits
+- Working tree: Findings/state/queue report changes only; owned by T-002
+- Next action: Lint and checkpoint findings, then execute unused-dependency removal
 
 ## Dirty File Classification
 
 | Path | Classification | Owner/Reason |
 | --- | --- | --- |
-| Baseline/state/queue reports | Safe-to-commit | Created by this run; T-002 |
+| Findings/state/queue reports | Safe-to-commit | Created by this run; T-002 |
 
 ## Blockers
 
