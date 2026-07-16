@@ -14,18 +14,18 @@
 - Phase: Baseline Validation
 - Task: T-002
 - Status: In progress
-- Last command: `npm run lint`
-- Last result: Passed without warnings or errors
-- Last pushed commit: `fd0d669` (pre-run `origin/dev`)
-- Branch sync: Clean and synchronized (`0` behind, `0` ahead) before run reports were created
-- Working tree: Only this run folder is new; owned by T-001
-- Next action: Commit/push the preflight checkpoint, then run typecheck, tests, build, outdated, and audit diagnostics
+- Last command: `npm ls --all --parseable`
+- Last result: Application gates pass; dependency tree has reproducible invalid/extraneous/missing-peer findings
+- Last pushed commit: `a50eaa0`
+- Branch sync: `dev` matched `origin/dev` at `a50eaa0` before baseline report edits
+- Working tree: Baseline/state/queue report changes only; owned by T-002
+- Next action: Commit/push baseline checkpoint, then complete findings backlog
 
 ## Dirty File Classification
 
 | Path | Classification | Owner/Reason |
 | --- | --- | --- |
-| `agent-runs/2026-07-15-codebase-pass/*` | Safe-to-commit | Created by this codebase-improvement run; T-001 |
+| Baseline/state/queue reports | Safe-to-commit | Created by this run; T-002 |
 
 ## Blockers
 
