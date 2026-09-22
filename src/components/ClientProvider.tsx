@@ -115,21 +115,23 @@ export function ClientProvider({
 
         {/* Cookie consent - hide in React Native WebView */}
         {!isRNWebView && (
-          <CookieConsent
-            buttonText="Accept"
-            cookieName="ikigai-cookie-consent"
-            style={{ background: "#2B373B" }}
-            buttonStyle={{
-              color: "#4e503b",
-              fontSize: "13px",
-              background: "#fff",
-              borderRadius: "4px",
-              padding: "8px 16px",
-            }}
-            expires={365}
-          >
-            This app uses cookies to enhance the user experience.
-          </CookieConsent>
+          <div role="region" aria-label="Cookie consent">
+            <CookieConsent
+              buttonText="Accept"
+              cookieName="ikigai-cookie-consent"
+              style={{ background: "#2B373B" }}
+              buttonStyle={{
+                color: "#4e503b",
+                fontSize: "13px",
+                background: "#fff",
+                borderRadius: "4px",
+                padding: "8px 16px",
+              }}
+              expires={365}
+            >
+              This app uses cookies to enhance the user experience.
+            </CookieConsent>
+          </div>
         )}
 
         {/* Global toast notifications */}

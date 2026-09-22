@@ -16,7 +16,7 @@ export default function ProfilePage(): React.ReactElement {
 
   return (
     <div className="flex flex-col w-full max-w-4xl mx-auto gap-4 p-5 ">
-      <div className="text-3xl font-semibold">Your Info</div>
+      <h1 className="text-3xl font-semibold">Your Info</h1>
 
       <ProfileComponent />
       <div>
@@ -44,7 +44,7 @@ export default function ProfilePage(): React.ReactElement {
       </div>
 
       <div className="p-4 border rounded-md shadow-md flex sm:flex-row flex-col gap-4 items-center justify-between">
-        <h2 className="text-lg font-semibold text-red-500">
+        <h2 className="text-lg font-semibold text-red-700">
           Permanently Close Your Account
         </h2>
         <Button
