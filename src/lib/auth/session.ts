@@ -15,6 +15,14 @@ export function getSessionExpiresInMs(): number {
   return safeDays * 24 * 60 * 60 * 1000;
 }
 
+function shouldSecureCookies(): boolean {
+  // next start sets NODE_ENV=production even on http://localhost — Secure cookies
+  // would not be sent and AuthGuard/proxy would bounce. Prefer Vercel HTTPS or explicit flag.
+  if (process.env.COOKIE_SECURE === "true") return true;
+  if (process.env.COOKIE_SECURE === "false") return false;
+  return process.env.VERCEL === "1";
+}
+
 export function setSessionCookie(
   response: NextResponse,
   sessionCookie: string,
@@ -22,7 +30,7 @@ export function setSessionCookie(
 ): void {
   response.cookies.set(getSessionCookieName(), sessionCookie, {
     httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
+    secure: shouldSecureCookies(),
     sameSite: "lax",
     path: "/",
     maxAge: Math.floor(expiresInMs / 1000),
@@ -32,7 +40,7 @@ export function setSessionCookie(
 export function clearSessionCookie(response: NextResponse): void {
   response.cookies.set(getSessionCookieName(), "", {
     httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
+    secure: shouldSecureCookies(),
     sameSite: "lax",
     path: "/",
     maxAge: 0,

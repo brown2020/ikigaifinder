@@ -2,7 +2,7 @@
 
 import { useCallback, useState } from "react";
 import Link from "next/link";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 import { LockIcon } from "lucide-react";
 import toast from "react-hot-toast";
 import { useAuthActions } from "@/hooks/use-auth-actions";
@@ -12,7 +12,6 @@ import { FooterLinks, PasswordField } from "./AuthPageBits";
 import { sanitizeRedirect } from "./auth-page-utils";
 
 export function LoginForm() {
-  const router = useRouter();
   const searchParams = useSearchParams();
   const redirect = sanitizeRedirect(searchParams.get("redirect"));
   const { loginWithEmail, isLoading, error, clearError } = useAuthActions();
@@ -20,8 +19,9 @@ export function LoginForm() {
   const [password, setPassword] = useState("");
 
   const onSuccess = useCallback(() => {
-    router.replace(redirect);
-  }, [router, redirect]);
+    // Hard-nav after session cookie sync so proxy sees the httpOnly cookie.
+    window.location.assign(redirect);
+  }, [redirect]);
 
   const onSubmit = useCallback(
     async (event: React.FormEvent) => {
