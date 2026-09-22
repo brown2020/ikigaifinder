@@ -8,7 +8,7 @@ import {
 } from "firebase/auth";
 import { auth } from "@/firebase/firebaseClient";
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { FirebaseError } from "firebase/app";
 import toast from "react-hot-toast";
 import { useProfileStore } from "@/zustand/useProfileStore";
@@ -92,7 +92,7 @@ export default function LoginFinishPage() {
   const updateProfile = useProfileStore((s) => s.updateProfile);
   const [needsEmail, setNeedsEmail] = useState(false);
   const [emailInput, setEmailInput] = useState("");
-  const [pendingState, setPendingState] = useState<{
+  const pendingStateRef = useRef<{
     name: string;
     offersOptIn: boolean;
     redirectTarget: string;
@@ -123,7 +123,7 @@ export default function LoginFinishPage() {
       window.localStorage.getItem("purposefinderOffersOptIn") === "Accepted";
 
     if (!email) {
-      setPendingState({ name, offersOptIn, redirectTarget });
+      pendingStateRef.current = { name, offersOptIn, redirectTarget };
       setNeedsEmail(true);
       return;
     }
@@ -133,13 +133,14 @@ export default function LoginFinishPage() {
 
   const handleEmailSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!emailInput.trim() || !pendingState) return;
+    if (!emailInput.trim() || !pendingStateRef.current) return;
     setNeedsEmail(false);
+    const pending = pendingStateRef.current;
     completeSignIn(
       emailInput.trim(),
-      pendingState.name,
-      pendingState.offersOptIn,
-      pendingState.redirectTarget,
+      pending.name,
+      pending.offersOptIn,
+      pending.redirectTarget,
       { setAuthDetails, updateProfile, router }
     );
   };
@@ -154,7 +155,11 @@ export default function LoginFinishPage() {
           Please enter the email address you used to sign in.
         </p>
         <form onSubmit={handleEmailSubmit} className="flex flex-col gap-3">
+          <label htmlFor="loginfinish-email" className="text-sm font-medium text-gray-700">
+            Email
+          </label>
           <input
+            id="loginfinish-email"
             type="email"
             required
             autoFocus

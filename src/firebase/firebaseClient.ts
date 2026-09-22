@@ -1,7 +1,7 @@
-import { getApp, getApps, initializeApp } from "firebase/app";
-import { getFirestore } from "firebase/firestore";
-import { getAuth } from "firebase/auth";
-import { getStorage } from "firebase/storage";
+import { getApp, getApps, initializeApp, type FirebaseApp } from "firebase/app";
+import { getFirestore, type Firestore } from "firebase/firestore";
+import { getAuth, type Auth } from "firebase/auth";
+import { getStorage, type FirebaseStorage } from "firebase/storage";
 
 const firebaseConfig = {
   apiKey: process.env.NEXT_PUBLIC_FIREBASE_APIKEY,
@@ -13,21 +13,27 @@ const firebaseConfig = {
   measurementId: process.env.NEXT_PUBLIC_FIREBASE_MEASUREMENTID,
 };
 
-let app: ReturnType<typeof initializeApp>;
-let db: ReturnType<typeof getFirestore>;
-let auth: ReturnType<typeof getAuth>;
-let storage: ReturnType<typeof getStorage>;
+/** True when public Firebase web config is present (false in CI without secrets). */
+export const hasClientConfig = Boolean(firebaseConfig.apiKey?.trim());
 
-try {
+let app: FirebaseApp | undefined;
+let db: Firestore;
+let auth: Auth;
+let storage: FirebaseStorage;
+
+if (hasClientConfig) {
   app = getApps().length ? getApp() : initializeApp(firebaseConfig);
   db = getFirestore(app);
   auth = getAuth(app);
   storage = getStorage(app);
-} catch (e) {
-  console.warn("Firebase client init failed:", e);
-  db = {} as ReturnType<typeof getFirestore>;
-  auth = {} as ReturnType<typeof getAuth>;
-  storage = {} as ReturnType<typeof getStorage>;
+} else {
+  // CI gate / SSG without Actions secrets: skip module-level init.
+  console.warn(
+    "Firebase client config missing (NEXT_PUBLIC_FIREBASE_APIKEY); deferring init"
+  );
+  db = null as unknown as Firestore;
+  auth = null as unknown as Auth;
+  storage = null as unknown as FirebaseStorage;
 }
 
 export { auth, db, storage };

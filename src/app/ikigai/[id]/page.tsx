@@ -3,12 +3,23 @@ import { adminDb } from "@/firebase/firebaseAdmin";
 import { getOptionalServerUid } from "@/lib/auth/session-server";
 import { Metadata } from "next";
 
+
+function safeSiteUrl(): URL {
+  const raw = process.env.NEXT_PUBLIC_BASE_URL || "https://ikigaifinder.ai";
+  try {
+    return new URL(raw);
+  } catch {
+    return new URL("https://ikigaifinder.ai");
+  }
+}
+
 type Props = { params: Promise<{ id: string }> };
 
 export default async function IkigaiShare({ params }: Props) {
-  const { id } = await params;
-
-  const viewerUid = await getOptionalServerUid();
+  const [{ id }, viewerUid] = await Promise.all([
+    params,
+    getOptionalServerUid(),
+  ]);
   const isOwner = Boolean(viewerUid && viewerUid === id);
 
   let imageUrl: string | null = null;
@@ -70,9 +81,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     sharableUrl && imageUrl ? imageUrl : "/assets/ikigai-finder.webp";
 
   return {
-    metadataBase: new URL(
-      process.env.NEXT_PUBLIC_BASE_URL || "https://ikigaifinder.ai"
-    ),
+    metadataBase: safeSiteUrl(),
     title: "Check out my Ikigai!",
     description: "I just created my Ikigai with Ikigai Finder AI.",
 

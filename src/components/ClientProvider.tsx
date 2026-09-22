@@ -6,6 +6,7 @@ import { Toaster } from "react-hot-toast";
 import CookieConsent from "react-cookie-consent";
 import { useInitializeStores } from "@/zustand";
 import { useAuthToken } from "@/hooks/use-auth-token";
+import { hasClientConfig } from "@/firebase/firebaseClient";
 import { isReactNativeWebView } from "@/utils/platform";
 import ErrorBoundary from "./ErrorBoundary";
 
@@ -92,15 +93,16 @@ function useReactNativeWebView(): boolean {
  * - Cookie consent
  * - Toast notifications
  */
+function AuthBootstrap(): null {
+  useAuthToken();
+  useInitializeStores();
+  return null;
+}
+
 export function ClientProvider({
   children,
 }: ClientProviderProps): React.ReactElement {
-  // Initializes the Firebase auth listener and server session cookie in the background.
-  useAuthToken();
   const isRNWebView = useReactNativeWebView();
-
-  // Initialize stores after auth is ready
-  useInitializeStores();
 
   // Handle viewport height for mobile browsers
   useViewportHeight();
@@ -108,6 +110,7 @@ export function ClientProvider({
   return (
     <ErrorBoundary>
       <div className="flex flex-col h-full">
+        {hasClientConfig ? <AuthBootstrap /> : null}
         {children}
 
         {/* Cookie consent - hide in React Native WebView */}

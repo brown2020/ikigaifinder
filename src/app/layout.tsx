@@ -10,6 +10,20 @@ import "./globals.css";
 // Metadata & SEO
 // ============================================================================
 
+
+function safeSiteUrl(): URL {
+  const raw = process.env.NEXT_PUBLIC_BASE_URL || "https://ikigaifinder.ai";
+  try {
+    return new URL(raw);
+  } catch {
+    return new URL("https://ikigaifinder.ai");
+  }
+}
+
+function safeJsonLdScript(data: unknown): string {
+  return JSON.stringify(data).replace(/</g, "\\u003c").replace(/>/g, "\\u003e").replace(/&/g, "\\u0026");
+}
+
 export const metadata: Metadata = {
   title: {
     default: "Ikigai Finder AI - Discover Your Life Purpose",
@@ -34,9 +48,7 @@ export const metadata: Metadata = {
   authors: [{ name: "Ikigai Finder AI" }],
   creator: "Ikigai Finder AI",
   publisher: "Ikigai Finder AI",
-  metadataBase: new URL(
-    process.env.NEXT_PUBLIC_BASE_URL || "https://ikigaifinder.ai"
-  ),
+  metadataBase: safeSiteUrl(),
   alternates: {
     canonical: "/",
   },
@@ -135,7 +147,7 @@ export default function RootLayout({
         {/* Structured Data */}
         <script
           type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+          dangerouslySetInnerHTML={{ __html: safeJsonLdScript(jsonLd) }}
         />
         {/* Preconnect to external domains for faster loading */}
         <link rel="preconnect" href="https://fonts.googleapis.com" />

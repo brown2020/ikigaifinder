@@ -15,13 +15,13 @@ export default function PrivacyPage(): React.ReactElement {
           </p>
         </div>
         <div className="max-w-3xl mx-auto mt-8">
-          {privacyPolicyContent.map((section, index) => (
-            <section className="mb-12" key={index}>
+          {privacyPolicyContent.map((section) => (
+            <section className="mb-12" key={section.title}>
               <h2 className="text-xl font-semibold">{section.title}</h2>
-              {section.paragraphs.map((paragraph, pIndex) => (
-                <p className="leading-relaxed mt-3" key={pIndex}>
+              {section.paragraphs.map((paragraph) => (
+                <p className="leading-relaxed mt-3" key={(paragraph || "").slice(0, 64)}>
                   {paragraph?.split("\n").map((line, lineIndex) => (
-                    <React.Fragment key={lineIndex}>
+                    <React.Fragment key={`${(paragraph || "").slice(0, 24)}-${lineIndex}`}>
                       {line}
                       <br />
                     </React.Fragment>
@@ -30,8 +30,8 @@ export default function PrivacyPage(): React.ReactElement {
               ))}
               {section.listItems && (
                 <ul className="list-disc list-inside mb-4">
-                  {section.listItems.map((item, iIndex) => (
-                    <li key={iIndex}>{item}</li>
+                  {section.listItems.map((item) => (
+                    <li key={item}>{item}</li>
                   ))}
                 </ul>
               )}

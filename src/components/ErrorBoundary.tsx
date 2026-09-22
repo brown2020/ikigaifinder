@@ -20,6 +20,7 @@ interface ErrorBoundaryState {
   error: Error | null;
   errorInfo: ErrorInfo | null;
   showDetails: boolean;
+  errorId: string;
 }
 
 // ============================================================================
@@ -49,11 +50,17 @@ class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundaryState> {
       error: null,
       errorInfo: null,
       showDetails: false,
+      errorId: "",
     };
   }
 
   static getDerivedStateFromError(error: Error): Partial<ErrorBoundaryState> {
-    return { hasError: true, error };
+    const digest = error.message
+      .split("")
+      .reduce((acc, ch) => (acc * 31 + ch.charCodeAt(0)) >>> 0, 7)
+      .toString(36)
+      .toUpperCase();
+    return { hasError: true, error, errorId: `E${digest}` };
   }
 
   componentDidCatch(error: Error, errorInfo: ErrorInfo): void {
@@ -89,17 +96,18 @@ class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundaryState> {
       error: null,
       errorInfo: null,
       showDetails: false,
+      errorId: "",
     });
   };
 
   renderErrorDetails(): ReactNode {
-    const { error, errorInfo, showDetails } = this.state;
+    const { error, errorInfo, showDetails, errorId } = this.state;
 
     // Never show details in production
     if (IS_PRODUCTION) {
       return (
         <p className="text-sm text-gray-500 mt-4">
-          Error ID: {Date.now().toString(36).toUpperCase()}
+          Error ID: {errorId || "UNKNOWN"}
         </p>
       );
     }

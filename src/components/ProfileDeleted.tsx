@@ -25,7 +25,7 @@ export default function ProfileDeleted({
 }: ProfileDeletedProps) {
   const { uid } = useAuthStore();
   const router = useRouter();
-  const modalRef = useRef<HTMLDivElement>(null);
+  const modalRef = useRef<HTMLDialogElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const deleteTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [isLoading, setIsLoading] = useState(false);
@@ -151,15 +151,14 @@ export default function ProfileDeleted({
   return (
     <div>
       {isOpen && (
-        <div
-          className="fixed inset-0 flex items-center justify-center bg-black/50 p-4"
-          role="dialog"
-          aria-modal="true"
+        <dialog
+          open
+          className="fixed inset-0 m-auto rounded-lg p-5 w-full xs:max-w-md max-w-72 bg-white shadow-lg backdrop:bg-black/50"
           aria-labelledby="delete-account-title"
+          ref={modalRef}
         >
           <div
-            ref={modalRef}
-            className="bg-white rounded-lg p-5 w-full xs:max-w-md max-w-72"
+            className="w-full"
           >
             <h2 id="delete-account-title" className="text-lg font-bold">
               Are you sure you want to delete your account?
@@ -195,7 +194,7 @@ export default function ProfileDeleted({
               </Button>
             </div>
           </div>
-        </div>
+        </dialog>
       )}
     </div>
   );

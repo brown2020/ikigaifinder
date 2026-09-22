@@ -167,7 +167,7 @@ function mergeAnswers(
  * Remove undefined values from an object (Firestore doesn't accept undefined)
  */
 function removeUndefinedValues<T>(obj: T): T {
-  return JSON.parse(JSON.stringify(obj)) as T;
+  return structuredClone(obj) as T;
 }
 
 /**

@@ -53,7 +53,7 @@ const CircularProgressWithIcon = ({
           cx="60"
           cy="60"
           strokeLinecap="round"
-          className="transition-all duration-300 ease-linear"
+          className="transition-colors duration-300 ease-linear"
         />
       </svg>
       <div className="absolute inset-0 flex items-center justify-center text-base">

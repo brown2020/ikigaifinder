@@ -53,7 +53,7 @@ export default function ImageSelector() {
     <div className="flex overflow-x-auto p-2 space-x-3 bg-gray-200">
       {fileUrls.map((url, index) => (
         <button
-          key={index}
+          key={url}
           type="button"
           onClick={() => handleImageClick(url)}
           className={`shrink-0 rounded-md ring-4 focus-visible:outline-none focus-visible:ring-yellow-400 ${
@@ -62,7 +62,7 @@ export default function ImageSelector() {
         >
           <Image
             src={url}
-            alt={`Cover ${index}`}
+            alt={`Cover ${index + 1}`}
             width={128}
             height={128}
             className="h-32 w-auto object-cover rounded-md"

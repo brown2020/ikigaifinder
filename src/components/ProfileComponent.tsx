@@ -99,6 +99,7 @@ export default function ProfileComponent2() {
             type="file"
             accept="image/*"
             onChange={handlePhotoChange}
+            aria-label="Upload profile photo"
           />
         </div>
       </div>
@@ -106,8 +107,9 @@ export default function ProfileComponent2() {
       <div className="w-full p-4 border rounded-md shadow-md">
         <div className="grid sm:grid-cols-2 grid-cols-1 gap-3">
           <div className="flex flex-col gap-1">
-            <div className="text-sm">{"First Name"}</div>
+            <label htmlFor="profile-first-name" className="text-sm">First Name</label>
             <input
+              id="profile-first-name"
               className="px-3 py-2 text-black border border-gray-700 rounded-md"
               type="text"
               value={newProfile.firstName || ""}
@@ -117,8 +119,9 @@ export default function ProfileComponent2() {
             />
           </div>
           <div className="flex flex-col gap-1">
-            <div className="text-sm">{"Last Name"}</div>
+            <label htmlFor="profile-last-name" className="text-sm">Last Name</label>
             <input
+              id="profile-last-name"
               className="px-3 py-2 text-black border border-gray-700 rounded-md"
               type="text"
               value={newProfile.lastName || ""}
@@ -129,10 +132,11 @@ export default function ProfileComponent2() {
           </div>
         </div>
         <div className="mt-3 w-full flex flex-col gap-1">
-          <div className="text-sm">{"Contact Email"}</div>
+          <label htmlFor="profile-contact-email" className="text-sm">Contact Email</label>
           <input
+            id="profile-contact-email"
             className="px-3 py-2 text-black border border-gray-700 rounded-md w-full"
-            type="text"
+            type="email"
             value={newProfile.contactEmail || ""}
             onChange={(e) =>
               setNewProfile({ ...newProfile, contactEmail: e.target.value })

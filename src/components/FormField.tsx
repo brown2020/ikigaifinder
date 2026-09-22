@@ -43,6 +43,7 @@ const FormField: React.FC<FormFieldProps> = ({
       case "text":
         return (
           <input
+            id={question.id}
             className="w-full p-2 border border-gray-300 rounded-sm min-h-12 font-semibold "
             {...register(question.id, {
               required: question.validation.required,
@@ -53,6 +54,7 @@ const FormField: React.FC<FormFieldProps> = ({
       case "textarea":
         return (
           <textarea
+            id={question.id}
             className="w-full p-2 border border-gray-300 rounded-sm h-24 font-semibold "
             {...register(question.id, {
               required: question.validation.required,
@@ -106,7 +108,10 @@ const FormField: React.FC<FormFieldProps> = ({
 
   return (
     <div className="mb-2">
-      <label className="block text-gray-700  font-semibold text-xl mb-2">
+      <label
+        htmlFor={question.id}
+        className="block text-gray-700 font-semibold text-xl mb-2"
+      >
         {question.label}
       </label>
       <div className="text-gray-700">{renderField()}</div>

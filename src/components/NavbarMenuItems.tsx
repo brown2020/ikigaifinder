@@ -63,11 +63,11 @@ export default function NavbarMenuItems() {
   return (
     <div ref={navRef} className="flex h-full gap-2 items-center">
       {navBarItems?.length > 0 &&
-        navBarItems?.map((item, index) => {
-          const key = item.path || item.label || String(index);
+        navBarItems?.map((item) => {
+          const key = item.path || item.label || `nav-item-${item.surveySet || "item"}`;
           const hasDropdown = Boolean(item.subItems?.length);
           const isOpen = hasDropdown && isOpenDropdown === key;
-          const menuId = `navbar-menu-${index}`;
+          const menuId = `navbar-menu-${key}`;
           const isActive =
             Boolean(item.path) &&
             (pathname === item.path ||
@@ -126,7 +126,7 @@ export default function NavbarMenuItems() {
                   aria-label={item.label || "Menu"}
                   className="dropdown-menu absolute right-0 mt-2 rounded-lg border border-border bg-popover text-popover-foreground shadow-lg z-20 min-w-56 overflow-hidden"
                 >
-                  {item.subItems?.map((subItem: NavItem, subIndex: number) => {
+                  {item.subItems?.map((subItem: NavItem) => {
                     if (!subItem.path) return null;
                     const isSubActive =
                       pathname === subItem.path ||
@@ -134,7 +134,7 @@ export default function NavbarMenuItems() {
                         pathname.startsWith(`${subItem.path}/`));
                     return (
                       <Link
-                        key={subItem.path ?? subIndex}
+                        key={subItem.path || subItem.label || "sub-item"}
                         href={subItem.path}
                         role="menuitem"
                         className={[

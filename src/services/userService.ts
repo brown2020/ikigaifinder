@@ -50,7 +50,7 @@ export async function updateUserDetailsInFirestore(
     const userRef = doc(db, `ikigaiUsers/${uid}`);
 
     // Make serializable (removes undefined values, converts special types)
-    const serializableDetails = JSON.parse(JSON.stringify(persistentDetails));
+    const serializableDetails = structuredClone(persistentDetails);
 
     await setDoc(
       userRef,

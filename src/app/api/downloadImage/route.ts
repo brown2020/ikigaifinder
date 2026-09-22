@@ -78,11 +78,16 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
   try {
     // Fetch the image
     const response = await fetch(imageUrl, {
+      redirect: "manual",
       headers: {
         // Add cache control for better performance
         "Cache-Control": "public, max-age=31536000",
       },
     });
+    // Do not follow redirects for caller-shaped URLs (SSRF bypass).
+    if (response.status >= 300 && response.status < 400) {
+      return errorResponse("Redirects are not allowed for image downloads", 400);
+    }
 
     if (!response.ok) {
       return errorResponse(

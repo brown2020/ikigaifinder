@@ -1,45 +1,35 @@
 "use client";
 
 import React from "react";
-import { LogIn } from "lucide-react";
-import { useUIStore } from "@/zustand";
-import { Button } from "@/components/ui/Button";
+import Link from "next/link";
+import { LogIn, UserPlus } from "lucide-react";
+import { usePathname } from "next/navigation";
 
-// ============================================================================
-// Component
-// ============================================================================
-
-/**
- * Navbar Login Item Component
- *
- * Renders a sign-in button in the navbar for unauthenticated users
- */
 export default function NavbarLoginItem(): React.ReactElement {
-  const openAuthModal = useUIStore((state) => state.openAuthModal);
+  const pathname = usePathname();
+  const redirect =
+    pathname && pathname !== "/login" && pathname !== "/signup"
+      ? `?redirect=${encodeURIComponent(pathname)}`
+      : "";
 
   return (
-    <Button
-      onClick={() => {
-        const url = new URL(window.location.href);
-        const redirectParam = url.searchParams.get("redirect");
-        const redirectPath =
-          redirectParam &&
-          redirectParam.startsWith("/") &&
-          !redirectParam.startsWith("//") &&
-          !redirectParam.includes("://")
-            ? redirectParam
-            : window.location.pathname;
-
-        openAuthModal(redirectPath);
-      }}
-      variant="secondary"
-      size="sm"
-      leftIcon={<LogIn size={18} />}
-      className="hover:bg-accent"
-      type="button"
-      aria-label="Sign in"
-    >
-      <span className="hidden sm:inline">Sign In</span>
-    </Button>
+    <div className="flex items-center gap-2">
+      <Link
+        href={`/login${redirect}`}
+        className="inline-flex items-center gap-2 h-9 px-3 rounded-md text-sm font-medium border border-border hover:bg-accent transition-colors"
+        aria-label="Sign in"
+      >
+        <LogIn size={18} aria-hidden="true" />
+        <span className="hidden sm:inline">Sign in</span>
+      </Link>
+      <Link
+        href={`/signup${redirect}`}
+        className="inline-flex items-center gap-2 h-9 px-3 rounded-md text-sm font-medium bg-blue-600 text-white hover:bg-blue-700 transition-colors"
+        aria-label="Create account"
+      >
+        <UserPlus size={18} aria-hidden="true" />
+        <span className="hidden sm:inline">Create account</span>
+      </Link>
+    </div>
   );
 }

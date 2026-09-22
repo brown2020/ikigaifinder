@@ -3,7 +3,7 @@
 import React, { useCallback } from "react";
 import { Heart, Medal, PencilRuler, Rocket } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useAuthStore, useUIStore } from "@/zustand";
+import { useAuthStore } from "@/zustand";
 import { Button } from "@/components/ui/Button";
 
 // ============================================================================
@@ -56,15 +56,15 @@ const IKIGAI_ITEMS = [
 export default function IkigaiExplainer(): React.ReactElement {
   const router = useRouter();
   const uid = useAuthStore((state) => state.uid);
-  const openAuthModal = useUIStore((state) => state.openAuthModal);
+  
 
   const handleClick = useCallback((): void => {
     if (uid) {
       router.push("/ikigai-finder");
     } else {
-      openAuthModal("/ikigai-finder");
+      router.push("/login?redirect=%2Fikigai-finder");
     }
-  }, [uid, router, openAuthModal]);
+  }, [uid, router]);
 
   return (
     <section className="relative sm:px-10 px-5 py-12">

@@ -34,11 +34,11 @@ export default function About() {
             subtitle="Welcome to Ikigai Finder, your guide to discovering purpose."
           />
           <div className="max-w-3xl mx-auto mt-8 space-y-10 text-gray-700">
-            {sections.map((section, index) => (
-              <section key={index}>
+            {sections.map((section) => (
+              <section key={section.title}>
                 <h2 className="text-xl font-semibold">{section.title}</h2>
-                {section.content.map((paragraph, idx) => (
-                  <p className="leading-relaxed mt-3" key={idx}>
+                {section.content.map((paragraph) => (
+                  <p className="leading-relaxed mt-3" key={paragraph.slice(0, 48)}>
                     {paragraph}
                   </p>
                 ))}

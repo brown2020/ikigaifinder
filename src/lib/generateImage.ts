@@ -1,7 +1,7 @@
 "use server";
 
 import { adminBucket } from "@/firebase/firebaseAdmin";
-import { getOptionalServerUid } from "@/lib/auth/session-server";
+import { requireAuth } from "@/lib/auth/session-server";
 import { rateLimitImageGen } from "./rateLimit";
 import { generateImageSchema, sanitizeInput } from "./validation";
 
@@ -79,9 +79,11 @@ const MAX_PROMPT_LENGTH = 1000;
 export async function generateImage(
   prompt: string
 ): Promise<ImageGenerationResult> {
-  // Derive the user from the verified session cookie (server-side source of truth).
-  const uid = await getOptionalServerUid();
-  if (!uid) {
+  // Doctor-recognized session gate (first statement).
+  let uid: string;
+  try {
+    ({ uid } = await requireAuth());
+  } catch {
     return { error: "You must be signed in to generate images." };
   }
 

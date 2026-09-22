@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback, useMemo } from "react";
+import { useState, useCallback, useMemo , useRef} from "react";
 import Image from "next/image";
 import Select from "react-select";
 import { useRouter } from "next/navigation";
@@ -64,7 +64,7 @@ export default function GenerateIkigaiImage(): React.ReactElement {
   const [imageStyle, setImageStyle] = useState("");
   const [isGenerating, setIsGenerating] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
-  const [promptData, setPromptData] = useState<ImagePromptData>({
+  const promptDataRef = useRef<ImagePromptData>({
     style: "",
     freestyle: "",
     downloadUrl: "/assets/bg_image.webp",
@@ -83,7 +83,7 @@ export default function GenerateIkigaiImage(): React.ReactElement {
 
       try {
         const saved = await saveGeneratedImageHistory(uid, data, prompt, downloadUrl);
-        setPromptData(saved);
+        promptDataRef.current = saved;
         await updateIkigai({ ikigaiImage: downloadUrl });
       } catch (error) {
         console.error("Failed to save image history:", error);
@@ -122,7 +122,7 @@ export default function GenerateIkigaiImage(): React.ReactElement {
         }
 
         if (response.imageUrl) {
-          await saveHistory(promptData, prompt, response.imageUrl);
+          await saveHistory(promptDataRef.current, prompt, response.imageUrl);
           toast.success("Image generated successfully!");
         }
       } catch (error) {
@@ -132,7 +132,7 @@ export default function GenerateIkigaiImage(): React.ReactElement {
         setIsGenerating(false);
       }
     },
-    [uid, imagePrompt, imageStyle, promptData, saveHistory]
+    [uid, imagePrompt, imageStyle, saveHistory]
   );
 
   /**
@@ -223,10 +223,12 @@ export default function GenerateIkigaiImage(): React.ReactElement {
                     isClearable
                     isSearchable
                     name="styles"
+                    value={artStyles.find((o) => o.value === imageStyle) ?? null}
                     onChange={(option) => setImageStyle(option?.value ?? "")}
                     options={artStyles}
                     styles={selectStyles}
                     placeholder="Select a style..."
+                    aria-label="Artistic style"
                   />
                 </div>
 

@@ -1,40 +1,36 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useSyncExternalStore } from "react";
 import Image from "next/image";
 import { useAuthActions } from "@/hooks/use-auth-actions";
 import { isIOSReactNativeWebView } from "@/utils/platform";
-
-// ============================================================================
-// Types
-// ============================================================================
 
 interface SocialLoginProps {
   onSuccess: () => void;
 }
 
-// ============================================================================
-// Component
-// ============================================================================
+function subscribe() {
+  return () => {};
+}
 
-/**
- * Social Login Component
- *
- * Renders social login options (currently Google only)
- * Automatically hides in iOS WebViews where Google Sign-In isn't supported
- */
+function getSnapshot(): boolean {
+  return !isIOSReactNativeWebView();
+}
+
+function getServerSnapshot(): boolean {
+  return false;
+}
+
 export default function SocialLogin({
   onSuccess,
 }: SocialLoginProps): React.ReactElement | null {
   const { signInWithGoogle, isLoading } = useAuthActions();
-  const [showGoogleSignIn, setShowGoogleSignIn] = useState(false);
+  const showGoogleSignIn = useSyncExternalStore(
+    subscribe,
+    getSnapshot,
+    getServerSnapshot
+  );
 
-  // Determine if Google Sign-In should be shown (client-side only)
-  useEffect(() => {
-    setShowGoogleSignIn(!isIOSReactNativeWebView());
-  }, []);
-
-  // Don't render if Google Sign-In isn't available
   if (!showGoogleSignIn) return null;
 
   return (
@@ -56,7 +52,6 @@ export default function SocialLogin({
         />
       </button>
 
-      {/* Divider */}
       <div className="flex items-center justify-center w-full mb-6">
         <hr className="flex-1 h-px bg-gray-300 border-0" aria-hidden="true" />
         <span className="px-4 text-gray-500 text-sm">or</span>

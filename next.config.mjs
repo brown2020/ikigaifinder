@@ -25,11 +25,8 @@ const nextConfig = {
         pathname: "/**",
       },
     ],
-    // Optimize image formats
+    // Optimize image formats (SVGs served as static files via <img>, not executable)
     formats: ["image/avif", "image/webp"],
-    // Allow SVG images
-    dangerouslyAllowSVG: true,
-    contentSecurityPolicy: "default-src 'self'; script-src 'none'; sandbox;",
   },
 
   // Experimental features

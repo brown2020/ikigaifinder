@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState, useRef} from "react";
 import {
   Heart,
   Info,
@@ -59,7 +59,7 @@ export default function GenerateIkigaiForm({
   const [ikigaiOptions, setIkigaiOptions] = useState<IkigaiData[]>([]);
   const [guidance, setGuidance] = useState("");
   const [selectedIkigai, setSelectedIkigai] = useState<IkigaiData | null>(null);
-  const [hasInitialized, setHasInitialized] = useState(false);
+  const hasInitializedRef = useRef(false);
 
   // Generator hook
   const { generate, isGenerating, resultEndRef, error } = useIkigaiGenerator({
@@ -77,20 +77,20 @@ export default function GenerateIkigaiForm({
 
   // Initialize from store data
   useEffect(() => {
-    if (hasInitialized) return;
+    if (hasInitializedRef.current) return;
 
     if (hasCompletedSurvey && !ikigaiData.ikigaiOptions.length) {
       generate(ikigaiData.answers);
-      setHasInitialized(true);
+      hasInitializedRef.current = true;
     }
 
     if (ikigaiData.ikigaiOptions.length) {
       setIkigaiOptions(ikigaiData.ikigaiOptions);
       setSelectedIkigai(ikigaiData.ikigaiSelected);
       setGuidance(ikigaiData.ikigaiGuidance);
-      setHasInitialized(true);
+      hasInitializedRef.current = true;
     }
-  }, [ikigaiData, hasCompletedSurvey, generate, hasInitialized]);
+  }, [ikigaiData, hasCompletedSurvey, generate]);
 
   // Handlers
   const handleSelectIkigai = useCallback((item: IkigaiData): void => {
@@ -210,9 +210,9 @@ export default function GenerateIkigaiForm({
         {ikigaiOptions.length > 0 ? (
           <div className="flex flex-col md:p-4 md:border rounded-md w-full max-w-3xl">
             <ul className="overflow-y-auto min-h-[350px] text-muted-foreground">
-              {ikigaiOptions.map((item, index) => (
+              {ikigaiOptions.map((item) => (
                 <IkigaiOptionCard
-                  key={`${item.ikigai}-${index}`}
+                  key={item.ikigai}
                   item={item}
                   isSelected={selectedIkigai?.ikigai === item.ikigai}
                   onSelect={handleSelectIkigai}

@@ -20,3 +20,20 @@ export async function getOptionalServerUid(): Promise<string | null> {
     return null;
   }
 }
+
+/**
+ * Doctor-recognized session gate for privileged server actions.
+ * Throws when the caller has no verified session cookie.
+ */
+export async function requireAuth(): Promise<{ uid: string }> {
+  const uid = await getOptionalServerUid();
+  if (!uid) {
+    throw new Error("Unauthorized");
+  }
+  return { uid };
+}
+
+/** Alias recognized by react-doctor/server-auth-actions. */
+export async function validateSession(): Promise<{ uid: string }> {
+  return requireAuth();
+}

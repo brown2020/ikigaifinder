@@ -11,7 +11,7 @@ import {
   sendPasswordResetEmail,
   AuthError,
 } from "firebase/auth";
-import { auth } from "@/firebase/firebaseClient";
+import { auth, hasClientConfig } from "@/firebase/firebaseClient";
 import { useAuthStore } from "@/zustand";
 import { getIdToken } from "firebase/auth";
 import {
@@ -104,6 +104,15 @@ export function useAuthActions(): UseAuthActionsReturn {
     setError("");
   }, []);
 
+  const ensureClient = useCallback((): boolean => {
+    if (!hasClientConfig || !auth) {
+      setError("Authentication is not configured.");
+      setIsLoading(false);
+      return false;
+    }
+    return true;
+  }, []);
+
   /**
    * Handle Firebase auth errors with user-friendly messages
    */
@@ -115,9 +124,12 @@ export function useAuthActions(): UseAuthActionsReturn {
       return;
     }
 
+    const code = firebaseError.code || "auth/unknown";
+    // Expected auth failures: warn the code string only — never console.error(Error).
+    console.warn(code);
+
     const errorMessage =
       ERROR_MESSAGES[firebaseError.code] ??
-      firebaseError.message ??
       "An unexpected error occurred. Please try again.";
 
     setError(errorMessage);
@@ -130,6 +142,7 @@ export function useAuthActions(): UseAuthActionsReturn {
     async (onSuccess?: () => void): Promise<void> => {
       setIsLoading(true);
       setError("");
+      if (!ensureClient()) return;
 
       try {
         const provider = new GoogleAuthProvider();
@@ -146,7 +159,7 @@ export function useAuthActions(): UseAuthActionsReturn {
         setIsLoading(false);
       }
     },
-    [handleAuthError]
+    [handleAuthError, ensureClient]
   );
 
   /**
@@ -160,6 +173,7 @@ export function useAuthActions(): UseAuthActionsReturn {
     ): Promise<void> => {
       setIsLoading(true);
       setError("");
+      if (!ensureClient()) return;
 
       try {
         await signInWithEmailAndPassword(auth, email, password);
@@ -182,7 +196,7 @@ export function useAuthActions(): UseAuthActionsReturn {
         setIsLoading(false);
       }
     },
-    [handleAuthError]
+    [handleAuthError, ensureClient]
   );
 
   /**
@@ -197,6 +211,7 @@ export function useAuthActions(): UseAuthActionsReturn {
     ): Promise<void> => {
       setIsLoading(true);
       setError("");
+      if (!ensureClient()) return;
 
       try {
         await createUserWithEmailAndPassword(auth, email, password);
@@ -222,7 +237,7 @@ export function useAuthActions(): UseAuthActionsReturn {
         setIsLoading(false);
       }
     },
-    [handleAuthError]
+    [handleAuthError, ensureClient]
   );
 
   /**
@@ -271,6 +286,7 @@ export function useAuthActions(): UseAuthActionsReturn {
    */
   const sendMagicLink = useCallback(
     async (email: string, name: string): Promise<boolean> => {
+      if (!ensureClient()) return false;
       setIsLoading(true);
       setError("");
 
@@ -315,7 +331,7 @@ export function useAuthActions(): UseAuthActionsReturn {
         setIsLoading(false);
       }
     },
-    [handleAuthError, setAuthDetails]
+    [handleAuthError, setAuthDetails, ensureClient]
   );
 
   /**
@@ -330,6 +346,7 @@ export function useAuthActions(): UseAuthActionsReturn {
 
       setIsLoading(true);
       setError("");
+      if (!ensureClient()) return false;
 
       try {
         await sendPasswordResetEmail(auth, email);
@@ -341,7 +358,7 @@ export function useAuthActions(): UseAuthActionsReturn {
         setIsLoading(false);
       }
     },
-    [handleAuthError]
+    [handleAuthError, ensureClient]
   );
 
   return {
