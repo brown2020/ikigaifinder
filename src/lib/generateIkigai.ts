@@ -5,7 +5,7 @@ import { Output, streamText } from "ai";
 import { openai } from "@ai-sdk/openai";
 import { z } from "zod";
 import { IKIGAI_SYSTEM_PROMPT } from "@/constants/systemPrompt";
-import { getOptionalServerUid } from "@/lib/auth/session-server";
+import { requireAuth } from "@/lib/auth/session-server";
 import { rateLimitAI } from "./rateLimit";
 import { generateIkigaiSchema, sanitizeInput } from "./validation";
 import type { IkigaiData } from "@/types";
@@ -53,9 +53,14 @@ export async function generateIkigai(
   guidance = "",
   existing: string[] = []
 ) {
-  const uid = await getOptionalServerUid();
+  let uid: string;
+  try {
+    ({ uid } = await requireAuth());
+  } catch {
+    throw new Error("You must be signed in to generate ikigai statements.");
+  }
 
-  const rateLimit = rateLimitAI(uid ?? "anonymous");
+  const rateLimit = rateLimitAI(uid);
   if (!rateLimit.success) {
     throw new Error(
       `You're generating quickly. Try again in ${Math.ceil(rateLimit.resetIn / 1000)} seconds.`
