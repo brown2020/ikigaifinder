@@ -186,7 +186,8 @@ export async function safeHtml2Canvas(
  */
 export async function captureAndUploadImage(
   uid: string,
-  elementId: string
+  elementId: string,
+  targetWidth = 1080
 ): Promise<string | null> {
   const element = document.getElementById(elementId);
 
@@ -200,12 +201,12 @@ export async function captureAndUploadImage(
       allowTaint: true,
       useCORS: true,
       backgroundColor: null,
-      scale: 1,
+      scale: Math.max(1, targetWidth / Math.max(1, element.offsetWidth)),
       windowWidth: window.innerWidth,
       windowHeight: window.innerHeight,
     });
 
-    return new Promise<string | null>((resolve, reject) => {
+    return new Promise<string | null>((resolve) => {
       canvas.toBlob(async (blob) => {
         if (!blob) {
           console.error("Failed to create blob from canvas");
@@ -223,7 +224,7 @@ export async function captureAndUploadImage(
           resolve(downloadUrl);
         } catch (uploadError) {
           console.error("Error uploading image:", uploadError);
-          reject(null);
+          resolve(null);
         }
       }, "image/png");
     });
@@ -231,22 +232,4 @@ export async function captureAndUploadImage(
     console.error("Error capturing image:", error);
     return null;
   }
-}
-
-/**
- * Download a canvas as an image file
- * 
- * @param canvas - The canvas element to download
- * @param filename - Name for the downloaded file
- */
-export function downloadCanvas(
-  canvas: HTMLCanvasElement,
-  filename = "ikigai-image.png"
-): void {
-  const link = document.createElement("a");
-  link.download = filename;
-  link.href = canvas.toDataURL("image/png");
-  document.body.appendChild(link);
-  link.click();
-  document.body.removeChild(link);
 }

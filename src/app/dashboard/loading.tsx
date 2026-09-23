@@ -1,5 +1,5 @@
-import { LoadingSpinner } from "@/components/ui/LoadingSpinner";
+import { DashboardSkeleton } from "@/components/ui/Skeleton";
 
 export default function DashboardLoading() {
-  return <LoadingSpinner fullScreen label="Loading dashboard..." />;
+  return <DashboardSkeleton />;
 }

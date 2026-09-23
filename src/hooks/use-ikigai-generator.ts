@@ -1,157 +1,77 @@
 "use client";
 
-import { useState, useRef, useCallback, useEffect } from "react";
-import { generateIkigai } from "@/lib/generateIkigai";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { readStreamableValue } from "@ai-sdk/rsc";
-import { extractIkigaiData, mergeIkigaiLists } from "@/utils/ikigaiParser";
+import { generateIkigai } from "@/lib/generateIkigai";
+import { mergeIkigaiLists } from "@/utils/ikigaiList";
 import type { IkigaiData, QuestionStep } from "@/types";
 
-// ============================================================================
-// Types
-// ============================================================================
-
-interface UseIkigaiGeneratorOptions {
-  /** Current ikigai data list */
-  ikigaiData: IkigaiData[];
-  /** Callback to update ikigai data */
-  onDataUpdate: (data: IkigaiData[]) => void;
-  /** Additional guidance for the AI */
+interface GenerateArgs {
+  answers: QuestionStep[];
+  current: IkigaiData[];
   guidance?: string;
-  /** Minimum results before stopping loading indicator */
-  minResultsForEarlyComplete?: number;
 }
 
 interface UseIkigaiGeneratorReturn {
-  /** Generate ikigai suggestions from answers */
-  generate: (answers: QuestionStep[]) => Promise<void>;
-  /** Whether generation is in progress */
+  /** Streams new statements, merged after `current`. Resolves to the final list, or null on failure. */
+  generate: (args: GenerateArgs) => Promise<IkigaiData[] | null>;
   isGenerating: boolean;
-  /** Ref to scroll to when results appear */
-  resultEndRef: React.RefObject<HTMLDivElement | null>;
-  /** Any error that occurred during generation */
-  error: Error | null;
+  error: string | null;
+  clearError: () => void;
 }
 
-// ============================================================================
-// Constants
-// ============================================================================
+function toQuestionSections(steps: QuestionStep[]) {
+  return steps.map((step) => ({
+    id: step.id,
+    questions: step.questions.map((q) => ({ question: q.label, answer: q.answer ?? [] })),
+  }));
+}
 
-const DEFAULT_MIN_RESULTS = 5;
-
-// ============================================================================
-// Hook Implementation
-// ============================================================================
-
-/**
- * Custom hook for generating Ikigai suggestions using AI
- *
- * Handles:
- * - Streaming AI responses
- * - Parsing ikigai data from responses
- * - Merging new results with existing data
- * - Auto-scrolling to new results
- */
-export function useIkigaiGenerator({
-  ikigaiData,
-  onDataUpdate,
-  guidance = "",
-  minResultsForEarlyComplete = DEFAULT_MIN_RESULTS,
-}: UseIkigaiGeneratorOptions): UseIkigaiGeneratorReturn {
+export function useIkigaiGenerator(
+  onUpdate: (list: IkigaiData[]) => void
+): UseIkigaiGeneratorReturn {
   const [isGenerating, setIsGenerating] = useState(false);
-  const [error, setError] = useState<Error | null>(null);
-  const resultEndRef = useRef<HTMLDivElement | null>(null);
+  const [error, setError] = useState<string | null>(null);
+  const runRef = useRef(0);
+  const onUpdateRef = useRef(onUpdate);
 
-  // Track if component is mounted to prevent state updates after unmount
-  const isMountedRef = useRef(true);
   useEffect(() => {
-    isMountedRef.current = true;
-    return () => {
-      isMountedRef.current = false;
-    };
+    onUpdateRef.current = onUpdate;
+  }, [onUpdate]);
+
+  useEffect(() => () => {
+    runRef.current += 1;
   }, []);
 
-  /**
-   * Transform question step data into AI-friendly format
-   */
-  const prepareQuestionData = useCallback((steps: QuestionStep[]) => {
-    return steps.map((step) => ({
-      id: step.id,
-      questions: step.questions.map((q) => ({
-        question: q.label,
-        answer: q.answer ?? [],
-      })),
-    }));
-  }, []);
+  const generate = useCallback(async ({ answers, current, guidance = "" }: GenerateArgs) => {
+    const run = ++runRef.current;
+    setIsGenerating(true);
+    setError(null);
+    let latest = current;
 
-  /**
-   * Scroll to the end of results
-   */
-  const scrollToResults = useCallback(() => {
-    resultEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, []);
-
-  /**
-   * Generate ikigai suggestions from survey answers
-   */
-  const generate = useCallback(
-    async (answers: QuestionStep[]): Promise<void> => {
-      if (!isMountedRef.current) return;
-
-      setIsGenerating(true);
-      setError(null);
-
-      try {
-        const questionData = prepareQuestionData(answers);
-
-        const customPrompt = guidance
-          ? `Incorporate the following additional guidance in shaping your response: ${guidance}`
-          : "";
-
-        const result = await generateIkigai(questionData, customPrompt);
-
-        for await (const content of readStreamableValue(result)) {
-          // Check if component is still mounted before updating state
-          if (!isMountedRef.current) return;
-          if (!content) continue;
-
-          const parsedList = extractIkigaiData(content);
-
-          // Stop loading indicator early if we have enough results
-          if (parsedList.length >= minResultsForEarlyComplete) {
-            setIsGenerating(false);
-          }
-
-          const mergedData = mergeIkigaiLists(ikigaiData, parsedList);
-          onDataUpdate(mergedData);
-          scrollToResults();
-        }
-      } catch (err) {
-        // Only update error state if still mounted
-        if (!isMountedRef.current) return;
-        const error =
-          err instanceof Error ? err : new Error("Failed to generate Ikigai");
-        setError(error);
-        console.error("Error generating Ikigai:", error);
-      } finally {
-        if (isMountedRef.current) {
-          setIsGenerating(false);
-        }
+    try {
+      const stream = await generateIkigai(
+        toQuestionSections(answers),
+        guidance,
+        current.map((item) => item.ikigai)
+      );
+      for await (const batch of readStreamableValue(stream)) {
+        if (run !== runRef.current) return null;
+        if (!batch?.length) continue;
+        latest = mergeIkigaiLists(current, batch);
+        onUpdateRef.current(latest);
       }
-    },
-    [
-      ikigaiData,
-      onDataUpdate,
-      guidance,
-      minResultsForEarlyComplete,
-      prepareQuestionData,
-      scrollToResults,
-    ]
-  );
+      return latest;
+    } catch (err) {
+      if (run !== runRef.current) return null;
+      setError(err instanceof Error ? err.message : "Something went wrong. Please try again.");
+      return latest.length > current.length ? latest : null;
+    } finally {
+      if (run === runRef.current) setIsGenerating(false);
+    }
+  }, []);
 
-  return {
-    generate,
-    isGenerating,
-    resultEndRef,
-    error,
-  };
+  const clearError = useCallback(() => setError(null), []);
+
+  return { generate, isGenerating, error, clearError };
 }

@@ -1,19 +1,16 @@
 import type { Metadata } from "next";
 import { Suspense } from "react";
 import { SignupForm } from "@/components/auth/SignupForm";
-import FooterNavBar from "@/components/FooterNavBar";
+import { AuthCardFallback, AuthPageShell } from "@/components/auth/AuthCard";
 
 export const metadata: Metadata = { title: "Create account" };
 
 export default function SignupPage() {
   return (
-    <>
-      <section className="flex flex-1 items-center justify-center px-4 py-12">
-        <Suspense fallback={<div className="text-gray-600">Loading…</div>}>
-          <SignupForm />
-        </Suspense>
-      </section>
-      <FooterNavBar />
-    </>
+    <AuthPageShell>
+      <Suspense fallback={<AuthCardFallback />}>
+        <SignupForm />
+      </Suspense>
+    </AuthPageShell>
   );
 }

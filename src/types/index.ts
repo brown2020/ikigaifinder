@@ -2,22 +2,8 @@
  * Centralized type definitions for the Ikigai Finder application
  */
 
-import { Timestamp } from "firebase/firestore";
+import type { Timestamp } from "firebase/firestore";
 import type { FieldValues } from "react-hook-form";
-
-// ============================================================================
-// Navigation Types
-// ============================================================================
-
-export interface NavItem {
-  label: string;
-  icon: React.ElementType;
-  path?: string;
-  profileUrl?: string;
-  profileName?: string;
-  surveySet?: "ikigai";
-  subItems?: NavItem[];
-}
 
 // ============================================================================
 // Question & Survey Types
@@ -90,6 +76,8 @@ export interface Ikigai {
   ikigaiGuidance: string;
   ikigaiImage: string;
   ikigaiCoverImage: string;
+  /** Written only by the server sharing route. */
+  ikigaiSharableUrl?: boolean;
 }
 
 // ============================================================================
@@ -119,21 +107,6 @@ export interface UserProfile {
   answers: SurveyAnswer[];
 }
 
-export interface AuthUser {
-  uid: string;
-  authEmail: string;
-  authDisplayName: string;
-  authPhotoUrl: string;
-  authEmailVerified: boolean;
-  authReady: boolean;
-  authPending: boolean;
-  isAllowed: boolean;
-  lastSignIn: Timestamp | null;
-  offersOptIn: boolean;
-  selectedName: string;
-  premium: boolean;
-}
-
 // ============================================================================
 // Image Generation Types
 // ============================================================================
@@ -150,40 +123,9 @@ export interface ImagePromptData {
   id?: string;
 }
 
-export interface ArtStyle {
-  id: number;
-  value: string;
-  label: string;
-}
-
-// ============================================================================
-// API Response Types
-// ============================================================================
-
-export interface ApiResponse<T = unknown> {
-  data?: T;
-  error?: string;
-  message?: string;
-}
-
-export interface ImageGenerationResponse {
-  imageUrl?: string;
-  error?: string;
-}
-
-// ============================================================================
-// Component Prop Types
-// ============================================================================
-
-export interface WithChildrenProps {
-  children: React.ReactNode;
-}
-
-export interface ModalProps {
-  isOpen: boolean;
-  onClose: () => void;
-}
-
-export interface AuthFormProps {
-  onSuccess: () => void;
+/** Server-read subset of the ikigai document for the dashboard and share page. */
+export interface IkigaiSummary {
+  coverImage: string | null;
+  sharable: boolean;
+  statement: string | null;
 }

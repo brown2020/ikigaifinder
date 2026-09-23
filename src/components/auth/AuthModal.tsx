@@ -3,8 +3,11 @@
 import React, { useEffect, useRef } from "react";
 import Link from "next/link";
 import { XIcon } from "lucide-react";
+import IkigaiLogo from "@/components/icons/IkigaiLogo";
+import { ButtonLink, IconButton } from "@/components/ui/Button";
 import { useUIStore } from "@/zustand";
 import { selectAuthRedirectPath } from "@/zustand/useUIStore";
+import { authLinkClasses } from "./AuthCard";
 
 /**
  * Lightweight auth entry dialog. Email/password flows live on
@@ -33,40 +36,47 @@ export default function AuthModal(): React.ReactElement | null {
   return (
     <dialog
       ref={dialogRef}
-      className="rounded-xl shadow-2xl p-8 w-full max-w-md backdrop:bg-black/40"
+      className="m-auto w-[calc(100%-2.5rem)] max-w-md rounded-2xl border border-border bg-card p-8 text-foreground shadow-2xl backdrop:bg-foreground/40 backdrop:backdrop-blur-sm sm:p-10"
       onClose={close}
       aria-labelledby="auth-modal-title"
     >
-      <button
+      <IconButton
+        variant="ghost"
+        size="sm"
         onClick={close}
-        className="absolute top-4 right-4 p-2 hover:bg-gray-100 rounded-full transition-colors duration-200"
-        aria-label="Close modal"
-        type="button"
-      >
-        <XIcon size={20} className="text-gray-500" />
-      </button>
-      <h2 id="auth-modal-title" className="text-xl font-semibold text-center mb-6">
-        Welcome to Ikigai Finder
-      </h2>
-      <div className="flex flex-col gap-3">
-        <Link
-          href={`/login${redirectQs}`}
-          onClick={close}
-          className="w-full text-center bg-blue-600 text-white py-3 px-4 rounded-lg hover:bg-blue-700 transition-colors font-medium"
+        aria-label="Close"
+        className="absolute right-4 top-4 text-muted-foreground"
+        icon={<XIcon className="size-4" aria-hidden="true" />}
+      />
+      <div className="mb-8 flex flex-col items-center text-center">
+        <IkigaiLogo className="mb-5 size-11 text-foreground" />
+        <h2
+          id="auth-modal-title"
+          className="font-display text-3xl font-semibold tracking-tight"
         >
+          Welcome to Ikigai Finder
+        </h2>
+        <p className="mt-2 text-sm text-muted-foreground">
+          Sign in to save your progress and find your reason for being.
+        </p>
+      </div>
+      <div className="flex flex-col gap-3">
+        <ButtonLink href={`/login${redirectQs}`} onClick={close} size="lg" fullWidth>
           Sign in
-        </Link>
-        <Link
+        </ButtonLink>
+        <ButtonLink
           href={`/signup${redirectQs}`}
           onClick={close}
-          className="w-full text-center border border-gray-300 py-3 px-4 rounded-lg hover:bg-gray-50 transition-colors font-medium"
+          variant="neutral"
+          size="lg"
+          fullWidth
         >
           Create account
-        </Link>
+        </ButtonLink>
         <Link
           href="/forgot-password"
           onClick={close}
-          className="text-center text-sm text-blue-600 underline"
+          className={`${authLinkClasses} mt-2 self-center text-sm`}
         >
           Forgot password?
         </Link>

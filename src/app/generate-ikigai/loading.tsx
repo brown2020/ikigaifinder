@@ -1,5 +1,5 @@
-import { LoadingSpinner } from "@/components/ui/LoadingSpinner";
+import { PageLoadingSkeleton } from "@/components/ui/Skeleton";
 
 export default function GenerateIkigaiLoading() {
-  return <LoadingSpinner fullScreen label="Loading..." />;
+  return <PageLoadingSkeleton />;
 }

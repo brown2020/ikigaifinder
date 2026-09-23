@@ -1,313 +1,76 @@
-import type { QuestionStep } from "@/types";
+import type { QuestionStep, QuestionStepper } from "@/types";
 
+const required = { required: "Please add an answer.", message: "" };
+
+function textQuestion(id: string, label: string, placeholder: string): QuestionStepper {
+  return { id, label, type: "textarea", placeholder, validation: required };
+}
+
+/** Section ids and question ids are persisted in Firestore; don't rename them. */
 export const STEPPER_QUESTIONS_JSON: QuestionStep[] = [
   {
     id: "passion",
-    title: "What You Love (Passion)",
-    description:
-      "These questions help you identify your true passions and interests.",
+    title: "What you love",
+    description: "Start with what lights you up. Don't filter for usefulness yet.",
     questions: [
-      {
-        id: "activities",
-        label: "What activities make you feel most alive or joyful?",
-        type: "textarea",
-        validation: {
-          required: "This field is required.",
-          message: "",
-        },
-        placeholder: "Enter your activities",
-      },
-      {
-        id: "all_day_activity",
-        label: "If you could do anything all day, what would you do?",
-        type: "textarea",
-        validation: {
-          required: "This field is required.",
-          message: "",
-        },
-        placeholder: "Enter your all day activity",
-      },
-      {
-        id: "learning_interest",
-        label:
-          "What do you love learning about, even if there's no external reward?",
-        type: "text",
-        validation: {
-          required: "This field is required.",
-          message: "",
-        },
-        placeholder: "Enter your learning interest",
-      },
+      textQuestion("activities", "What activities make you feel most alive?", "Hosting dinners, long bike rides, fixing old radios…"),
+      textQuestion("all_day_activity", "If money didn't matter, how would you spend your days?", "Be specific about the what, where, and with whom."),
+      textQuestion("learning_interest", "What do you love learning about, even with no reward?", "Behavioral economics, bird migration, typography…"),
       {
         id: "hobbies",
-        label: "Which hobbies or interests make you lose track of time?",
+        label: "Which interests make you lose track of time?",
         type: "select-tags",
-        placeholder: "Select your hobbies",
-        multiple: true,
-        options: ["Reading", "Traveling", "Cooking", "Sports", "Music"],
-        validation: {
-          required: "This field is required.",
-          maxLength: 3,
-          message: "You can select up to 3 options.",
-        },
+        placeholder: "Add your own and press Enter",
+        options: ["Reading", "Writing", "Music", "Cooking", "Sports", "Travel", "Design", "Gaming", "Gardening", "Photography"],
+        validation: { required: "Pick at least one.", maxLength: 3, message: "Choose up to 3." },
       },
     ],
   },
   {
     id: "profession",
-    title: "What You Are Good At (Profession)",
-    description:
-      "These questions help you identify your natural strengths and talents.",
+    title: "What you're good at",
+    description: "Think about what comes easily to you and what others rely on you for.",
     questions: [
-      {
-        id: "compliments",
-        label: "What skills or activities do others often compliment you on?",
-        type: "textarea",
-        validation: {
-          required: "This field is required.",
-          message: "",
-        },
-        placeholder: "Enter your skills or activities",
-      },
-      {
-        id: "easy_tasks",
-        label:
-          "Which tasks or challenges do you find easy while others struggle?",
-        type: "textarea",
-        validation: {
-          required: "This field is required.",
-          message: "",
-        },
-        placeholder: "Enter your easy tasks or challenges",
-      },
-      {
-        id: "help_requests",
-        label: "What do people usually ask for your help or advice with?",
-        type: "textarea",
-        validation: {
-          required: "This field is required.",
-          message: "",
-        },
-        placeholder: "Enter your help requests",
-      },
-      {
-        id: "quick_learning",
-        label:
-          "What skills do you learn quickly or feel most comfortable doing?",
-        type: "textarea",
-        validation: {
-          required: "This field is required.",
-          message: "",
-        },
-        placeholder: "Enter your quickly learned skills",
-      },
+      textQuestion("compliments", "What do people often compliment you on?", "Explaining complex ideas simply, staying calm in a crisis…"),
+      textQuestion("easy_tasks", "What feels easy to you but hard for others?", "Organizing chaos, spotting patterns in data…"),
+      textQuestion("help_requests", "What do people ask you for help or advice with?", "Career decisions, spreadsheets, relationship advice…"),
+      textQuestion("quick_learning", "Which skills do you pick up quickly?", "Languages, new software, physical skills…"),
     ],
   },
   {
     id: "mission",
-    title: "What the World Needs (Mission)",
-    description:
-      "These questions focus on how you can contribute to the world and make an impact.",
+    title: "What the world needs",
+    description: "Look outward. Which problems pull at you, near or far?",
     questions: [
-      {
-        id: "problems_to_solve",
-        label:
-          "What problems or issues in the world do you feel passionate about solving?",
-        type: "textarea",
-        validation: {
-          required: "This field is required.",
-          message: "",
-        },
-        placeholder: "Enter the problems you want to solve",
-      },
-      {
-        id: "causes_drawn_to",
-        label: "What causes or organizations do you feel drawn to support?",
-        type: "textarea",
-        validation: {
-          required: "This field is required.",
-          message: "",
-        },
-        placeholder: "Enter your causes or organizations",
-      },
-      {
-        id: "skills_help_others",
-        label:
-          "How could your skills or talents help others or improve their lives?",
-        type: "textarea",
-        validation: {
-          required: "This field is required.",
-          message: "",
-        },
-        placeholder: "Enter how your skills can help others",
-      },
-      {
-        id: "change_community",
-        label:
-          "If you had the power to change something in your community or globally, what would it be?",
-        type: "textarea",
-        validation: {
-          required: "This field is required.",
-          message: "",
-        },
-        placeholder: "Enter your ideas for change",
-      },
+      textQuestion("problems_to_solve", "Which problems in the world do you care most about solving?", "Loneliness in older adults, food waste, access to education…"),
+      textQuestion("causes_drawn_to", "Which causes or organizations are you drawn to support?", "Local libraries, climate groups, mentoring programs…"),
+      textQuestion("skills_help_others", "How could your skills improve other people's lives?", "Teaching, building tools, making things clearer…"),
+      textQuestion("change_community", "If you could change one thing in your community or the world, what would it be?", "One change, as concrete as you can make it."),
     ],
   },
   {
     id: "vocation",
-    title: "What You Can Be Paid For (Vocation)",
-    description:
-      "These questions will help you discover potential ways to earn a living while doing what you love.",
-    button: "Submit",
+    title: "What you can be paid for",
+    description: "Finally, where does value meet demand? Include ideas you haven't tried.",
+    button: "Find my ikigai",
     questions: [
-      {
-        id: "marketable_skills",
-        label:
-          "What skills or knowledge do people seek or pay for in your industry?",
-        type: "textarea",
-        validation: {
-          required: "This field is required.",
-          message: "",
-        },
-        placeholder: "Enter your marketable skills",
-      },
-      {
-        id: "in_demand_roles",
-        label:
-          "What roles or jobs in your field are in demand and aligned with your strengths?",
-        type: "textarea",
-        validation: {
-          required: "This field is required.",
-          message: "",
-        },
-        placeholder: "Enter in-demand roles",
-      },
-      {
-        id: "business_ideas",
-        label:
-          "If you were to start a business, what service or product could you offer that people would pay for?",
-        type: "textarea",
-        validation: {
-          required: "This field is required.",
-          message: "",
-        },
-        placeholder: "Enter your business ideas",
-      },
-      {
-        id: "turn_hobbies_income",
-        label:
-          "What opportunities exist to turn your hobbies or passions into a sustainable income source?",
-        type: "textarea",
-        validation: {
-          required: "This field is required.",
-          message: "",
-        },
-        placeholder: "Enter opportunities for income",
-      },
+      textQuestion("marketable_skills", "Which of your skills or knowledge do people pay for?", "Project management, copywriting, clinical expertise…"),
+      textQuestion("in_demand_roles", "Which in-demand roles fit your strengths?", "Product manager, nurse educator, data analyst…"),
+      textQuestion("business_ideas", "If you started a business, what would you offer?", "A service, product, course, or community."),
+      textQuestion("turn_hobbies_income", "How could one of your passions become income?", "Workshops, commissions, consulting, content…"),
     ],
   },
 ];
 
-export const artStyles = [
-  {
-    id: 1,
-    value: "Prehistoric Art",
-    label: "Prehistoric Art",
-  },
-  {
-    id: 2,
-    value: "Ancient Egyptian Art",
-    label: "Ancient Egyptian Art",
-  },
-  {
-    id: 3,
-    value: "Ancient Greek Art",
-    label: "Ancient Greek Art",
-  },
-  {
-    id: 4,
-    value: "Renaissance Art",
-    label: "Renaissance Art",
-  },
-  {
-    id: 5,
-    value: "Haida Art",
-    label: "Haida Art",
-  },
-  {
-    id: 6,
-    value: "Ukiyo-e Art",
-    label: "Ukiyo-e Art",
-  },
-  {
-    id: 7,
-    value: "Impressionism",
-    label: "Impressionism",
-  },
-  {
-    id: 8,
-    value: "Cubism",
-    label: "Cubism",
-  },
-  {
-    id: 9,
-    value: "Surrealism",
-    label: "Surrealism",
-  },
-  {
-    id: 10,
-    value: "Abstract Expressionism",
-    label: "Abstract Expressionism",
-  },
-  {
-    id: 11,
-    value: "Minimalism",
-    label: "Minimalism",
-  },
-  {
-    id: 12,
-    value: "Street Art",
-    label: "Street Art",
-  },
-  {
-    id: 13,
-    value: "Contemporary Art",
-    label: "Contemporary Art",
-  },
-  {
-    id: 14,
-    value: "Documentary Photography",
-    label: "Documentary Photography",
-  },
-  {
-    id: 15,
-    value: "Art Nouveau",
-    label: "Art Nouveau",
-  },
-  {
-    id: 16,
-    value: "Neo-Pop Art",
-    label: "Neo-Pop Art",
-  },
-  {
-    id: 17,
-    value: "Contemporary Architecture",
-    label: "Contemporary Architecture",
-  },
-  {
-    id: 18,
-    value: "Installation Art",
-    label: "Installation Art",
-  },
-  {
-    id: 19,
-    value: "Aboriginal Australian Art",
-    label: "Aboriginal Australian Art",
-  },
-  {
-    id: 20,
-    value: "Traditional Chinese Painting",
-    label: "Traditional Chinese Painting",
-  },
-];
+export const CARD_STYLES = [
+  "Watercolor",
+  "Ukiyo-e",
+  "Impressionism",
+  "Minimalism",
+  "Art Nouveau",
+  "Traditional Chinese Painting",
+  "Cinematic Photography",
+  "Paper Cut",
+  "Surrealism",
+  "Abstract Expressionism",
+] as const;

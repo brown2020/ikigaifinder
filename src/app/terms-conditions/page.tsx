@@ -1,11 +1,8 @@
+import type { Metadata } from "next";
 import TermsConditions from "./_components/terms-page";
-import FooterNavBar from "@/components/FooterNavBar";
+
+export const metadata: Metadata = { title: "Terms of Service" };
 
 export default function TermsPage() {
-  return (
-    <div>
-      <TermsConditions />
-      <FooterNavBar />
-    </div>
-  );
+  return <TermsConditions />;
 }

@@ -1,11 +1,8 @@
+import type { Metadata } from "next";
 import PrivacyPage from "./_components/privacy-page";
-import FooterNavBar from "@/components/FooterNavBar";
+
+export const metadata: Metadata = { title: "Privacy Policy" };
 
 export default function PrivacyPolicy() {
-  return (
-    <div>
-      <PrivacyPage />
-      <FooterNavBar />
-    </div>
-  );
+  return <PrivacyPage />;
 }

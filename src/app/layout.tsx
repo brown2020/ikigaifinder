@@ -1,15 +1,23 @@
 import type { Metadata, Viewport } from "next";
-import BottomBar from "@/components/BottomBar";
-import Navbar from "@/components/Navbar";
+import { Fraunces, Geist } from "next/font/google";
 import { ClientProvider } from "@/components/ClientProvider";
-import "slick-carousel/slick/slick.css";
-import "slick-carousel/slick/slick-theme.css";
+import SiteHeader from "@/components/layout/SiteHeader";
+import SiteFooter from "@/components/layout/SiteFooter";
+import MobileNav from "@/components/layout/MobileNav";
 import "./globals.css";
 
-// ============================================================================
-// Metadata & SEO
-// ============================================================================
+const fraunces = Fraunces({
+  subsets: ["latin"],
+  variable: "--font-fraunces",
+  axes: ["opsz", "SOFT"],
+  display: "swap",
+});
 
+const geist = Geist({
+  subsets: ["latin"],
+  variable: "--font-geist",
+  display: "swap",
+});
 
 function safeSiteUrl(): URL {
   const raw = process.env.NEXT_PUBLIC_BASE_URL || "https://ikigaifinder.ai";
@@ -98,17 +106,13 @@ export const metadata: Metadata = {
 
 export const viewport: Viewport = {
   themeColor: [
-    { media: "(prefers-color-scheme: light)", color: "#1e40af" },
-    { media: "(prefers-color-scheme: dark)", color: "#1e3a8a" },
+    { media: "(prefers-color-scheme: light)", color: "#faf7f2" },
+    { media: "(prefers-color-scheme: dark)", color: "#faf7f2" },
   ],
   width: "device-width",
   initialScale: 1,
   maximumScale: 5,
 };
-
-// ============================================================================
-// Structured Data (JSON-LD)
-// ============================================================================
 
 const jsonLd = {
   "@context": "https://schema.org",
@@ -132,48 +136,33 @@ const jsonLd = {
   ],
 };
 
-// ============================================================================
-// Root Layout
-// ============================================================================
-
 export default function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className="h-full">
+    <html lang="en" className={`${fraunces.variable} ${geist.variable}`}>
       <head>
-        {/* Structured Data */}
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: safeJsonLdScript(jsonLd) }}
         />
-        {/* Preconnect to external domains for faster loading */}
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link
-          rel="preconnect"
-          href="https://fonts.gstatic.com"
-          crossOrigin="anonymous"
-        />
       </head>
-      <body className="flex flex-col h-full overflow-x-hidden">
+      <body className="flex min-h-dvh flex-col overflow-x-hidden">
         <ClientProvider>
           <a
             href="#main"
-            className="sr-only focus:not-sr-only focus:absolute focus:top-2 focus:left-2 focus:z-50 focus:rounded-md focus:bg-background focus:px-3 focus:py-2 focus:text-foreground focus:ring-2 focus:ring-ring"
+            className="sr-only focus:not-sr-only focus:fixed focus:left-3 focus:top-3 focus:z-50 focus:rounded-full focus:bg-card focus:px-4 focus:py-2 focus:ring-2 focus:ring-ring"
           >
             Skip to content
           </a>
-          <header className="sticky top-0 z-50 w-full border-b border-border/60 bg-background/95 supports-backdrop-filter:bg-background/70 backdrop-blur">
-            <Navbar />
-          </header>
-          <main id="main" className="grow pb-12 sm:pb-0 scroll-mt-20">
+          <SiteHeader />
+          <main id="main" className="flex grow flex-col scroll-mt-20">
             {children}
           </main>
-          <div className="fixed bottom-0 z-50 w-full block sm:hidden">
-            <BottomBar />
-          </div>
+          <SiteFooter />
+          <MobileNav />
         </ClientProvider>
       </body>
     </html>

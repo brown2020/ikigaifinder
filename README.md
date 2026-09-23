@@ -203,7 +203,7 @@ ikigaifinder/
 │   ├── app/                  # Next.js App Router
 │   │   ├── api/              # API routes
 │   │   ├── dashboard/        # User dashboard
-│   │   ├── generate-ikigai/  # Ikigai generation flow
+│   │   ├── generate-ikigai/  # Ideas step (+ card/ designer)
 │   │   ├── ikigai/[id]/      # Shareable ikigai pages
 │   │   ├── ikigai-finder/    # Main questionnaire
 │   │   ├── profile/          # User profile

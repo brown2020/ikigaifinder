@@ -47,13 +47,13 @@ A working end-to-end flow exists: authenticate → questionnaire → streaming G
 ### Current feature inventory
 
 - **Auth:** Firebase email/password, Google, and email-link sign-in; httpOnly server **session cookie** minted at `POST /api/auth/session` and cleared at `DELETE`.
-- **Questionnaire:** multi-step stepper driven by `src/constants/questions.ts`.
-- **Ikigai generation:** server action `src/lib/generateIkigai.ts` (GPT‑4o, temperature 0.7), streamed via `@ai-sdk/rsc`, parsed by `src/utils/ikigaiParser.ts`, with Zod validation, input sanitization, and rate limiting.
+- **Questionnaire:** four parts (one per circle) driven by `src/constants/questions.ts`, deep-linkable via `?step=1-4`, saved on every step.
+- **Ikigai generation:** server action `src/lib/generateIkigai.ts` (GPT‑4o, temperature 0.8) using structured output (Zod schema, `Output.array`), streamed per completed statement via `@ai-sdk/rsc`, with validation, sanitization, rate limiting, and an "avoid these" list so "Generate more" returns new angles. Users can steer with guidance and edit the chosen statement's wording.
 - **Selection & persistence:** chosen statement, answers, and guidance saved under `ikigaiUsers/{uid}/ikigai/main` (`src/services/ikigaiService.ts`).
 - **Image generation:** server action `src/lib/generateImage.ts` calls Fireworks SDXL, uploads to Firebase Storage (`generated/{uid}/...`), returns a signed URL, and records a cover in history.
 - **Sharing:** `PATCH /api/ikigai/sharing` toggles `ikigaiSharableUrl`; public read of the `main` doc is allowed by `firestore.rules` only when sharable; public page at `app/ikigai/[id]`; social buttons + `html2canvas` download.
 - **Dashboard & profile:** authenticated areas with `loading.tsx`/`error.tsx` boundaries.
-- **Cross-cutting:** CSP/security headers (`next.config.mjs`), cookie-consent banner, Venn/compatibility visualization assets, mobile-first responsive UI.
+- **Cross-cutting:** CSP/security headers (`next.config.mjs`), cookie-consent banner, four-circle ikigai diagram and overlap score bars, mobile-first responsive UI.
 
 ### Current user flows
 
@@ -83,7 +83,6 @@ A working end-to-end flow exists: authenticate → questionnaire → streaming G
 - TypeScript remains on the latest 6.x release because the current `typescript-eslint` parser used by `eslint-config-next` supports TypeScript `<6.1`; TypeScript 7 causes the lint toolchain to crash.
 - ESLint remains on the latest 9.x release because the React/import/accessibility plugins bundled by the current `eslint-config-next` release do not yet declare ESLint 10 compatibility.
 - In-memory rate limiter — correct only for single-instance deployments.
-- Free-text AI output parsed by regex (`ikigaiParser.ts`) — depends on the model following the prompt's formatting.
 - Firebase project required (Auth + Firestore + Storage) with rules deployed manually (no `firebase.json`/`.firebaserc` committed). **[inferred]**
 - Secrets are server-only; only `NEXT_PUBLIC_*` values reach the client.
 
@@ -107,7 +106,7 @@ Product-oriented, ordered by impact and dependency. Each item is sized for one c
 - **User value:** one user (or a bot) can no longer exhaust generation capacity for everyone; authenticated users get fair, predictable access.
 - **Implemented:** both `generateIkigai` and `generateImage` now derive the user from the verified session cookie (`getOptionalServerUid`) server-side and key rate limiting on that uid (stronger than trusting a client-passed value). `generateImage` also rejects unauthenticated calls before any Admin-SDK write. Remaining future work: replace the in-memory limiter with a distributed store before multi-instance scale.
 
-### M2 — Resilient generation UX (error + retry + empty states)
+### M2 — Resilient generation UX (error + retry + empty states) — DONE
 - **User value:** a failed or empty AI response no longer dead-ends the core workflow; users can recover in place.
 - **Implementation intent:** surface the `error` from `useIkigaiGenerator` in `GenerateIkigaiForm` with a visible message and a "Try again" action; add an explicit empty state when no statements parse; add a "Generate more" affordance using existing merge logic.
 - **Acceptance criteria:**
@@ -115,7 +114,7 @@ Product-oriented, ordered by impact and dependency. Each item is sized for one c
   - Zero parsed results shows guidance rather than a blank screen.
   - No regression to streaming/scroll behavior; lint + build pass.
 
-### M3 — Reliable resume of an in-progress journey
+### M3 — Reliable resume of an in-progress journey — DONE
 - **User value:** users can leave and come back without losing answers or their selected ikigai.
 - **Implementation intent:** ensure dashboard provides a clear "Continue where you left off" entry that hydrates `useIkigaiStore` from `ikigaiService.fetchIkigaiData`; confirm step deep-linking (`?step=image`) restores correctly.
 - **Acceptance criteria:**
@@ -123,21 +122,21 @@ Product-oriented, ordered by impact and dependency. Each item is sized for one c
   - Deep links into the generate flow restore the correct step.
   - Lint + build pass.
 
-### M4 — Cover image history reuse
+### M4 — Cover image history reuse — DONE
 - **User value:** users can revisit and reselect previously generated covers instead of regenerating (saves time and AI cost).
 - **Implementation intent:** read the `ikigaiProfiles/{uid}/covers` history (already written by `saveGeneratedImageHistory`) and present a selectable gallery in the image step; selecting one updates the chosen cover without a new Fireworks call.
 - **Acceptance criteria:**
   - Past covers render with thumbnails; selecting one sets it as the active cover.
   - No duplicate Storage writes when reusing an existing cover; lint + build pass.
 
-### M5 — Rich social previews for shared ikigai
+### M5 — Rich social previews for shared ikigai — DONE
 - **User value:** shared links render attractive cards on social platforms, improving click-through and growth.
 - **Implementation intent:** add dynamic Open Graph/Twitter metadata for `app/ikigai/[id]` (title from the selected statement, image from the generated cover), using `NEXT_PUBLIC_BASE_URL`.
 - **Acceptance criteria:**
   - A shared public ikigai URL exposes correct OG/Twitter tags and a preview image.
   - Private (non-sharable) ikigai do not leak data in metadata; lint + build pass.
 
-### M6 — Iterative refinement loop for statements
+### M6 — Iterative refinement loop for statements — DONE
 - **User value:** users can steer results ("more career-focused", "more creative") and converge on a statement they love.
 - **Implementation intent:** make the existing `guidance` input a first-class refine control on the results screen that re-runs generation with the guidance and merges results, with clear affordances.
 - **Acceptance criteria:**

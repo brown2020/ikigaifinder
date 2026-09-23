@@ -1,6 +1,6 @@
 export type AuthPageMode = "login" | "signup" | "forgot";
 
-export function sanitizeRedirect(raw: string | null): string {
+export function sanitizeRedirect(raw: string | null, fallback = "/dashboard"): string {
   if (
     raw &&
     raw.startsWith("/") &&
@@ -9,5 +9,5 @@ export function sanitizeRedirect(raw: string | null): string {
   ) {
     return raw;
   }
-  return "/ikigai-finder";
+  return fallback;
 }

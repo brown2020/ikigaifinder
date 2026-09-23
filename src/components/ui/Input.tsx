@@ -1,219 +1,143 @@
-"use client";
-
-import { forwardRef } from "react";
+import { forwardRef, useId } from "react";
 import { cn } from "@/utils/cn";
 
-// ============================================================================
-// Types
-// ============================================================================
+export const fieldClasses = cn(
+  "w-full rounded-xl border border-input bg-card px-4 text-[15px] text-foreground",
+  "placeholder:text-muted-foreground/70 transition-colors duration-150",
+  "focus:outline-none focus:border-primary focus:ring-4 focus:ring-primary/15",
+  "disabled:cursor-not-allowed disabled:bg-muted",
+  "aria-invalid:border-destructive aria-invalid:focus:ring-destructive/15"
+);
+
+interface FieldShellProps {
+  id: string;
+  label?: React.ReactNode;
+  helperText?: React.ReactNode;
+  error?: string;
+  required?: boolean;
+  children: React.ReactNode;
+}
+
+export function FieldShell({
+  id,
+  label,
+  helperText,
+  error,
+  required,
+  children,
+}: FieldShellProps): React.ReactElement {
+  return (
+    <div className="w-full">
+      {label && (
+        <label htmlFor={id} className="mb-1.5 block text-sm font-medium text-foreground">
+          {label}
+          {required && <span className="ml-0.5 text-primary">*</span>}
+        </label>
+      )}
+      {children}
+      {error ? (
+        <p id={`${id}-error`} className="mt-1.5 text-sm text-destructive" role="alert">
+          {error}
+        </p>
+      ) : helperText ? (
+        <p id={`${id}-helper`} className="mt-1.5 text-sm text-muted-foreground">
+          {helperText}
+        </p>
+      ) : null}
+    </div>
+  );
+}
+
+function describedBy(id: string, error?: string, helperText?: React.ReactNode) {
+  if (error) return `${id}-error`;
+  if (helperText) return `${id}-helper`;
+  return undefined;
+}
 
 interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {
-  /** Error message to display */
   error?: string;
-  /** Label for the input */
-  label?: string;
-  /** Helper text below the input */
-  helperText?: string;
-  /** Icon to show on the left */
+  label?: React.ReactNode;
+  helperText?: React.ReactNode;
   leftIcon?: React.ReactNode;
-  /** Icon to show on the right */
   rightIcon?: React.ReactNode;
 }
 
-interface TextareaProps extends React.TextareaHTMLAttributes<HTMLTextAreaElement> {
-  /** Error message to display */
-  error?: string;
-  /** Label for the textarea */
-  label?: string;
-  /** Helper text below the textarea */
-  helperText?: string;
-}
-
-// ============================================================================
-// Input Component
-// ============================================================================
-
-/**
- * Reusable Input Component
- *
- * Features:
- * - Label and helper text support
- * - Error state with message
- * - Left and right icon support
- * - Forwards ref for form integration
- * - Accessible by default
- */
 export const Input = forwardRef<HTMLInputElement, InputProps>(
-  (
-    {
-      className,
-      error,
-      label,
-      helperText,
-      leftIcon,
-      rightIcon,
-      id,
-      ...props
-    },
-    ref
-  ) => {
-    const inputId = id || props.name;
-    const hasLeftIcon = Boolean(leftIcon);
-    const hasRightIcon = Boolean(rightIcon);
-
+  ({ className, error, label, helperText, leftIcon, rightIcon, id, ...props }, ref) => {
+    const autoId = useId();
+    const inputId = id || props.name || autoId;
     return (
-      <div className="w-full">
-        {label && (
-          <label
-            htmlFor={inputId}
-            className="block text-sm font-medium text-gray-700 mb-1"
-          >
-            {label}
-            {props.required && <span className="text-red-500 ml-1">*</span>}
-          </label>
-        )}
-
+      <FieldShell
+        id={inputId}
+        label={label}
+        helperText={helperText}
+        error={error}
+        required={props.required}
+      >
         <div className="relative">
           {leftIcon && (
-            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400">
+            <span className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3.5 text-muted-foreground">
               {leftIcon}
-            </div>
+            </span>
           )}
-
           <input
             ref={ref}
             id={inputId}
             className={cn(
-              "w-full px-4 py-2 border rounded-lg transition-colors duration-200",
-              "text-gray-900 placeholder-gray-400",
-              "focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent",
-              "disabled:bg-gray-100 disabled:cursor-not-allowed",
-              error
-                ? "border-red-500 focus:ring-red-500"
-                : "border-gray-300",
-              hasLeftIcon ? "pl-10" : undefined,
-              hasRightIcon ? "pr-10" : undefined,
+              fieldClasses,
+              "h-12",
+              leftIcon ? "pl-10" : undefined,
+              rightIcon ? "pr-10" : undefined,
               className
             )}
-            aria-invalid={error ? "true" : "false"}
-            aria-describedby={
-              error ? `${inputId}-error` : helperText ? `${inputId}-helper` : undefined
-            }
+            aria-invalid={error ? true : undefined}
+            aria-describedby={describedBy(inputId, error, helperText)}
             {...props}
           />
-
           {rightIcon && (
-            <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none text-gray-400">
+            <span className="absolute inset-y-0 right-0 flex items-center pr-2">
               {rightIcon}
-            </div>
+            </span>
           )}
         </div>
-
-        {error && (
-          <p
-            id={`${inputId}-error`}
-            className="mt-1 text-sm text-red-600"
-            role="alert"
-          >
-            {error}
-          </p>
-        )}
-
-        {helperText && !error && (
-          <p
-            id={`${inputId}-helper`}
-            className="mt-1 text-sm text-gray-500"
-          >
-            {helperText}
-          </p>
-        )}
-      </div>
+      </FieldShell>
     );
   }
 );
 
 Input.displayName = "Input";
 
-// ============================================================================
-// Textarea Component
-// ============================================================================
+interface TextareaProps extends React.TextareaHTMLAttributes<HTMLTextAreaElement> {
+  error?: string;
+  label?: React.ReactNode;
+  helperText?: React.ReactNode;
+}
 
-/**
- * Reusable Textarea Component
- *
- * Features:
- * - Label and helper text support
- * - Error state with message
- * - Auto-resize option (via className)
- * - Forwards ref for form integration
- * - Accessible by default
- */
 export const Textarea = forwardRef<HTMLTextAreaElement, TextareaProps>(
-  (
-    {
-      className,
-      error,
-      label,
-      helperText,
-      id,
-      ...props
-    },
-    ref
-  ) => {
-    const textareaId = id || props.name;
-
+  ({ className, error, label, helperText, id, ...props }, ref) => {
+    const autoId = useId();
+    const textareaId = id || props.name || autoId;
     return (
-      <div className="w-full">
-        {label && (
-          <label
-            htmlFor={textareaId}
-            className="block text-sm font-medium text-gray-700 mb-1"
-          >
-            {label}
-            {props.required && <span className="text-red-500 ml-1">*</span>}
-          </label>
-        )}
-
+      <FieldShell
+        id={textareaId}
+        label={label}
+        helperText={helperText}
+        error={error}
+        required={props.required}
+      >
         <textarea
           ref={ref}
           id={textareaId}
           className={cn(
-            "w-full px-4 py-2 border rounded-lg transition-colors duration-200",
-            "text-gray-900 placeholder-gray-400",
-            "focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent",
-            "disabled:bg-gray-100 disabled:cursor-not-allowed",
-            "resize-y min-h-[100px]",
-            error
-              ? "border-red-500 focus:ring-red-500"
-              : "border-gray-300",
+            fieldClasses,
+            "min-h-24 resize-y py-3 leading-relaxed [field-sizing:content]",
             className
           )}
-          aria-invalid={error ? "true" : "false"}
-          aria-describedby={
-            error ? `${textareaId}-error` : helperText ? `${textareaId}-helper` : undefined
-          }
+          aria-invalid={error ? true : undefined}
+          aria-describedby={describedBy(textareaId, error, helperText)}
           {...props}
         />
-
-        {error && (
-          <p
-            id={`${textareaId}-error`}
-            className="mt-1 text-sm text-red-600"
-            role="alert"
-          >
-            {error}
-          </p>
-        )}
-
-        {helperText && !error && (
-          <p
-            id={`${textareaId}-helper`}
-            className="mt-1 text-sm text-gray-500"
-          >
-            {helperText}
-          </p>
-        )}
-      </div>
+      </FieldShell>
     );
   }
 );

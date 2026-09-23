@@ -4,7 +4,7 @@ import { useEffect, useRef } from "react";
 import { auth } from "@/firebase/firebaseClient";
 import { signOut } from "firebase/auth";
 import { useRouter } from "next/navigation";
-import "react-tooltip/dist/react-tooltip.css";
+import { LogOut } from "lucide-react";
 import { clearServerSession } from "@/lib/auth/session-client";
 import { Button } from "@/components/ui/Button";
 import toast from "react-hot-toast";
@@ -34,27 +34,34 @@ function LogoutPage() {
     <dialog
       ref={dialogRef}
       id="logout-dialog"
-      className="rounded-lg shadow-lg p-6 max-w-sm w-full backdrop:bg-black/50"
+      className="m-auto w-[calc(100%-2.5rem)] max-w-sm rounded-2xl border border-border bg-card p-6 text-foreground shadow-2xl backdrop:bg-foreground/40 backdrop:backdrop-blur-sm sm:p-8"
       aria-labelledby="logout-title"
+      aria-describedby="logout-description"
       onClose={() => router.back()}
     >
-      <h2 id="logout-title" className="text-lg font-semibold mb-4">
-        Confirm Logout
+      <div className="mb-5 flex size-11 items-center justify-center rounded-full bg-primary-soft text-primary">
+        <LogOut className="size-5" aria-hidden="true" />
+      </div>
+      <h2
+        id="logout-title"
+        className="font-display text-2xl font-semibold tracking-tight"
+      >
+        Sign out?
       </h2>
-      <p className="mb-6">Are you sure you want to logout?</p>
-      <div className="flex justify-end">
+      <p id="logout-description" className="mt-2 text-sm text-muted-foreground">
+        You can sign back in any time to see your ikigai and saved answers.
+      </p>
+      <div className="mt-8 flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
         <Button
           variant="neutral"
-          className="mr-2"
           onClick={() => {
             dialogRef.current?.close();
-            router.back();
           }}
         >
           Cancel
         </Button>
         <Button variant="primary" onClick={handleSignOut}>
-          Logout
+          Sign out
         </Button>
       </div>
     </dialog>

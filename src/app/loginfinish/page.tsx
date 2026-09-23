@@ -14,6 +14,10 @@ import toast from "react-hot-toast";
 import { useProfileStore } from "@/zustand/useProfileStore";
 import { updateUserDetailsInFirestore } from "@/services/userService";
 import { createServerSession } from "@/lib/auth/session-client";
+import { AuthCard, AuthPageShell } from "@/components/auth/AuthCard";
+import { Button } from "@/components/ui/Button";
+import { Input } from "@/components/ui/Input";
+import { LoadingSpinner } from "@/components/ui/LoadingSpinner";
 
 function sanitizeRedirectPath(value: string | null): string | null {
   if (!value) return null;
@@ -109,7 +113,7 @@ export default function LoginFinishPage() {
       window.localStorage.getItem("ikigaiFinderRedirectPath")
     );
     const redirectTarget =
-      redirectFromUrl ?? redirectFromStorage ?? "/ikigai-finder";
+      redirectFromUrl ?? redirectFromStorage ?? "/dashboard";
 
     if (!isSignInWithEmailLink(auth, window.location.href)) {
       toast.error("Sign in link is not valid");
@@ -147,39 +151,35 @@ export default function LoginFinishPage() {
 
   if (needsEmail) {
     return (
-      <div className="p-8 max-w-md mx-auto">
-        <h2 className="text-lg font-semibold text-gray-900 mb-2">
-          Confirm your email
-        </h2>
-        <p className="text-gray-600 mb-4">
-          Please enter the email address you used to sign in.
-        </p>
-        <form onSubmit={handleEmailSubmit} className="flex flex-col gap-3">
-          <label htmlFor="loginfinish-email" className="text-sm font-medium text-gray-700">
-            Email
-          </label>
-          <input
-            id="loginfinish-email"
-            type="email"
-            required
-            autoFocus
-            value={emailInput}
-            onChange={(e) => setEmailInput(e.target.value)}
-            placeholder="you@example.com"
-            className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-          />
-          <button
-            type="submit"
-            className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2"
-          >
-            Continue
-          </button>
-        </form>
-      </div>
+      <AuthPageShell>
+        <AuthCard
+          title="Confirm your email"
+          description="For security, enter the email address you used to request the sign-in link."
+        >
+          <form onSubmit={handleEmailSubmit} className="space-y-5">
+            <Input
+              id="loginfinish-email"
+              label="Email"
+              type="email"
+              required
+              autoFocus
+              autoComplete="email"
+              value={emailInput}
+              onChange={(e) => setEmailInput(e.target.value)}
+              placeholder="you@example.com"
+            />
+            <Button type="submit" fullWidth size="lg">
+              Continue
+            </Button>
+          </form>
+        </AuthCard>
+      </AuthPageShell>
     );
   }
 
   return (
-    <div className="p-8 text-center text-gray-700">Finishing sign-in…</div>
+    <AuthPageShell>
+      <LoadingSpinner label="Finishing sign-in…" className="py-16" />
+    </AuthPageShell>
   );
 }

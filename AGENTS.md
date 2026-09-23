@@ -36,17 +36,23 @@ src/
 │   │   ├── auth/session/     # POST creates session cookie, DELETE clears it
 │   │   ├── downloadImage/    # GET image proxy (CORS) for downloads
 │   │   └── ikigai/sharing/   # PATCH toggle public sharing (admin SDK)
-│   ├── ikigai-finder/        # Questionnaire entry (protected)
-│   ├── generate-ikigai/      # Generate statements + cover image (protected)
+│   ├── ikigai-finder/        # Questionnaire, ?step=1-4 (protected)
+│   ├── generate-ikigai/      # Ideas step; card/ = card designer (protected)
 │   ├── ikigai/[id]/          # Public shareable ikigai page
-│   ├── dashboard/ profile/   # Authenticated user areas (each has loading.tsx/error.tsx)
+│   ├── dashboard/ profile/   # "My ikigai" hub (resume + share) and account
 │   └── (marketing/legal)/    # home, about, support, privacy-policy, terms-conditions
-├── components/               # Feature + layout components
-│   ├── ui/                   # Primitives (Button, Card, Input, Skeleton, …)
+├── components/
+│   ├── ui/                   # Primitives (Button/ButtonLink, Card, Input/Textarea, Skeleton, Eyebrow, …)
+│   ├── layout/               # SiteHeader, UserMenu, MobileNav, SiteFooter (rendered by root layout)
+│   ├── journey/              # Questionnaire, IdeasStep, CardStep, JourneyProgress, JourneyGate
+│   ├── ikigai/               # IkigaiDiagram, IkigaiCard (export target), ScoreBars
+│   ├── share/                # SharePanel (visibility toggle, link, social, download)
+│   ├── home/                 # Landing-page client islands
 │   ├── auth/                 # AuthModal, AuthForm, SocialLogin, SignedInView
 │   └── icons/
 ├── lib/
-│   ├── generateIkigai.ts     # SERVER ACTION: GPT-4o ikigai generation (rate-limited, validated)
+│   ├── generateIkigai.ts     # SERVER ACTION: GPT-4o structured ikigai generation (rate-limited, validated)
+│   ├── ikigaiServer.ts       # server-only Admin SDK summary read (dashboard + share page)
 │   ├── generateImage.ts      # SERVER ACTION: Fireworks SDXL → Firebase Storage → signed URL
 │   ├── rateLimit.ts          # In-memory rate limiter (NOT distributed)
 │   ├── validation.ts         # Zod schemas + sanitizeInput()
@@ -55,8 +61,8 @@ src/
 ├── services/                 # Firestore data layer (ikigaiService, profileService, userService)
 ├── hooks/                    # use-auth-actions, use-auth-token, use-ikigai-generator
 ├── zustand/                  # useAuthStore, useIkigaiStore, useProfileStore, useUIStore
-├── constants/                # questions.ts (survey), systemPrompt.ts, menuItems.ts
-├── utils/                    # ikigaiParser, downloadImage, canvasUtils, resizeImage, baseUrl, …
+├── constants/                # ikigai.ts (circles/overlaps), questions.ts, systemPrompt.ts, menuItems.ts
+├── utils/                    # ikigaiList, journey, downloadImage, canvasUtils, promptUtils, baseUrl, …
 ├── firebase/                 # firebaseClient.ts, firebaseAdmin.ts
 └── types/                    # Centralized TypeScript types (index.ts)
 
@@ -68,20 +74,21 @@ env.sample                    # Required environment variables (copy to .env.loc
 ## Core architecture overview
 
 - **App Router + RSC.** Pages default to Server Components; interactive UI is split into `_components/*-page.tsx` client components.
-- **AI text generation** runs as a Next.js **server action** (`src/lib/generateIkigai.ts`). It streams tokens with `@ai-sdk/rsc`; the client consumes them in `src/hooks/use-ikigai-generator.ts` and parses free-text into structured `IkigaiData[]` via `src/utils/ikigaiParser.ts` (regex-based).
+- **AI text generation** runs as a Next.js **server action** (`src/lib/generateIkigai.ts`) using AI SDK structured output (`Output.array` + Zod schema). It streams the cumulative list of completed statements with `@ai-sdk/rsc`; the client consumes it in `src/hooks/use-ikigai-generator.ts` and dedupes with `src/utils/ikigaiList.ts`. Score fields map to the classic overlaps: Passion (love+skill), Mission (love+world), Vocation (world+paid), Profession (skill+paid).
 - **AI image generation** is a server action (`src/lib/generateImage.ts`) that calls the Fireworks REST API, uploads the result to Firebase Storage with the Admin SDK, and returns a long-lived signed URL.
 - **Auth flow:** client signs in with the Firebase Web SDK → obtains an ID token → `POST /api/auth/session` verifies it and sets an **httpOnly session cookie** via `adminAuth.createSessionCookie`. `src/proxy.ts` verifies that cookie (with revocation check) for protected route segments only.
 - **Data access is mixed:** most reads/writes use the **client** Firebase SDK from `src/services/*` (guarded by `firestore.rules`); a few server paths (`/api/ikigai/sharing`, the public share page) use the **Admin SDK**.
-- **State:** four small Zustand stores; UID is re-checked after async work to avoid cross-user race conditions.
+- **State:** four small Zustand stores wrapped with `withDevtools` (`src/zustand/middleware.ts`); UID is re-checked after async work to avoid cross-user race conditions. `useIkigaiStore.status` tracks initial hydration; journey pages render through `JourneyGate` so they never act on unloaded data. Stores reset on sign-out.
+- **Design system:** tokens live in `src/app/globals.css` as hex values (html2canvas cannot read oklch). Use semantic Tailwind classes (`bg-card`, `text-muted-foreground`, `text-primary`, `border-border`, domain colors `love/skill/world/paid`), never Tailwind's default palette. Fonts: Fraunces (`font-display`) and Geist (sans) via `next/font`.
 
 ## Key app features that exist today
 
 - Email/password, Google, and email-link ("magic link") sign-in (Firebase Auth).
-- Multi-step ikigai questionnaire (`src/constants/questions.ts`).
+- Four-part ikigai questionnaire (`src/constants/questions.ts`); section/question ids are persisted, and titles/labels always come from code.
 - Streaming GPT‑4o generation of ~10 ikigai statements, each with compatibility scores.
 - Selection of a preferred statement, persisted per user in Firestore.
 - AI cover-image generation (Fireworks SDXL) stored in Firebase Storage, with a cover history.
-- Public sharing toggle + public `/ikigai/[id]` page + social share buttons + downloadable card (`html2canvas`).
+- Public sharing toggle + public `/ikigai/[id]` page + social share buttons + downloadable card (`html2canvas`), with dynamic OG metadata when public.
 - Dashboard and editable profile.
 - Security headers/CSP (`next.config.mjs`), input sanitization, rate limiting, cookie-consent banner.
 
@@ -93,13 +100,13 @@ npm run dev        # local dev server (DO NOT run in autonomous validation — l
 npm run build      # production build; runs TypeScript type-checking
 npm run start      # serve a production build
 npm run lint       # ESLint
-npm test           # Vitest one-shot runner (currently proxy + parser coverage)
+npm test           # Vitest one-shot runner (currently proxy + ikigai list coverage)
 npx tsc --noEmit   # standalone type-check (no dedicated npm script exists)
 ```
 
 ## Canonical validation/check command
 
-Vitest is wired as a one-shot runner via `npm test` and currently covers `src/proxy.ts` plus the ikigai parser. The canonical, non-interactive regression check is:
+Vitest is wired as a one-shot runner via `npm test` and currently covers `src/proxy.ts` plus the ikigai list utilities. The canonical, non-interactive regression check is:
 
 ```bash
 npm run lint && npm run build
@@ -152,7 +159,7 @@ npm run lint && npm run build
 
 ## Testing expectations
 
-- Automated tests currently cover route-protection helpers and ikigai parsing. Do **not** scaffold a large test suite as part of an unrelated change.
+- Automated tests currently cover route-protection helpers and ikigai list utilities. Do **not** scaffold a large test suite as part of an unrelated change.
 - If you add tests, use the existing Vitest runner (`npm test`), keep them non-interactive, and add them alongside the feature they cover rather than as a separate cleanup pass.
 - Until meaningful tests exist, `npm run lint && npm run build` is the regression gate.
 

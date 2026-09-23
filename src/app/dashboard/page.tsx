@@ -1,23 +1,15 @@
-import DashboardPage from "./_components/dashboard-page";
-import { adminDb } from "@/firebase/firebaseAdmin";
-import { getOptionalServerUid } from "@/lib/auth/session-server";
+import type { Metadata } from "next";
 import { redirect } from "next/navigation";
+import { getOptionalServerUid } from "@/lib/auth/session-server";
+import { getIkigaiSummary } from "@/lib/ikigaiServer";
+import DashboardPage from "./_components/dashboard-page";
+
+export const metadata: Metadata = { title: "My ikigai" };
 
 export default async function Dashboard() {
   const uid = await getOptionalServerUid();
-  if (!uid) {
-    redirect("/?redirect=/dashboard");
-  }
+  if (!uid) redirect("/login?redirect=/dashboard");
 
-  const docRef = adminDb
-    .collection("ikigaiUsers")
-    .doc(uid)
-    .collection("ikigai")
-    .doc("main");
-  const docSnap = await docRef.get();
-  const initialCoverImage = docSnap.exists
-    ? (docSnap.data()?.ikigaiCoverImage as string | undefined) ?? null
-    : null;
-
-  return <DashboardPage userId={uid} initialCoverImage={initialCoverImage} />;
+  const summary = await getIkigaiSummary(uid);
+  return <DashboardPage userId={uid} initial={summary} />;
 }

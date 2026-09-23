@@ -1,111 +1,118 @@
 "use server";
 
 import { createStreamableValue } from "@ai-sdk/rsc";
-import { streamText } from "ai";
+import { Output, streamText } from "ai";
 import { openai } from "@ai-sdk/openai";
-import { IKIGAI_SYSTEMPROMPT2 } from "@/constants/systemPrompt";
+import { z } from "zod";
+import { IKIGAI_SYSTEM_PROMPT } from "@/constants/systemPrompt";
 import { getOptionalServerUid } from "@/lib/auth/session-server";
 import { rateLimitAI } from "./rateLimit";
 import { generateIkigaiSchema, sanitizeInput } from "./validation";
-
-// ============================================================================
-// Types
-// ============================================================================
-
-interface QuestionAnswer {
-  question: string;
-  answer: string[];
-}
+import type { IkigaiData } from "@/types";
 
 interface QuestionSection {
   id: string;
-  questions: QuestionAnswer[];
+  questions: { question: string; answer: string[] }[];
 }
-
-interface GenerateMessage {
-  role: "system" | "user";
-  content: string;
-}
-
-// ============================================================================
-// Constants
-// ============================================================================
-
-const DEFAULT_CLIENT_PROMPT = `Analyze the provided data about my interests, skills, aspirations, and potential career paths. Generate 5 unique ikigai statements that combine what I love, what I'm good at, what the world needs, and what I could be paid for, presenting each as a complete sentence without labels.
-
-For each ikigai statement, calculate and provide the percentage match between: passion & profession, profession & vocation, vocation & mission, passion & mission and Overall compatibility. Present these percentages on separate lines.`;
 
 const AI_MODEL = "gpt-4o";
+const STATEMENTS_PER_RUN = 5;
 
-// ============================================================================
-// Server Action
-// ============================================================================
+const score = z.number().int().min(0).max(100);
+const statementSchema = z.object({
+  statement: z.string().describe('One sentence starting with "My ikigai is to"'),
+  passion: score,
+  mission: score,
+  vocation: score,
+  profession: score,
+  overall: score,
+});
+
+function toIkigaiData(s: z.infer<typeof statementSchema>): IkigaiData {
+  return {
+    ikigai: s.statement.trim().replace(/^my ikigai is to\s*/i, "My ikigai is to "),
+    Passion: s.passion,
+    Mission: s.mission,
+    Vocation: s.vocation,
+    Profession: s.profession,
+    OverallCompatibility: s.overall,
+  };
+}
 
 /**
- * Generate Ikigai suggestions using AI
+ * Streams ikigai statements for the signed-in user's answers. The streamable
+ * value is the cumulative list of completed statements, so the client can
+ * render each one as soon as it is fully generated.
  *
- * Uses OpenAI's GPT-4o to analyze user's survey responses and
- * generate personalized Ikigai statements with compatibility scores.
- *
- * The rate-limit identity is derived from the verified server session cookie
- * (falling back to "anonymous" only when no session is present), so limits are
- * enforced per authenticated user rather than from a client-supplied value.
- *
- * @param questions - Array of question sections with answers
- * @param customPrompt - Optional additional guidance for the AI
- * @returns Streamable value for real-time response updates
- * @throws Error with specific message if rate limit is exceeded or validation fails
+ * @param questions  Answers grouped by questionnaire section.
+ * @param guidance   Optional free-text steer from the user.
+ * @param existing   Statements already shown, so new ones don't repeat them.
  */
 export async function generateIkigai(
   questions: QuestionSection[],
-  customPrompt = ""
+  guidance = "",
+  existing: string[] = []
 ) {
-  // Derive the rate-limit identity from the verified session (server source of truth).
   const uid = await getOptionalServerUid();
 
-  // Rate limiting check
-  const rateLimitResult = rateLimitAI(uid ?? "anonymous");
-  if (!rateLimitResult.success) {
+  const rateLimit = rateLimitAI(uid ?? "anonymous");
+  if (!rateLimit.success) {
     throw new Error(
-      `Rate limit exceeded. Please try again in ${Math.ceil(rateLimitResult.resetIn / 1000)} seconds.`
+      `You're generating quickly. Try again in ${Math.ceil(rateLimit.resetIn / 1000)} seconds.`
     );
   }
 
-  // Validate and sanitize input
-  const validationResult = generateIkigaiSchema.safeParse({
-    questions,
-    customPrompt,
-  });
-
-  if (!validationResult.success) {
-    const errors = validationResult.error.issues
-      .map((e) => `${e.path.join(".")}: ${e.message}`)
-      .join(", ");
-    throw new Error(`Invalid input: ${errors}`);
+  const parsed = generateIkigaiSchema.safeParse({ questions, customPrompt: guidance, existing });
+  if (!parsed.success) {
+    throw new Error("Your answers couldn't be read. Please review them and try again.");
   }
 
-  // Sanitize the custom prompt
-  const sanitizedPrompt = customPrompt ? sanitizeInput(customPrompt) : "";
+  const sections = parsed.data.questions.map((section) => ({
+    circle: section.id,
+    answers: section.questions.map((q) => ({
+      question: q.question,
+      answer: q.answer.map(sanitizeInput).join(", "),
+    })),
+  }));
+  const cleanGuidance = sanitizeInput(parsed.data.customPrompt);
+  const avoid = parsed.data.existing.map(sanitizeInput);
 
-  // Build the user prompt
-  const guidanceSection = sanitizedPrompt ? `${sanitizedPrompt}\n\n` : "";
-  const questionsJson = JSON.stringify(questions, null, 2);
-  const userPrompt = `${questionsJson}\n\n${guidanceSection}${DEFAULT_CLIENT_PROMPT}`;
+  const prompt = [
+    `Questionnaire answers:\n${JSON.stringify(sections, null, 2)}`,
+    cleanGuidance && `Guidance from the person, follow it closely: ${cleanGuidance}`,
+    avoid.length > 0 &&
+      `They have already seen these statements. Write new ones that take different angles:\n${avoid.map((s) => `- ${s}`).join("\n")}`,
+    `Write ${STATEMENTS_PER_RUN} ikigai statements.`,
+  ]
+    .filter(Boolean)
+    .join("\n\n");
 
-  // Prepare messages for the AI
-  const messages: GenerateMessage[] = [
-    { role: "system", content: IKIGAI_SYSTEMPROMPT2 },
-    { role: "user", content: userPrompt },
-  ];
+  const stream = createStreamableValue<IkigaiData[]>([]);
 
-  // Stream the response
-  const result = streamText({
-    model: openai(AI_MODEL),
-    messages,
-    temperature: 0.7, // Add some creativity while maintaining coherence
-  });
+  (async () => {
+    try {
+      const result = streamText({
+        model: openai(AI_MODEL),
+        system: IKIGAI_SYSTEM_PROMPT,
+        prompt,
+        temperature: 0.8,
+        output: Output.array({ element: statementSchema, name: "ikigai_statements" }),
+      });
 
-  // Return a streamable value for real-time updates
-  const stream = createStreamableValue(result.textStream);
+      const collected: IkigaiData[] = [];
+      for await (const element of result.elementStream) {
+        collected.push(toIkigaiData(element));
+        stream.update([...collected]);
+      }
+      if (collected.length === 0) {
+        throw new Error("No statements were generated");
+      }
+      stream.done();
+    } catch (error) {
+      console.error("Ikigai generation failed:", error);
+      stream.error(new Error("We couldn't generate ideas just now. Please try again."));
+    }
+  })();
+
   return stream.value;
 }

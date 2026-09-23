@@ -1,3 +1,5 @@
+"use client";
+
 import { useEffect, useRef, useState } from "react";
 import { auth, db, storage } from "@/firebase/firebaseClient";
 import { ref, listAll, deleteObject } from "firebase/storage";
@@ -11,7 +13,10 @@ import {
 import { deleteUser, getAuth, signOut } from "firebase/auth";
 import { useRouter } from "next/navigation";
 import { useAuthStore } from "@/zustand";
-import { Button } from "./ui/Button";
+import { AlertTriangle } from "lucide-react";
+import { Button } from "@/components/ui/Button";
+import { fieldClasses } from "@/components/ui/Input";
+import { cn } from "@/utils/cn";
 import toast from "react-hot-toast";
 
 type ProfileDeletedProps = {
@@ -151,35 +156,50 @@ export default function ProfileDeleted({
   return (
     <div>
       {isOpen && (
-        <dialog
-          open
-          className="fixed inset-0 m-auto rounded-lg p-5 w-full xs:max-w-md max-w-72 bg-white shadow-lg backdrop:bg-black/50"
-          aria-labelledby="delete-account-title"
-          ref={modalRef}
-        >
+        <>
           <div
-            className="w-full"
+            className="fixed inset-0 z-40 bg-foreground/40 backdrop-blur-sm"
+            aria-hidden="true"
+          />
+          <dialog
+            open
+            className="fixed inset-0 z-50 m-auto h-fit w-[calc(100%-2.5rem)] max-w-md rounded-2xl border border-border bg-card p-6 text-foreground shadow-2xl sm:p-8"
+            aria-labelledby="delete-account-title"
+            aria-describedby="delete-account-description"
+            aria-modal="true"
+            ref={modalRef}
           >
-            <h2 id="delete-account-title" className="text-lg font-bold">
-              Are you sure you want to delete your account?
+            <div className="mb-5 flex size-11 items-center justify-center rounded-full bg-destructive-soft text-destructive">
+              <AlertTriangle className="size-5" aria-hidden="true" />
+            </div>
+            <h2
+              id="delete-account-title"
+              className="font-display text-2xl font-semibold tracking-tight"
+            >
+              Delete your account?
             </h2>
-            <p className="text-sm mt-3">
-              Please type <b>DELETE ACCOUNT</b> to confirm.
+            <p
+              id="delete-account-description"
+              className="mt-2 text-sm leading-relaxed text-muted-foreground"
+            >
+              This permanently removes your profile, ikigai results, and
+              generated images. To confirm, type{" "}
+              <strong className="font-semibold text-foreground">DELETE ACCOUNT</strong>{" "}
+              below.
             </p>
+            <label htmlFor="delete-account-confirm" className="sr-only">
+              Type DELETE ACCOUNT to confirm account deletion
+            </label>
             <input
+              id="delete-account-confirm"
               ref={inputRef}
-              className="w-full p-2 border border-gray-300 rounded-sm min-h-12 font-semibold mt-6"
+              className={cn(fieldClasses, "mt-6 h-12 font-medium")}
               onChange={(e) => setConfirmText(e.target.value?.toLowerCase())}
-              placeholder="Type DELETE ACCOUNT to confirm"
-              aria-label="Type DELETE ACCOUNT to confirm account deletion"
+              placeholder="DELETE ACCOUNT"
               autoComplete="off"
             />
-            <div className="mt-4 flex gap-2 justify-end">
-              <Button
-                variant="neutral"
-                onClick={closeModal}
-                className="px-9 py-3"
-              >
+            <div className="mt-6 flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
+              <Button variant="neutral" onClick={closeModal}>
                 Cancel
               </Button>
               <Button
@@ -187,14 +207,13 @@ export default function ProfileDeleted({
                 onClick={deleteConfirmIkigaiProfile}
                 disabled={confirmText !== "delete account"}
                 isLoading={isLoading}
-                loadingText="Deleting..."
-                className="px-9 py-3"
+                loadingText="Deleting…"
               >
-                Delete
+                Delete account
               </Button>
             </div>
-          </div>
-        </dialog>
+          </dialog>
+        </>
       )}
     </div>
   );

@@ -1,173 +1,128 @@
 "use client";
 
-import { useCallback, useState } from "react";
 import Image from "next/image";
-import Link from "next/link";
-import {
-  FacebookShareButton,
-  TwitterShareButton,
-  LinkedinShareButton,
-  EmailShareButton,
-  FacebookIcon,
-  TwitterIcon,
-  LinkedinIcon,
-  EmailIcon,
-} from "react-share";
-import toast from "react-hot-toast";
-import { Download, Image as ImageIcon } from "lucide-react";
-import { useIkigaiStore } from "@/zustand";
-import { Button } from "@/components/ui/Button";
-import { DashboardSkeleton } from "@/components/ui/Skeleton";
-import { absoluteUrl } from "@/utils/baseUrl";
-import { downloadImage } from "@/utils/downloadImage";
+import { ArrowRight, Palette, RefreshCcw, Sparkles } from "lucide-react";
+import { ButtonLink } from "@/components/ui/Button";
+import { Card } from "@/components/ui/Card";
+import { Eyebrow } from "@/components/ui/Eyebrow";
+import { Skeleton } from "@/components/ui/Skeleton";
+import IkigaiDiagram from "@/components/ikigai/IkigaiDiagram";
+import ScoreBars from "@/components/ikigai/ScoreBars";
+import SharePanel from "@/components/share/SharePanel";
+import { CIRCLE_BY_STEP, type CircleId } from "@/constants/ikigai";
+import { useIkigaiStore, useProfileStore } from "@/zustand";
+import { displayStatement } from "@/utils/ikigaiList";
+import { isSectionComplete, resumeHref } from "@/utils/journey";
+import type { IkigaiSummary } from "@/types";
 
-// ============================================================================
-// Constants
-// ============================================================================
-
-const SHARE_TITLE = "Check out my Ikigai!";
-const SHARE_BODY = "I wanted to share my Ikigai with you. Check it out here:";
-const ICON_SIZE = 48;
-
-// ============================================================================
-// Component
-// ============================================================================
-
-type DashboardPageProps = {
+interface DashboardPageProps {
   userId: string;
-  initialCoverImage?: string | null;
-};
+  initial: IkigaiSummary;
+}
 
-export default function DashboardPage({
-  userId,
-  initialCoverImage,
-}: DashboardPageProps): React.ReactElement {
-  const ikigaiData = useIkigaiStore((state) => state.ikigaiData);
-  const isStoreLoading = useIkigaiStore((state) => state.isLoading);
-  const [isDownloading, setIsDownloading] = useState(false);
-  const [imageLoaded, setImageLoaded] = useState(false);
+function Greeting() {
+  const firstName = useProfileStore((s) => s.profile.firstName);
+  return <Eyebrow>{firstName ? `Welcome back, ${firstName}` : "Welcome back"}</Eyebrow>;
+}
 
-  // Share the public URL, not the private dashboard route.
-  const currentPageUrl = absoluteUrl(`/ikigai/${userId}`);
-  const coverImage = initialCoverImage ?? ikigaiData?.ikigaiCoverImage;
-  const isLoading = !initialCoverImage && isStoreLoading;
+export default function DashboardPage({ userId, initial }: DashboardPageProps): React.ReactElement {
+  const ikigai = useIkigaiStore((s) => s.ikigaiData);
+  const status = useIkigaiStore((s) => s.status);
+  const ready = status === "ready";
 
-  /**
-   * Handle image download
-   */
-  const handleDownload = useCallback(async (): Promise<void> => {
-    if (!coverImage) {
-      toast.error("No image available to download");
-      return;
-    }
+  const coverImage = (ready && ikigai.ikigaiCoverImage) || initial.coverImage;
+  const selected = ready ? ikigai.ikigaiSelected : null;
+  const statement = selected ? displayStatement(selected.ikigai) : initial.statement;
 
-    setIsDownloading(true);
-
-    try {
-      await downloadImage(coverImage, "my-ikigai.png");
-      toast.success("Image downloaded successfully!");
-    } catch (error) {
-      console.error("Error downloading image:", error);
-      toast.error("Failed to download image. Please try again.");
-    } finally {
-      setIsDownloading(false);
-    }
-  }, [coverImage]);
-
-  // Show loading skeleton
-  if (isLoading) {
-    return <DashboardSkeleton />;
-  }
-
-  // Show empty state
-  if (!coverImage) {
+  if (coverImage) {
     return (
-      <div className="p-10 flex flex-col items-center justify-center min-h-[50vh]">
-        <div className="w-20 h-20 bg-gray-100 rounded-full flex items-center justify-center mb-6">
-          <ImageIcon className="w-10 h-10 text-gray-400" />
+      <div className="mx-auto w-full max-w-6xl px-5 pb-16 pt-10 sm:px-8 sm:pt-14">
+        <div className="grid gap-10 lg:grid-cols-[minmax(0,6fr)_minmax(0,5fr)] lg:gap-14">
+          <div className="lg:sticky lg:top-24 lg:self-start">
+            <div className="relative aspect-square w-full overflow-hidden rounded-2xl bg-muted shadow-[0_24px_60px_-30px_rgba(31,26,23,0.45)]">
+              <Image src={coverImage} alt={statement ? `Ikigai card: ${statement}` : "My ikigai card"} fill sizes="(max-width: 1024px) 100vw, 600px" className="object-cover" priority />
+            </div>
+          </div>
+
+          <div>
+            <Greeting />
+            <h1 className="mt-3 font-display text-2xl font-semibold leading-snug tracking-tight sm:text-[2rem]">
+              {statement ?? "Your ikigai"}
+            </h1>
+            {selected ? (
+              <ScoreBars scores={selected} className="mt-6" />
+            ) : !ready ? (
+              <Skeleton className="mt-6 h-10 w-full" />
+            ) : null}
+
+            <SharePanel className="mt-8" userId={userId} coverImage={coverImage} initialSharable={initial.sharable} />
+
+            <div className="mt-8 flex flex-wrap gap-2">
+              {[
+                { href: "/generate-ikigai/card", label: "Redesign card", icon: Palette },
+                { href: "/generate-ikigai", label: "Explore ideas", icon: Sparkles },
+                { href: "/ikigai-finder?step=1", label: "Revisit answers", icon: RefreshCcw },
+              ].map((action) => (
+                <ButtonLink key={action.href} href={action.href} variant="neutral" size="sm">
+                  <action.icon className="size-4" aria-hidden="true" /> {action.label}
+                </ButtonLink>
+              ))}
+            </div>
+          </div>
         </div>
-        <h2 className="text-2xl font-bold text-gray-900 mb-2">
-          No Ikigai Card Yet
-        </h2>
-        <p className="text-gray-600 text-center max-w-md mb-6">
-          Complete your Ikigai journey to create a beautiful, shareable card
-          that represents your life purpose.
-        </p>
-        <Link href="/ikigai-finder">
-          <Button variant="primary">Start Your Journey</Button>
-        </Link>
       </div>
     );
   }
 
-  return (
-    <div className="p-10">
-      <div className="w-full max-w-3xl mx-auto">
-        {/* Section Title */}
-        <h1 className="text-2xl font-bold text-center mb-6">
-          Your Ikigai Card
-        </h1>
-
-        {/* Ikigai Image */}
-        <div className="relative">
-          {!imageLoaded && (
-            <div className="absolute inset-0 bg-gray-200 animate-pulse rounded-sm" />
-          )}
-          <Image
-            src={coverImage}
-            alt="My Ikigai - A personalized card representing my life purpose"
-            width={768}
-            height={768}
-            sizes="(max-width: 768px) 100vw, 768px"
-            className={`w-full h-full object-cover max-w-3xl mx-auto rounded-sm transition-opacity duration-300 ${
-              imageLoaded ? "opacity-100" : "opacity-0"
-            }`}
-            onLoad={() => setImageLoaded(true)}
-            priority
-          />
-        </div>
-
-        {/* Actions */}
-        <div className="mt-6">
-          {/* Share Section */}
-          <p className="text-center text-gray-600 mb-3">Share your Ikigai</p>
-
-          {/* Share Buttons */}
-          <div className="flex flex-wrap gap-3 mx-auto h-12 justify-center">
-            <FacebookShareButton url={currentPageUrl} hashtag="#ikigai">
-              <FacebookIcon size={ICON_SIZE} round />
-            </FacebookShareButton>
-
-            <TwitterShareButton url={currentPageUrl} title={SHARE_TITLE}>
-              <TwitterIcon size={ICON_SIZE} round />
-            </TwitterShareButton>
-
-            <LinkedinShareButton url={currentPageUrl} title={SHARE_TITLE}>
-              <LinkedinIcon size={ICON_SIZE} round />
-            </LinkedinShareButton>
-
-            <EmailShareButton
-              url={currentPageUrl}
-              subject={SHARE_TITLE}
-              body={SHARE_BODY}
-            >
-              <EmailIcon size={ICON_SIZE} round />
-            </EmailShareButton>
-          </div>
-
-          {/* Download Button */}
-          <Button
-            variant="primary"
-            onClick={handleDownload}
-            isLoading={isDownloading}
-            loadingText="Downloading..."
-            leftIcon={!isDownloading && <Download size={18} />}
-            className="mx-auto mt-6 min-w-40"
-          >
-            {isDownloading ? "Downloading..." : "Download"}
-          </Button>
-        </div>
+  if (!ready) {
+    return (
+      <div className="mx-auto w-full max-w-3xl px-5 py-16" role="status" aria-label="Loading">
+        <Skeleton className="h-3 w-32" />
+        <Skeleton className="mt-4 h-10 w-3/4" />
+        <Skeleton className="mt-8 h-48 w-full rounded-2xl" />
       </div>
+    );
+  }
+
+  const active: Partial<Record<CircleId, boolean>> = {};
+  ikigai.answers.forEach((step) => {
+    const circle = CIRCLE_BY_STEP[step.id as keyof typeof CIRCLE_BY_STEP];
+    if (circle) active[circle.id] = isSectionComplete(step);
+  });
+  const doneCount = Object.values(active).filter(Boolean).length;
+  const started = doneCount > 0 || ikigai.answers.some((s) => s.questions.some((q) => q.answer?.length));
+
+  const stage = !started
+    ? { title: "Let's find your ikigai", body: "Answer four short sets of questions about what you love, what you're good at, what the world needs, and what you can be paid for. It takes about ten minutes.", cta: "Begin" }
+    : doneCount < 4
+      ? { title: "Pick up where you left off", body: `You've completed ${doneCount} of 4 parts. Your answers are saved as you go.`, cta: "Continue" }
+      : !ikigai.ikigaiSelected
+        ? { title: "Your ideas are ready to explore", body: "Your answers are complete. Choose the ikigai statement that sounds most like you.", cta: "See my ideas" }
+        : { title: "One last step: your card", body: "Turn your statement into a card you can keep, download, or share.", cta: "Design my card" };
+
+  return (
+    <div className="mx-auto w-full max-w-5xl px-5 py-12 sm:px-8 sm:py-16">
+      <Card className="grid items-center gap-8 overflow-hidden p-6 sm:p-10 md:grid-cols-[1fr_280px]">
+        <div>
+          <Greeting />
+          <h1 className="mt-3 font-display text-3xl font-semibold tracking-tight sm:text-4xl">{stage.title}</h1>
+          <p className="mt-4 text-lg text-muted-foreground">{stage.body}</p>
+          {ikigai.ikigaiSelected && (
+            <blockquote className="mt-6 border-l-2 border-primary pl-4 font-display text-lg">
+              {displayStatement(ikigai.ikigaiSelected.ikigai)}
+            </blockquote>
+          )}
+          <ButtonLink href={resumeHref(ikigai)} size="lg" className="mt-8">
+            {stage.cta} <ArrowRight className="size-4" aria-hidden="true" />
+          </ButtonLink>
+        </div>
+        <IkigaiDiagram
+          className="mx-auto max-w-[260px]"
+          active={active}
+          centerActive={Boolean(ikigai.ikigaiSelected)}
+          showLabels
+        />
+      </Card>
     </div>
   );
 }

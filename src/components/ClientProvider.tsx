@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useSyncExternalStore } from "react";
 import dynamic from "next/dynamic";
 import { Toaster } from "react-hot-toast";
 import CookieConsent from "react-cookie-consent";
@@ -10,89 +10,12 @@ import { hasClientConfig } from "@/firebase/firebaseClient";
 import { isReactNativeWebView } from "@/utils/platform";
 import ErrorBoundary from "./ErrorBoundary";
 
-// Lazy load auth modal for better initial load (it's conditionally rendered)
 const AuthModal = dynamic(() => import("@/components/auth/AuthModal"), {
   ssr: false,
 });
 
-// ============================================================================
-// Types
-// ============================================================================
+const noopSubscribe = () => () => {};
 
-interface ClientProviderProps {
-  children: React.ReactNode;
-}
-
-// ============================================================================
-// Viewport Height Hook
-// ============================================================================
-
-/**
- * Custom hook to handle dynamic viewport height for mobile browsers
- * Sets a CSS variable --vh that can be used instead of vh units
- */
-function useViewportHeight(): void {
-  useEffect(() => {
-    function adjustHeight(): void {
-      const vh = window.innerHeight * 0.01;
-      document.documentElement.style.setProperty("--vh", `${vh}px`);
-    }
-
-    // Initial adjustment
-    adjustHeight();
-
-    // Listen for resize and orientation changes
-    window.addEventListener("resize", adjustHeight);
-    window.addEventListener("orientationchange", adjustHeight);
-
-    return () => {
-      window.removeEventListener("resize", adjustHeight);
-      window.removeEventListener("orientationchange", adjustHeight);
-    };
-  }, []);
-}
-
-// ============================================================================
-// React Native WebView Hook
-// ============================================================================
-
-/**
- * Custom hook to handle React Native WebView specific styling
- */
-function useReactNativeWebView(): boolean {
-  const [isRNWebView, setIsRNWebView] = useState(false);
-
-  useEffect(() => {
-    const isWebView = isReactNativeWebView();
-    setIsRNWebView(isWebView);
-
-    if (isWebView) {
-      document.body.classList.add("noscroll");
-    }
-
-    return () => {
-      document.body.classList.remove("noscroll");
-    };
-  }, []);
-
-  return isRNWebView;
-}
-
-// ============================================================================
-// Client Provider Component
-// ============================================================================
-
-/**
- * Client-side provider component that wraps the application
- *
- * Handles:
- * - Authentication state initialization
- * - Store hydration
- * - Viewport height adjustments
- * - React Native WebView compatibility
- * - Cookie consent
- * - Toast notifications
- */
 function AuthBootstrap(): null {
   useAuthToken();
   useInitializeStores();
@@ -101,66 +24,49 @@ function AuthBootstrap(): null {
 
 export function ClientProvider({
   children,
-}: ClientProviderProps): React.ReactElement {
-  const isRNWebView = useReactNativeWebView();
-
-  // Handle viewport height for mobile browsers
-  useViewportHeight();
+}: {
+  children: React.ReactNode;
+}): React.ReactElement {
+  const isRNWebView = useSyncExternalStore(noopSubscribe, isReactNativeWebView, () => false);
 
   return (
     <ErrorBoundary>
-      <div className="flex flex-col h-full">
-        {hasClientConfig ? <AuthBootstrap /> : null}
-        {children}
+      {hasClientConfig ? <AuthBootstrap /> : null}
+      {children}
 
-        {/* Cookie consent - hide in React Native WebView */}
-        {!isRNWebView && (
-          <div role="region" aria-label="Cookie consent">
-            <CookieConsent
-              buttonText="Accept"
-              cookieName="ikigai-cookie-consent"
-              style={{ background: "#2B373B" }}
-              buttonStyle={{
-                color: "#4e503b",
-                fontSize: "13px",
-                background: "#fff",
-                borderRadius: "4px",
-                padding: "8px 16px",
-              }}
-              expires={365}
-            >
-              This app uses cookies to enhance the user experience.
-            </CookieConsent>
-          </div>
-        )}
+      {!isRNWebView && (
+        <div role="region" aria-label="Cookie consent">
+          <CookieConsent
+            buttonText="Got it"
+            cookieName="ikigai-cookie-consent"
+            expires={365}
+            disableStyles
+            containerClasses="fixed inset-x-3 bottom-20 z-50 mx-auto flex max-w-xl items-center justify-between gap-4 rounded-2xl border border-border bg-card px-5 py-4 text-sm text-foreground shadow-lg sm:bottom-6"
+            buttonClasses="shrink-0 whitespace-nowrap rounded-full bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary-hover"
+            contentClasses="text-muted-foreground"
+          >
+            We use cookies to keep you signed in and improve the experience.
+          </CookieConsent>
+        </div>
+      )}
 
-        {/* Global toast notifications */}
-        <Toaster
-          position="top-right"
-          toastOptions={{
-            duration: 4000,
-            style: {
-              background: "#363636",
-              color: "#fff",
-            },
-            success: {
-              iconTheme: {
-                primary: "#4ade80",
-                secondary: "#fff",
-              },
-            },
-            error: {
-              iconTheme: {
-                primary: "#f87171",
-                secondary: "#fff",
-              },
-            },
-          }}
-        />
+      <Toaster
+        position="top-center"
+        toastOptions={{
+          duration: 4000,
+          style: {
+            background: "#1f1a17",
+            color: "#faf7f2",
+            borderRadius: "9999px",
+            fontSize: "14px",
+            padding: "10px 16px",
+          },
+          success: { iconTheme: { primary: "#2f8a6d", secondary: "#faf7f2" } },
+          error: { iconTheme: { primary: "#e8836b", secondary: "#1f1a17" } },
+        }}
+      />
 
-        {/* Auth modal - rendered at root level for proper z-index */}
-        <AuthModal />
-      </div>
+      <AuthModal />
     </ErrorBoundary>
   );
 }

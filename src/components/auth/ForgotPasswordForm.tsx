@@ -1,12 +1,14 @@
 "use client";
 
 import { useCallback, useState } from "react";
-import Link from "next/link";
-import { MailIcon } from "lucide-react";
+import { MailCheck, MailIcon } from "lucide-react";
 import toast from "react-hot-toast";
 import { useAuthActions } from "@/hooks/use-auth-actions";
 import { hasClientConfig } from "@/firebase/firebaseClient";
+import { Button, ButtonLink } from "@/components/ui/Button";
+import { Input } from "@/components/ui/Input";
 import { FooterLinks } from "./AuthPageBits";
+import { AuthCard, AuthErrorAlert } from "./AuthCard";
 
 export function ForgotPasswordForm() {
   const { resetPassword, isLoading, error, clearError } = useAuthActions();
@@ -35,50 +37,52 @@ export function ForgotPasswordForm() {
   );
 
   return (
-    <div className="w-full max-w-md mx-auto bg-white rounded-xl shadow-lg border border-gray-100 p-8">
-      <h1 className="text-2xl font-semibold text-gray-900 mb-6 text-center">Forgot password</h1>
+    <AuthCard
+      title={resetSent ? "Check your inbox" : "Reset your password"}
+      description={
+        resetSent
+          ? "We sent a reset link to your email. Follow it, then come back to sign in."
+          : "Enter the email you signed up with and we'll send you a reset link."
+      }
+      footer={<FooterLinks mode="forgot" />}
+    >
       {resetSent ? (
-        <div className="space-y-4 text-center">
-          <p className="text-sm text-gray-700" role="status">
-            Check your inbox for a password reset link. Then return to sign in.
+        <div className="space-y-5 text-center">
+          <div className="mx-auto flex size-12 items-center justify-center rounded-full bg-primary-soft text-primary">
+            <MailCheck className="size-5" aria-hidden="true" />
+          </div>
+          <p className="text-sm text-muted-foreground" role="status">
+            Didn&apos;t get it? Check your spam folder or try again in a few minutes.
           </p>
-          <Link
-            href="/login"
-            className="inline-block w-full bg-blue-600 text-white py-3 px-4 rounded-lg hover:bg-blue-700 transition-colors font-medium text-center"
-          >
+          <ButtonLink href="/login" fullWidth size="lg">
             Back to sign in
-          </Link>
+          </ButtonLink>
         </div>
       ) : (
-        <form onSubmit={onSubmit} className="space-y-4">
-          {error && (
-            <div className="p-3 bg-red-50 text-red-700 text-sm rounded-md border border-red-200" role="alert">
-              {error}
-            </div>
-          )}
-          <div>
-            <label htmlFor="auth-email" className="block text-sm font-medium text-gray-700 mb-2">Email</label>
-            <input
-              id="auth-email"
-              type="email"
-              value={email}
-              onChange={(e) => { setEmail(e.target.value); clearError(); }}
-              placeholder="you@example.com"
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              required
-              autoComplete="email"
-            />
-          </div>
-          <button
+        <form onSubmit={onSubmit} className="space-y-5">
+          {error && <AuthErrorAlert message={error} />}
+          <Input
+            id="auth-email"
+            label="Email"
+            type="email"
+            value={email}
+            onChange={(e) => { setEmail(e.target.value); clearError(); }}
+            placeholder="you@example.com"
+            required
+            autoComplete="email"
+          />
+          <Button
             type="submit"
-            disabled={isLoading}
-            className="w-full bg-blue-600 text-white py-3 px-4 rounded-lg hover:bg-blue-700 transition-colors duration-200 font-medium disabled:opacity-50 flex items-center justify-center gap-2"
+            fullWidth
+            size="lg"
+            isLoading={isLoading}
+            loadingText="Sending…"
+            leftIcon={<MailIcon className="size-4" aria-hidden="true" />}
           >
-            {isLoading ? "Loading..." : (<><MailIcon size={20} /> Send reset link</>)}
-          </button>
+            Send reset link
+          </Button>
         </form>
       )}
-      <div className="mt-6"><FooterLinks mode="forgot" /></div>
-    </div>
+    </AuthCard>
   );
 }

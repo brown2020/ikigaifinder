@@ -1,177 +1,75 @@
 "use client";
 
-import { useAuthStore } from "@/zustand";
+import { useState } from "react";
 import Image from "next/image";
-import Link from "next/link";
-import { useMemo, useState } from "react";
-import {
-  FacebookShareButton,
-  TwitterShareButton,
-  LinkedinShareButton,
-  FacebookIcon,
-  TwitterIcon,
-  LinkedinIcon,
-  EmailIcon,
-  EmailShareButton,
-} from "react-share";
-import { absoluteUrl } from "@/utils/baseUrl";
-import { Button } from "@/components/ui/Button";
-import { downloadImage } from "@/utils/downloadImage";
+import { Lock } from "lucide-react";
+import { ButtonLink } from "@/components/ui/Button";
+import { Eyebrow } from "@/components/ui/Eyebrow";
+import IkigaiDiagram from "@/components/ikigai/IkigaiDiagram";
+import SharePanel from "@/components/share/SharePanel";
 
-export default function ShareImagePage({
-  userId,
-  viewerUid,
-  initialImageUrl,
-  initialSharableUrl,
-}: {
+interface ShareImagePageProps {
   userId: string;
-  viewerUid: string | null;
-  initialImageUrl: string | null;
-  initialSharableUrl: boolean;
-}): React.ReactElement {
-  const clientUid = useAuthStore((s) => s.uid);
+  isOwner: boolean;
+  imageUrl: string | null;
+  statement: string | null;
+  sharable: boolean;
+}
 
-  const isOwner = useMemo(() => {
-    // Prefer the server-verified uid (session cookie), fall back to client auth store.
-    const effectiveUid = viewerUid ?? clientUid ?? "";
-    return effectiveUid === userId;
-  }, [clientUid, userId, viewerUid]);
+export default function ShareImagePage({ userId, isOwner, imageUrl, statement, sharable }: ShareImagePageProps) {
+  const [isPublic, setIsPublic] = useState(sharable);
 
-  const [sharableUrl, setSharableUrl] = useState(initialSharableUrl);
-  const [errorMessage, setErrorMessage] = useState("");
-  const [imageUrl] = useState<string>(initialImageUrl ?? "");
-  const [isUpdatingShare, setIsUpdatingShare] = useState(false);
-  const [isDownloading, setIsDownloading] = useState(false);
-
-  const currentPageUrl = absoluteUrl(`/ikigai/${userId}`);
-  const title = "Check out my Ikigai!";
-  const bodyText = `I wanted to share my Ikigai with you. Check it out here:`;
-
-  const toggleSharableStatus = async () => {
-    try {
-      if (!isOwner) return;
-      if (isUpdatingShare) return;
-      setIsUpdatingShare(true);
-      const nextSharable = !sharableUrl;
-      const response = await fetch("/api/ikigai/sharing", {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ userId, sharable: nextSharable }),
-      });
-
-      if (!response.ok) {
-        throw new Error(`Failed to update (${response.status})`);
-      }
-
-      setSharableUrl(nextSharable);
-    } catch {
-      setErrorMessage("Failed to update share settings. Please try again.");
-    } finally {
-      setIsUpdatingShare(false);
-    }
-  };
-
-  const handleDownload = async () => {
-    if (!imageUrl) return;
-    if (isDownloading) return;
-    setIsDownloading(true);
-    try {
-      await downloadImage(imageUrl);
-    } catch {
-      setErrorMessage("Failed to download the image. Please try again.");
-    } finally {
-      setIsDownloading(false);
-    }
-  };
-
-  const canView = Boolean(imageUrl) && (sharableUrl || isOwner);
-  const effectiveError =
-    errorMessage ||
-    (!imageUrl
-      ? "No image is available for this Ikigai."
-      : "Access to this image is restricted by the owner.");
+  if (!imageUrl) {
+    return (
+      <div className="mx-auto flex max-w-lg flex-col items-center px-5 py-20 text-center">
+        <span className="grid size-14 place-items-center rounded-full bg-muted text-muted-foreground">
+          <Lock className="size-6" aria-hidden="true" />
+        </span>
+        <h1 className="mt-6 font-display text-3xl font-semibold">
+          {isOwner ? "You haven't made a card yet" : "This ikigai is private"}
+        </h1>
+        <p className="mt-3 text-muted-foreground">
+          {isOwner
+            ? "Finish your journey to create a card you can share."
+            : "Its owner hasn't shared it publicly. You can still discover your own."}
+        </p>
+        <ButtonLink href={isOwner ? "/dashboard" : "/"} size="lg" className="mt-8">
+          {isOwner ? "Go to my ikigai" : "Find my ikigai"}
+        </ButtonLink>
+      </div>
+    );
+  }
 
   return (
-    <div className="w-full max-w-3xl mx-auto py-5 px-5">
-      {canView ? (
+    <div className="mx-auto w-full max-w-6xl px-5 pb-16 pt-10 sm:px-8 sm:pt-14">
+      <div className="grid gap-10 lg:grid-cols-[minmax(0,6fr)_minmax(0,5fr)] lg:items-center lg:gap-14">
+        <div className="relative aspect-square w-full overflow-hidden rounded-2xl bg-muted shadow-[0_24px_60px_-30px_rgba(31,26,23,0.45)]">
+          <Image src={imageUrl} alt={statement ? `Ikigai card: ${statement}` : "Ikigai card"} fill sizes="(max-width: 1024px) 100vw, 600px" className="object-cover" priority />
+        </div>
+
         <div>
-          {errorMessage ? (
-            <div
-              className="mb-4 p-3 bg-red-50 border border-red-200 rounded-md text-red-700 text-sm"
-              role="alert"
-            >
-              {errorMessage}
-            </div>
-          ) : null}
-          <Image
-            className="h-full w-full max-w-xl max-h-xl object-cover mx-auto shadow-md"
-            src={imageUrl}
-            alt="My Ikigai card"
-            height={768}
-            width={768}
-            sizes="(max-width: 768px) 100vw, 768px"
-            priority
-          />
-          <div className="mt-6">
-            {sharableUrl && (
-              <div className="flex flex-wrap gap-3 mx-auto h-12 justify-center">
-                <FacebookShareButton url={currentPageUrl} title={title}>
-                  <FacebookIcon size={48} />
-                </FacebookShareButton>
-
-                <TwitterShareButton url={currentPageUrl} title={title}>
-                  <TwitterIcon size={48} />
-                </TwitterShareButton>
-
-                <LinkedinShareButton url={currentPageUrl}>
-                  <LinkedinIcon size={48} />
-                </LinkedinShareButton>
-
-                <EmailShareButton
-                  url={currentPageUrl}
-                  subject={title}
-                  body={bodyText}
-                >
-                  <EmailIcon size={48} />
-                </EmailShareButton>
-              </div>
-            )}
-          </div>
-
-          {isOwner && (
-            <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 justify-center mt-6">
-              <Button
-                variant={sharableUrl ? "neutral" : "secondary"}
-                onClick={toggleSharableStatus}
-                isLoading={isUpdatingShare}
-                loadingText="Updating..."
-                className="min-w-44"
-              >
-                {sharableUrl ? "Make private" : "Make sharable"}
-              </Button>
-              <Button
-                variant="primary"
-                onClick={handleDownload}
-                isLoading={isDownloading}
-                loadingText="Downloading..."
-                className="min-w-44"
-              >
-                Download
-              </Button>
-            </div>
+          {isOwner ? (
+            <>
+              <Eyebrow>{isPublic ? "Your public page" : "Only you can see this"}</Eyebrow>
+              <h1 className="mt-3 font-display text-3xl font-semibold tracking-tight">This is how others see your card</h1>
+              <SharePanel className="mt-8" userId={userId} coverImage={imageUrl} initialSharable={sharable} onSharableChange={setIsPublic} />
+            </>
+          ) : (
+            <>
+              <Eyebrow>生き甲斐 · ikigai</Eyebrow>
+              <h1 className="mt-3 font-display text-3xl font-semibold leading-tight tracking-tight sm:text-4xl">
+                {statement ?? "Someone found their reason for being."}
+              </h1>
+              <p className="mt-5 text-lg text-muted-foreground">
+                Ikigai is where what you love, what you&apos;re good at, what the world needs, and what you can be paid for overlap. Find yours in about ten minutes.
+              </p>
+              <ButtonLink href="/" size="lg" className="mt-8">
+                Find my ikigai
+              </ButtonLink>
+              <IkigaiDiagram className="mt-10 max-w-[220px]" />
+            </>
           )}
         </div>
-      ) : (
-        <div className="mx-auto p-6 bg-linear-to-r from-gray-100 to-gray-300 shadow-md w-full max-w-xl aspect-square">
-          <div className="text-center h-full text-xl font-bold flex items-center justify-center">
-            {effectiveError}
-          </div>
-        </div>
-      )}
-      <div className="w-full">
-        <Link href="/ikigai-finder" className="block w-fit mx-auto mt-6">
-          <Button variant="primary">Create your Ikigai</Button>
-        </Link>
       </div>
     </div>
   );

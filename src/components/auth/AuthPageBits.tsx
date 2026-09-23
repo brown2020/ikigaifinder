@@ -3,7 +3,9 @@
 import { useState } from "react";
 import Link from "next/link";
 import { Eye, EyeOff } from "lucide-react";
+import { Input } from "@/components/ui/Input";
 import type { AuthPageMode } from "./auth-page-utils";
+import { authLinkClasses } from "./AuthCard";
 
 export function PasswordField({
   id,
@@ -19,62 +21,60 @@ export function PasswordField({
   placeholder: string;
 }) {
   const [show, setShow] = useState(false);
+  const isNew = autoComplete === "new-password";
   return (
-    <div>
-      <label htmlFor={id} className="block text-sm font-medium text-gray-700 mb-2">
-        Password
-      </label>
-      <div className="relative">
-        <input
-          id={id}
-          name="password"
-          type={show ? "text" : "password"}
-          autoComplete={autoComplete}
-          value={value}
-          onChange={(e) => onChange(e.target.value)}
-          placeholder={placeholder}
-          className="w-full px-4 py-3 pr-12 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-          required
-          minLength={autoComplete === "new-password" ? 6 : undefined}
-        />
+    <Input
+      id={id}
+      name="password"
+      label="Password"
+      type={show ? "text" : "password"}
+      autoComplete={autoComplete}
+      value={value}
+      onChange={(e) => onChange(e.target.value)}
+      placeholder={placeholder}
+      required
+      minLength={isNew ? 6 : undefined}
+      helperText={isNew ? "At least 6 characters." : undefined}
+      rightIcon={
         <button
           type="button"
           aria-label={show ? "Hide password" : "Show password"}
+          aria-pressed={show}
           onClick={() => setShow((v) => !v)}
-          className="absolute right-2 top-1/2 -translate-y-1/2 rounded p-1 text-gray-600 hover:bg-gray-100"
+          className="rounded-full p-2 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
         >
-          {show ? <EyeOff size={20} /> : <Eye size={20} />}
+          {show ? <EyeOff className="size-4" /> : <Eye className="size-4" />}
         </button>
-      </div>
-    </div>
+      }
+    />
   );
 }
 
 export function FooterLinks({ mode }: { mode: AuthPageMode }) {
   if (mode === "login") {
     return (
-      <p className="text-sm text-center text-gray-600">
-        No account?{" "}
-        <Link href="/signup" className="text-blue-600 underline">
-          Create account
+      <p className="text-center text-sm text-muted-foreground">
+        New to Ikigai Finder?{" "}
+        <Link href="/signup" className={authLinkClasses}>
+          Create an account
         </Link>
       </p>
     );
   }
   if (mode === "signup") {
     return (
-      <p className="text-sm text-center text-gray-600">
+      <p className="text-center text-sm text-muted-foreground">
         Already have an account?{" "}
-        <Link href="/login" className="text-blue-600 underline">
+        <Link href="/login" className={authLinkClasses}>
           Sign in
         </Link>
       </p>
     );
   }
   return (
-    <p className="text-sm text-center text-gray-600">
+    <p className="text-center text-sm text-muted-foreground">
       Remembered it?{" "}
-      <Link href="/login" className="text-blue-600 underline">
+      <Link href="/login" className={authLinkClasses}>
         Back to sign in
       </Link>
     </p>

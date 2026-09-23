@@ -1,7 +1,9 @@
 "use client";
 
 import { Component, ErrorInfo, ReactNode } from "react";
+import Link from "next/link";
 import { AlertTriangle, RefreshCw, Home, Bug } from "lucide-react";
+import { buttonClasses } from "@/components/ui/Button";
 
 // ============================================================================
 // Types
@@ -82,10 +84,6 @@ class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundaryState> {
     window.location.reload();
   };
 
-  handleGoHome = (): void => {
-    window.location.href = "/";
-  };
-
   handleToggleDetails = (): void => {
     this.setState((prev) => ({ showDetails: !prev.showDetails }));
   };
@@ -106,20 +104,24 @@ class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundaryState> {
     // Never show details in production
     if (IS_PRODUCTION) {
       return (
-        <p className="text-sm text-gray-500 mt-4">
-          Error ID: {errorId || "UNKNOWN"}
+        <p className="mt-6 text-xs text-muted-foreground">
+          Error ID: <code className="font-mono">{errorId || "UNKNOWN"}</code>
         </p>
       );
     }
+
+    const toggleClasses =
+      "inline-flex items-center gap-2 rounded-full px-2 py-1 text-sm text-muted-foreground transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring";
 
     if (!showDetails) {
       return (
         <button
           type="button"
           onClick={this.handleToggleDetails}
-          className="flex items-center gap-2 text-sm text-gray-500 hover:text-gray-700 mt-4 transition-colors"
+          aria-expanded={false}
+          className={`${toggleClasses} mt-6`}
         >
-          <Bug size={16} />
+          <Bug className="size-4" aria-hidden="true" />
           Show technical details
         </button>
       );
@@ -130,26 +132,27 @@ class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundaryState> {
         <button
           type="button"
           onClick={this.handleToggleDetails}
-          className="flex items-center gap-2 text-sm text-gray-500 hover:text-gray-700 mb-2 transition-colors"
+          aria-expanded={true}
+          className={`${toggleClasses} mb-2`}
         >
-          <Bug size={16} />
+          <Bug className="size-4" aria-hidden="true" />
           Hide technical details
         </button>
-        <div className="bg-gray-900 text-gray-100 p-4 rounded-lg overflow-auto max-h-64 text-sm font-mono">
-          <p className="text-red-400 font-semibold mb-2">
+        <div className="max-h-64 overflow-auto rounded-xl border border-border bg-muted p-4 font-mono text-sm text-foreground">
+          <p className="mb-2 font-semibold text-destructive">
             {error?.name}: {error?.message}
           </p>
           {error?.stack && (
-            <pre className="text-gray-400 whitespace-pre-wrap text-xs">
+            <pre className="whitespace-pre-wrap text-xs text-muted-foreground">
               {error.stack}
             </pre>
           )}
           {errorInfo?.componentStack && (
             <>
-              <p className="text-yellow-400 font-semibold mt-4 mb-2">
-                Component Stack:
+              <p className="mb-2 mt-4 font-semibold text-foreground">
+                Component stack:
               </p>
-              <pre className="text-gray-400 whitespace-pre-wrap text-xs">
+              <pre className="whitespace-pre-wrap text-xs text-muted-foreground">
                 {errorInfo.componentStack}
               </pre>
             </>
@@ -167,50 +170,49 @@ class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundaryState> {
       return children;
     }
 
-    // Use custom fallback if provided
     if (fallback) {
       return fallback;
     }
 
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-50 to-gray-100 p-4">
-        <div className="bg-white rounded-2xl shadow-xl p-8 max-w-md w-full text-center">
-          {/* Error Icon */}
-          <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-6">
-            <AlertTriangle className="w-8 h-8 text-red-500" />
+      <div className="flex min-h-dvh items-center justify-center bg-background p-5">
+        <div
+          role="alert"
+          className="w-full max-w-md rounded-2xl border border-border bg-card p-8 text-center shadow-[0_1px_2px_rgba(31,26,23,0.04),0_8px_24px_-12px_rgba(31,26,23,0.12)] sm:p-10"
+        >
+          <div className="mx-auto mb-6 flex size-14 items-center justify-center rounded-full bg-destructive-soft text-destructive">
+            <AlertTriangle className="size-6" aria-hidden="true" />
           </div>
 
-          {/* Error Message */}
-          <h1 className="text-2xl font-bold text-gray-900 mb-2">
+          <h1 className="font-display text-2xl font-semibold tracking-tight text-foreground sm:text-3xl">
             Something went wrong
           </h1>
-          <p className="text-gray-600 mb-6">
+          <p className="mt-3 text-muted-foreground">
             {IS_PRODUCTION
               ? "We're sorry, but something unexpected happened. Please try again or return to the home page."
               : "An error occurred while rendering this page. Check the console for more details."}
           </p>
 
-          {/* Action Buttons */}
-          <div className="flex flex-col sm:flex-row gap-3 justify-center">
+          <div className="mt-8 flex flex-col justify-center gap-3 sm:flex-row">
             <button
               type="button"
               onClick={this.handleRetry}
-              className="flex items-center justify-center gap-2 px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium"
+              className={buttonClasses({ variant: "primary" })}
             >
-              <RefreshCw size={18} />
-              Try Again
+              <RefreshCw className="size-4" aria-hidden="true" />
+              Try again
             </button>
-            <button
-              type="button"
-              onClick={this.handleGoHome}
-              className="flex items-center justify-center gap-2 px-6 py-3 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors font-medium"
+            {/* The boundary lives in the root layout, so reset it alongside navigating. */}
+            <Link
+              href="/"
+              onClick={this.handleRetry}
+              className={buttonClasses({ variant: "neutral" })}
             >
-              <Home size={18} />
-              Go Home
-            </button>
+              <Home className="size-4" aria-hidden="true" />
+              Go home
+            </Link>
           </div>
 
-          {/* Error Details (dev only) */}
           {this.renderErrorDetails()}
         </div>
       </div>

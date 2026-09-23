@@ -30,6 +30,7 @@ export const questionSectionSchema = z.object({
 export const generateIkigaiSchema = z.object({
   questions: z.array(questionSectionSchema).min(1).max(10),
   customPrompt: z.string().max(1000).optional().default(""),
+  existing: z.array(z.string().max(1000)).max(60).optional().default([]),
 });
 
 /**

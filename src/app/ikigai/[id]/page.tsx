@@ -1,111 +1,49 @@
-import ShareImagePage from "./_components/share-image-page";
-import { adminDb } from "@/firebase/firebaseAdmin";
+import type { Metadata } from "next";
 import { getOptionalServerUid } from "@/lib/auth/session-server";
-import { Metadata } from "next";
-
-
-function safeSiteUrl(): URL {
-  const raw = process.env.NEXT_PUBLIC_BASE_URL || "https://ikigaifinder.ai";
-  try {
-    return new URL(raw);
-  } catch {
-    return new URL("https://ikigaifinder.ai");
-  }
-}
+import { getIkigaiSummary, siteUrl } from "@/lib/ikigaiServer";
+import ShareImagePage from "./_components/share-image-page";
 
 type Props = { params: Promise<{ id: string }> };
 
 export default async function IkigaiShare({ params }: Props) {
-  const [{ id }, viewerUid] = await Promise.all([
-    params,
-    getOptionalServerUid(),
-  ]);
-  const isOwner = Boolean(viewerUid && viewerUid === id);
-
-  let imageUrl: string | null = null;
-  let sharableUrl = false;
-
-  try {
-    const docRef = adminDb
-      .collection("ikigaiUsers")
-      .doc(id)
-      .collection("ikigai")
-      .doc("main");
-    const docSnap = await docRef.get();
-    if (docSnap.exists) {
-      const data = docSnap.data();
-      imageUrl = (data?.ikigaiCoverImage as string | undefined) ?? null;
-      sharableUrl = Boolean(data?.ikigaiSharableUrl);
-    }
-  } catch {
-    // fall through to restricted/default view
-  }
-
-  // Never leak non-sharable image URLs to non-owners.
-  const initialImageUrl = isOwner || sharableUrl ? imageUrl : null;
+  const [{ id }, viewerUid] = await Promise.all([params, getOptionalServerUid()]);
+  const isOwner = viewerUid === id;
+  const summary = await getIkigaiSummary(id);
+  const visible = isOwner || summary.sharable;
 
   return (
     <ShareImagePage
       userId={id}
-      viewerUid={viewerUid}
-      initialImageUrl={initialImageUrl}
-      initialSharableUrl={sharableUrl}
+      isOwner={isOwner}
+      imageUrl={visible ? summary.coverImage : null}
+      statement={visible ? summary.statement : null}
+      sharable={summary.sharable}
     />
   );
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
-  const { id: userId } = await params;
+  const { id } = await params;
+  const { sharable, coverImage, statement } = await getIkigaiSummary(id);
+  const isPublic = sharable && Boolean(coverImage);
 
-  let imageUrl = "";
-  let sharableUrl = false;
-
-  try {
-    const docRef = adminDb
-      .collection("ikigaiUsers")
-      .doc(userId)
-      .collection("ikigai")
-      .doc("main");
-    const docSnap = await docRef.get();
-
-    if (docSnap.exists) {
-      const data = docSnap.data();
-      imageUrl = data?.ikigaiCoverImage || "";
-      sharableUrl = data?.ikigaiSharableUrl || false;
-    }
-  } catch {
-    // fall back to default social image
-  }
-
-  const shareUrl =
-    sharableUrl && imageUrl ? imageUrl : "/assets/ikigai-finder.webp";
+  const title = "An ikigai, found";
+  const description = isPublic && statement ? statement : "Discover your own ikigai with Ikigai Finder.";
+  const image = isPublic && coverImage ? coverImage : "/assets/ikigai-finder.webp";
 
   return {
-    metadataBase: safeSiteUrl(),
-    title: "Check out my Ikigai!",
-    description: "I just created my Ikigai with Ikigai Finder AI.",
-
+    metadataBase: siteUrl(),
+    title,
+    description,
+    robots: isPublic ? undefined : { index: false, follow: false },
     openGraph: {
-      title: "Check out my Ikigai!",
-      description: "I just created my Ikigai with Ikigai Finder AI.",
-      url: `${
-        process.env.NEXT_PUBLIC_BASE_URL || "https://ikigaifinder.ai"
-      }/ikigai/${userId}`,
-      siteName: "Ikigai Finder AI",
-      locale: "en_US",
+      title,
+      description,
+      url: `/ikigai/${id}`,
+      siteName: "Ikigai Finder",
       type: "website",
-      images: [
-        {
-          url: shareUrl,
-        },
-      ],
+      images: [{ url: image, width: 1080, height: 1080 }],
     },
-
-    twitter: {
-      card: "summary_large_image",
-      title: "Check out my Ikigai!",
-      description: "I just created my Ikigai with Ikigai Finder AI.",
-      images: [shareUrl],
-    },
+    twitter: { card: "summary_large_image", title, description, images: [image] },
   };
 }

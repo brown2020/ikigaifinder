@@ -18,7 +18,7 @@ export function Container({
   size = "lg",
 }: ContainerProps): React.ReactElement {
   return (
-    <div className={cn("mx-auto w-full px-5 sm:px-10", sizes[size], className)}>
+    <div className={cn("mx-auto w-full px-5 sm:px-8", sizes[size], className)}>
       {children}
     </div>
   );

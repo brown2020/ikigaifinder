@@ -1,67 +1,25 @@
-import type { NavItem } from "@/types";
-import { CircleUserIcon, GoalIcon, LogOut, Target } from "lucide-react";
+import { Compass, Sparkles, UserRound } from "lucide-react";
+import type { LucideIcon } from "lucide-react";
 
-export const navItems: NavItem[] = [
-  {
-    label: "Ikigai Finder",
-    icon: GoalIcon,
-    path: "/ikigai-finder",
-    surveySet: "ikigai",
-  },
-  {
-    label: "Profile",
-    icon: CircleUserIcon,
-    subItems: [
-      {
-        label: "Profile",
-        icon: CircleUserIcon,
-        path: "/profile",
-      },
-      {
-        label: "Generate Ikigai",
-        icon: Target,
-        path: "/generate-ikigai",
-      },
-      {
-        label: "Logout",
-        icon: LogOut,
-        path: "/logout",
-      },
-    ],
-  },
-];
-
-export const navMobileMenu: NavItem[] = [
-  {
-    label: "Ikigai Finder",
-    icon: GoalIcon,
-    path: "/ikigai-finder",
-    surveySet: "ikigai",
-  },
-  {
-    label: "Generate Ikigai",
-    icon: Target,
-    path: "/generate-ikigai",
-  },
-  {
-    label: "You",
-    icon: CircleUserIcon,
-    path: "/profile",
-  },
-];
-
-// ============================================================================
-// Footer Navigation
-// ============================================================================
-
-export interface FooterNavItem {
-  name: string;
+export interface NavLink {
+  label: string;
   path: string;
+  icon: LucideIcon;
 }
 
-export const footerNav: FooterNavItem[] = [
+export const appNav: NavLink[] = [
+  { label: "My ikigai", path: "/dashboard", icon: Sparkles },
+  { label: "Journey", path: "/ikigai-finder", icon: Compass },
+  { label: "Profile", path: "/profile", icon: UserRound },
+];
+
+export const footerNav: { name: string; path: string }[] = [
   { name: "About", path: "/about" },
+  { name: "Support", path: "/support" },
   { name: "Privacy", path: "/privacy-policy" },
   { name: "Terms", path: "/terms-conditions" },
-  { name: "Support", path: "/support" },
 ];
+
+export function isActivePath(pathname: string, path: string): boolean {
+  return pathname === path || pathname.startsWith(`${path}/`);
+}

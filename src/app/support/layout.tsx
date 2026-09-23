@@ -1,14 +1,11 @@
-import FooterNavBar from "@/components/FooterNavBar";
+import type { Metadata } from "next";
 
-export default function RootLayout({
+export const metadata: Metadata = { title: "Support" };
+
+export default function SupportLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  return (
-    <div className="flex flex-col h-full">
-      <div className="flex-1 p-4">{children}</div>
-      <FooterNavBar />
-    </div>
-  );
+  return children;
 }

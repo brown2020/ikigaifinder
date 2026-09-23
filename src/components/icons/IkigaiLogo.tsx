@@ -1,95 +1,18 @@
-import React from "react";
-
-// ============================================================================
-// Types
-// ============================================================================
-
 interface IkigaiLogoProps {
-  /** CSS class name for sizing and styling */
   className?: string;
-  /** Fill color for the circles */
-  fill?: string;
-  /** Stroke color for the circles */
-  strokeColor?: string;
-  /** Stroke width */
-  strokeWidth?: number;
 }
 
-// ============================================================================
-// Component
-// ============================================================================
-
-/**
- * Ikigai Venn Diagram Logo
- *
- * Renders the iconic 4-circle Venn diagram representing Ikigai:
- * - Top: What you love (Passion)
- * - Right: What you're good at (Profession)
- * - Bottom: What the world needs (Mission)
- * - Left: What you can be paid for (Vocation)
- */
-export default function IkigaiLogo({
-  className = "h-10 w-10",
-  fill = "none",
-  strokeColor = "black",
-  strokeWidth = 25,
-}: IkigaiLogoProps): React.ReactElement {
+/** Brand mark: four overlapping circles with a vermilion center. */
+export default function IkigaiLogo({ className = "size-8" }: IkigaiLogoProps): React.ReactElement {
   return (
-    <svg
-      xmlns="http://www.w3.org/2000/svg"
-      viewBox="0 0 500 500"
-      className={className}
-      aria-label="Ikigai logo"
-      role="img"
-    >
-      {/* Top circle - Passion */}
-      <circle
-        cx="250"
-        cy="150"
-        r="135"
-        fill={fill}
-        stroke={strokeColor}
-        strokeWidth={strokeWidth}
-      />
-      {/* Right circle - Profession */}
-      <circle
-        cx="350"
-        cy="250"
-        r="135"
-        fill={fill}
-        stroke={strokeColor}
-        strokeWidth={strokeWidth}
-      />
-      {/* Bottom circle - Mission */}
-      <circle
-        cx="250"
-        cy="350"
-        r="135"
-        fill={fill}
-        stroke={strokeColor}
-        strokeWidth={strokeWidth}
-      />
-      {/* Left circle - Vocation */}
-      <circle
-        cx="150"
-        cy="250"
-        r="135"
-        fill={fill}
-        stroke={strokeColor}
-        strokeWidth={strokeWidth}
-      />
+    <svg viewBox="0 0 40 40" className={className} aria-hidden="true">
+      <g fill="none" stroke="currentColor" strokeWidth="1.6">
+        <circle cx="20" cy="13" r="9" />
+        <circle cx="13" cy="20" r="9" />
+        <circle cx="27" cy="20" r="9" />
+        <circle cx="20" cy="27" r="9" />
+      </g>
+      <circle cx="20" cy="20" r="3.2" fill="#b8401a" />
     </svg>
   );
 }
-
-// Named export for convenience
-export { IkigaiLogo };
-
-
-
-
-
-
-
-
-

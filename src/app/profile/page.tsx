@@ -1,11 +1,8 @@
+import type { Metadata } from "next";
 import ProfilePage from "./_components/profile-page";
-import FooterNavBar from "@/components/FooterNavBar";
+
+export const metadata: Metadata = { title: "Profile" };
 
 export default function Profile() {
-  return (
-    <>
-      <ProfilePage />
-      <FooterNavBar />
-    </>
-  );
+  return <ProfilePage />;
 }
