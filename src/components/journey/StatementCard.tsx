@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Check, Pencil } from "lucide-react";
+import { Check, Pencil, Shuffle } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { fieldClasses } from "@/components/ui/Input";
 import ScoreBars, { OverallBadge } from "@/components/ikigai/ScoreBars";
@@ -14,9 +14,15 @@ interface StatementCardProps {
   selected: boolean;
   onSelect: () => void;
   onEdit: (text: string) => void;
+  /** Asks for new statements close to this one. */
+  onMoreLikeThis?: () => void;
+  busy?: boolean;
 }
 
-export default function StatementCard({ item, selected, onSelect, onEdit }: StatementCardProps) {
+const footerButton =
+  "inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-sm font-medium text-primary hover:bg-primary-soft focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:opacity-50";
+
+export default function StatementCard({ item, selected, onSelect, onEdit, onMoreLikeThis, busy }: StatementCardProps) {
   const [editing, setEditing] = useState(false);
   const [draft, setDraft] = useState("");
 
@@ -84,14 +90,19 @@ export default function StatementCard({ item, selected, onSelect, onEdit }: Stat
             <OverallBadge value={item.OverallCompatibility} className="hidden sm:flex" />
           </button>
           {selected && (
-            <div className="flex justify-end border-t border-border px-4 py-2">
+            <div className="flex flex-wrap justify-end gap-1 border-t border-border px-4 py-2">
+              {onMoreLikeThis && (
+                <button type="button" onClick={onMoreLikeThis} disabled={busy} className={footerButton}>
+                  <Shuffle className="size-3.5" aria-hidden="true" /> More like this
+                </button>
+              )}
               <button
                 type="button"
                 onClick={() => {
                   setDraft(displayStatement(item.ikigai));
                   setEditing(true);
                 }}
-                className="inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-sm font-medium text-primary hover:bg-primary-soft focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                className={footerButton}
               >
                 <Pencil className="size-3.5" aria-hidden="true" /> Edit wording
               </button>

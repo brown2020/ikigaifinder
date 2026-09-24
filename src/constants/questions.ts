@@ -73,6 +73,16 @@ export const QUICK_QUESTION_IDS: Record<string, string> = {
   vocation: "marketable_skills",
 };
 
+/** One-tap steers for the next batch of ideas. */
+export const REFINE_PRESETS = [
+  { label: "More creative", guidance: "Be more imaginative and unconventional, while staying true to my answers." },
+  { label: "More practical", guidance: "Make them more practical and realistic to start within a year." },
+  { label: "Smaller scale", guidance: "Focus on a smaller scale: a local community, one team, or a handful of people." },
+  { label: "Bigger impact", guidance: "Aim for bigger, more ambitious impact at a national or global scale." },
+  { label: "Less corporate", guidance: "Avoid corporate jobs and language; favor independent, creative, or community paths." },
+  { label: "More hands-on", guidance: "Favor hands-on, in-person work over desk and screen work." },
+] as const;
+
 export const CARD_STYLES = [
   "Watercolor",
   "Ukiyo-e",

@@ -169,6 +169,10 @@ Product-oriented, ordered by impact and dependency. Each item is sized for one c
 - **User value:** the ikigai diagram shows the person's own words in each circle, a screenshot-worthy artifact that is theirs rather than generic.
 - **Implemented:** the report includes two or three keywords per circle; `IkigaiDiagram` takes `words` and renders them (with an accessible label listing them). The map appears on the insights page, the dashboard, and the public share page when sharing is on (`getIkigaiSummary` returns `keywords` only when the report matches the selected statement).
 
+### M13 — One-tap refinement — DONE
+- **User value:** steering ideas no longer requires writing a prompt.
+- **Implemented:** `REFINE_PRESETS` chips (more creative, more practical, smaller scale, bigger impact, less corporate, more hands-on) run a batch with that steer without overwriting the person's typed guidance; the selected statement offers "More like this" for close variations. Existing in-place wording edits remain.
+
 ### Out of scope / non-goals (for now)
 
 - Distributed rate limiting (Redis) — only needed once multi-instance scale is real; revisit after M1.

@@ -11,7 +11,8 @@ import { Skeleton } from "@/components/ui/Skeleton";
 import { Textarea } from "@/components/ui/Input";
 import { useIkigaiGenerator } from "@/hooks/use-ikigai-generator";
 import { useIkigaiStore } from "@/zustand";
-import { isSameStatement } from "@/utils/ikigaiList";
+import { displayStatement, isSameStatement } from "@/utils/ikigaiList";
+import { REFINE_PRESETS } from "@/constants/questions";
 import { firstIncompleteSection, firstUnstartedSection, isSectionStarted } from "@/utils/journey";
 import type { IkigaiData } from "@/types";
 import JourneyProgress from "./JourneyProgress";
@@ -47,9 +48,10 @@ export default function IdeasStep(): React.ReactElement {
   const autoStarted = useRef(false);
 
   const runGeneration = useCallback(
-    async (current: IkigaiData[], steer: string) => {
+    /** `remembered` is the typed guidance to keep; one-tap steers aren't saved over it. */
+    async (current: IkigaiData[], steer: string, remembered = steer) => {
       const result = await generate({ answers: ikigai.answers, current, guidance: steer });
-      if (result) void updateIkigai({ ikigaiOptions: result, ikigaiGuidance: steer });
+      if (result) void updateIkigai({ ikigaiOptions: result, ikigaiGuidance: remembered });
     },
     [generate, ikigai.answers, updateIkigai]
   );
@@ -143,6 +145,14 @@ export default function IdeasStep(): React.ReactElement {
                   selected={isSameStatement(item, selected)}
                   onSelect={() => setSelected(item)}
                   onEdit={(text) => handleEdit(item, text)}
+                  onMoreLikeThis={() =>
+                    runGeneration(
+                      options,
+                      `Write close variations of this statement, keeping its core idea but changing the audience, format, or scale: "${displayStatement(item.ikigai)}"`,
+                      guidance
+                    )
+                  }
+                  busy={isGenerating}
                 />
               ))}
               {isGenerating && (showInitialSkeleton ? [0, 1, 2] : [0]).map((i) => <StatementSkeleton key={`s${i}`} />)}
@@ -155,6 +165,21 @@ export default function IdeasStep(): React.ReactElement {
 
         <aside className="lg:sticky lg:top-28 lg:col-start-1 lg:row-start-2 lg:self-start">
           <Card className="p-5">
+            <p className="text-sm font-medium" id="refine-label">Refine with one tap</p>
+            <div className="mt-2 flex flex-wrap gap-2" role="group" aria-labelledby="refine-label">
+              {REFINE_PRESETS.map((preset) => (
+                <button
+                  key={preset.label}
+                  type="button"
+                  disabled={isGenerating}
+                  onClick={() => runGeneration(options, preset.guidance, guidance)}
+                  className="h-8 rounded-full border border-border-strong bg-card px-3 text-sm transition-colors hover:border-primary/60 hover:bg-primary-soft focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:opacity-50"
+                >
+                  {preset.label}
+                </button>
+              ))}
+            </div>
+            <div className="my-5 border-t border-border" />
             <Textarea
               id="ikigai-guidance"
               label="Steer the next batch"
