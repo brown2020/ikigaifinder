@@ -1,358 +1,119 @@
 # Ikigai Finder AI
 
-<p align="center">
-  <img src="public/assets/Ikigai-Finder.svg" alt="Ikigai Finder Logo" width="120" height="120">
-</p>
+Discover your *ikigai* (生き甲斐 — “a reason for being”) through an AI-guided questionnaire. Answer structured prompts, get scored ikigai statements (Passion, Profession, Vocation, Mission), generate an illustration, and share a card. Live at [https://ikigaifinder.ai](https://ikigaifinder.ai).
 
-<p align="center">
-  <strong>Discover your life purpose through AI-guided self-discovery</strong>
-</p>
-
-<p align="center">
-  <a href="#features">Features</a> •
-  <a href="#tech-stack">Tech Stack</a> •
-  <a href="#getting-started">Getting Started</a> •
-  <a href="#environment-variables">Environment Variables</a> •
-  <a href="#deployment">Deployment</a> •
-  <a href="#contributing">Contributing</a>
-</p>
-
----
-
-**Ikigai Finder AI** is a modern web application that helps users discover their _Ikigai_ (生き甲斐) — the Japanese concept of "a reason for being." Through an interactive, AI-powered questionnaire, users receive personalized Ikigai statements with compatibility scores and can generate beautiful, shareable cards.
+> Product scope: [`spec.md`](./spec.md). Agent conventions: [`AGENTS.md`](./AGENTS.md).
 
 ## Features
 
-- 🎯 **AI-Guided Discovery** — Interactive stepper form powered by GPT-4o generates unique Ikigai statements based on your responses
-- 🎨 **Visual Ikigai Cards** — Create shareable images with custom AI-generated backgrounds via Stable Diffusion XL
-- 📊 **Compatibility Scores** — See how your Ikigai aligns with Passion, Profession, Vocation, and Mission
-- 🔐 **Secure Authentication** — Firebase Auth with Google Sign-In, Email/Password, and Magic Links
-- 📱 **Mobile-First Design** — Responsive UI optimized for all devices
-- 🌐 **Social Sharing** — Share your Ikigai on Facebook, Twitter, LinkedIn, and Email
-- 💾 **Progress Saving** — All your journey data is saved to your profile
-- 🛡️ **Privacy-First** — Your data stays in your Firebase account
+- Guided questionnaire (`/ikigai-finder`) with a quick-start path (`/ikigai-finder/quick`); guests can answer before signing up
+- Streamed GPT-4o generation of personalized ikigai statements with compatibility scores
+- Insights report and card designer (`/generate-ikigai`, `/report`, `/card`)
+- AI cover image via Fireworks Stable Diffusion XL → Firebase Storage
+- Shareable public page (`/ikigai/[id]`), social share, and image download
+- Dashboard / profile (“My ikigai”) with resume and sharing controls
+- Firebase auth — Google, email/password, passwordless email link
+- Cookie consent and legal pages (privacy, terms, about, support)
 
-## Tech Stack
+## Tech stack
 
-### Core Framework
+| Layer | Tech |
+| --- | --- |
+| Framework | Next.js ^16.3.6 (App Router) |
+| UI | React ^19.2.7, Tailwind CSS ^4.3.2, Lucide, html2canvas, react-share |
+| Language | TypeScript ^6.0.3 |
+| State | Zustand ^5.0.14 |
+| Forms | React Hook Form ^7.81 + Zod ^4.4.3 |
+| Backend | Firebase ^12.16.0 + Firebase Admin ^14.1.0 |
+| AI text | Vercel AI SDK (`ai` ^7) + `@ai-sdk/openai` ^4 + `@ai-sdk/rsc` streaming |
+| AI images | Fireworks REST (SDXL) |
+| Tests / quality | Vitest ^5.0.1, ESLint 9, React Doctor |
 
-| Package                                       | Version | Purpose                                             |
-| --------------------------------------------- | ------- | --------------------------------------------------- |
-| [Next.js](https://nextjs.org/)                | 16.x    | React framework with App Router & Server Components |
-| [React](https://react.dev/)                   | 19.x    | UI library                                          |
-| [TypeScript](https://www.typescriptlang.org/) | 6.x     | Type safety                                         |
+No Stripe / payments in this app.
 
-### Authentication & Backend
+## Project structure
 
-| Package                                                        | Version | Purpose                                 |
-| -------------------------------------------------------------- | ------- | --------------------------------------- |
-| [Firebase](https://firebase.google.com/)                       | 12.x    | Auth, Firestore database, Cloud Storage |
-| [Firebase Admin](https://firebase.google.com/docs/admin/setup) | 14.x    | Server-side Firebase operations         |
+```
+src/
+  app/
+    api/auth/session/      # Session cookie create/clear
+    api/downloadImage/     # Image download proxy
+    api/ikigai/sharing/    # Toggle public sharing
+    ikigai-finder/         # Questionnaire (+ quick/)
+    generate-ikigai/       # Ideas, report, card
+    ikigai/[id]/           # Public share page
+    dashboard/ profile/    # Hub + account
+  lib/                     # Server actions: generateIkigai, generateReport, generateImage
+  components/              # journey, ikigai, share, auth, layout, ui
+  firebase/ zustand/ utils/
+  proxy.ts                 # Session-cookie route protection
+firestore.rules  storage.rules  env.sample
+```
 
-### AI & Generation
-
-| Package                                                                   | Version | Purpose                           |
-| ------------------------------------------------------------------------- | ------- | --------------------------------- |
-| [Vercel AI SDK](https://sdk.vercel.ai/)                                   | 7.x     | Streaming AI responses            |
-| [@ai-sdk/openai](https://sdk.vercel.ai/providers/ai-sdk-providers/openai) | 4.x     | OpenAI integration                |
-| [@ai-sdk/rsc](https://sdk.vercel.ai/docs/ai-sdk-rsc)                      | 3.x     | React Server Components streaming |
-
-### State Management
-
-| Package                                                                     | Version | Purpose                             |
-| --------------------------------------------------------------------------- | ------- | ----------------------------------- |
-| [Zustand](https://zustand-demo.pmnd.rs/)                                    | 5.x     | Lightweight global state management |
-| [react-firebase-hooks](https://github.com/CSFrequency/react-firebase-hooks) | 5.x     | Firebase React hooks                |
-
-### UI Components
-
-| Package                                                                      | Version | Purpose                     |
-| ---------------------------------------------------------------------------- | ------- | --------------------------- |
-| [Tailwind CSS](https://tailwindcss.com/)                                     | 4.x     | Utility-first CSS framework |
-| [Lucide React](https://lucide.dev/)                                          | 1.x     | Beautiful icon library      |
-| [React Hook Form](https://react-hook-form.com/)                              | 7.x     | Performant form handling    |
-| [React Hot Toast](https://react-hot-toast.com/)                              | 2.x     | Toast notifications         |
-| [React Select](https://react-select.com/)                                    | 5.x     | Advanced select inputs      |
-| [React Slick](https://react-slick.neostack.com/)                             | 0.31+   | Carousel/slider component   |
-| [React Spinners](https://www.davidhu.io/react-spinners/)                     | 0.17+   | Loading indicators          |
-| [React Tooltip](https://react-tooltip.com/)                                  | 6.x     | Tooltips                    |
-| [React Share](https://github.com/nygardk/react-share)                        | 5.x     | Social sharing buttons      |
-| [React Cookie Consent](https://github.com/Mastermindzh/react-cookie-consent) | 10.x    | GDPR cookie consent banner  |
-
-### Utilities
-
-| Package                                         | Version | Purpose                        |
-| ----------------------------------------------- | ------- | ------------------------------ |
-| [Zod](https://zod.dev/)                         | 4.x     | Schema validation              |
-| [html2canvas](https://html2canvas.hertzen.com/) | 1.4+    | Screenshot capture for sharing |
-
-## Getting Started
+## Getting started
 
 ### Prerequisites
 
-- **Node.js** 22 or later
-- **npm** (the repository uses `package-lock.json`)
-- **Firebase Project** with Firestore, Storage, and Authentication enabled
-- **OpenAI API Key** for GPT-4o access
-- **Fireworks AI API Key** for image generation
+- Node.js 22+
+- npm
+- Firebase project (Auth, Firestore, Storage)
+- OpenAI API key
+- Fireworks API key (for images)
 
-### Installation
-
-1. **Clone the repository:**
-
-   ```bash
-   git clone https://github.com/yourusername/ikigaifinder.git
-   cd ikigaifinder
-   ```
-
-2. **Install dependencies:**
-
-   ```bash
-   npm install
-   ```
-
-3. **Set up environment variables:**
-
-   ```bash
-   cp env.sample .env.local
-   ```
-
-   Then edit `.env.local` with your actual credentials (see [Environment Variables](#environment-variables)).
-
-4. **Set up Firebase:**
-
-   - Deploy Firestore rules: `firebase deploy --only firestore:rules`
-   - Deploy Storage rules: `firebase deploy --only storage:rules`
-
-5. **Run the development server:**
-
-   ```bash
-   npm run dev
-   ```
-
-6. **Open your browser:**
-   Navigate to [http://localhost:3000](http://localhost:3000)
-
-## Environment Variables
-
-Create a `.env.local` file in the root directory with the following variables:
-
-### Firebase Server (Admin SDK)
-
-```env
-# Service Account credentials (from Firebase Console > Project Settings > Service Accounts)
-FIREBASE_TYPE=service_account
-FIREBASE_PROJECT_ID=your_project_id
-FIREBASE_PRIVATE_KEY_ID=your_private_key_id
-FIREBASE_PRIVATE_KEY="-----BEGIN PRIVATE KEY-----\n...\n-----END PRIVATE KEY-----\n"
-FIREBASE_CLIENT_EMAIL=firebase-adminsdk-xxxxx@your_project_id.iam.gserviceaccount.com
-FIREBASE_CLIENT_ID=your_client_id
-FIREBASE_AUTH_URI=https://accounts.google.com/o/oauth2/auth
-FIREBASE_TOKEN_URI=https://oauth2.googleapis.com/token
-FIREBASE_AUTH_PROVIDER_X509_CERT_URL=https://www.googleapis.com/oauth2/v1/certs
-FIREBASE_CLIENT_CERTS_URL=https://www.googleapis.com/robot/v1/metadata/x509/...
-FIREBASE_UNIVERSE_DOMAIN=googleapis.com
-```
-
-### Firebase Client (Public)
-
-```env
-# From Firebase Console > Project Settings > General > Your apps
-NEXT_PUBLIC_FIREBASE_APIKEY=AIzaSy...
-NEXT_PUBLIC_FIREBASE_AUTHDOMAIN=your_project_id.firebaseapp.com
-NEXT_PUBLIC_FIREBASE_PROJECTID=your_project_id
-NEXT_PUBLIC_FIREBASE_STORAGEBUCKET=your_project_id.firebasestorage.app
-NEXT_PUBLIC_FIREBASE_MESSAGINGSENDERID=123456789
-NEXT_PUBLIC_FIREBASE_APPID=1:123456789:web:abc123
-NEXT_PUBLIC_FIREBASE_MEASUREMENTID=G-XXXXXXX
-```
-
-### AI Services
-
-```env
-# OpenAI (https://platform.openai.com/api-keys)
-OPENAI_API_KEY=sk-...
-OPENAI_ORG_ID=org-... # Optional
-
-# Fireworks AI (https://fireworks.ai/)
-FIREWORKS_API_KEY=fw_...
-```
-
-### Application
-
-```env
-# Cookie name for auth token storage (used by client-side helpers if needed)
-NEXT_PUBLIC_COOKIE_NAME=ikigaiAuthToken
-
-# Server session cookie settings (used by src/proxy.ts + server auth helpers)
-FIREBASE_SESSION_COOKIE_NAME=__session
-FIREBASE_SESSION_EXPIRES_DAYS=5
-
-# Base URL for metadata (optional, defaults to https://ikigaifinder.ai)
-NEXT_PUBLIC_BASE_URL=https://your-domain.com
-```
-
-## Project Structure
-
-```
-ikigaifinder/
-├── public/                    # Static assets
-│   ├── assets/               # Images, icons, SVGs
-│   └── .well-known/          # App association files
-├── src/
-│   ├── app/                  # Next.js App Router
-│   │   ├── api/              # API routes
-│   │   ├── dashboard/        # User dashboard
-│   │   ├── generate-ikigai/  # Ideas step (+ card/ designer)
-│   │   ├── ikigai/[id]/      # Shareable ikigai pages
-│   │   ├── ikigai-finder/    # Main questionnaire
-│   │   ├── profile/          # User profile
-│   │   └── ...               # Other pages
-│   ├── components/           # React components
-│   │   ├── auth/             # Authentication (Modal, Forms)
-│   │   ├── ui/               # Reusable UI components
-│   │   └── ...               # Feature components
-│   ├── constants/            # App constants & questions
-│   ├── firebase/             # Firebase client & admin setup
-│   ├── hooks/                # Custom React hooks
-│   │   ├── use-auth-actions.ts
-│   │   ├── use-auth-token.ts
-│   │   └── use-ikigai-generator.ts
-│   ├── lib/                  # Core libraries
-│   │   ├── generateIkigai.ts # AI text generation
-│   │   ├── generateImage.ts  # AI image generation
-│   │   ├── rateLimit.ts      # Rate limiting
-│   │   ├── validation.ts     # Zod schemas
-│   │   └── errors.ts         # Custom error classes
-│   ├── services/             # Data layer
-│   │   ├── ikigaiService.ts
-│   │   ├── profileService.ts
-│   │   └── userService.ts
-│   ├── types/                # TypeScript definitions
-│   ├── utils/                # Helper functions
-│   └── zustand/              # State management
-│       ├── useAuthStore.ts
-│       ├── useIkigaiStore.ts
-│       ├── useProfileStore.ts
-│       └── useUIStore.ts
-├── firestore.rules           # Firestore security rules
-├── storage.rules             # Storage security rules
-├── src/proxy.ts              # Next.js 16 proxy (route protection)
-└── ...
-```
-
-## Firebase Setup
-
-### 1. Create a Firebase Project
-
-1. Go to [Firebase Console](https://console.firebase.google.com/)
-2. Create a new project or select an existing one
-3. Enable the following services:
-   - **Authentication** → Enable Google and Email/Password providers
-   - **Firestore Database** → Create in production mode
-   - **Storage** → Create default bucket
-
-### 2. Get Client Configuration
-
-1. Go to Project Settings → General → Your apps
-2. Add a Web app if you haven't already
-3. Copy the Firebase config object
-
-### 3. Get Admin SDK Credentials
-
-1. Go to Project Settings → Service Accounts
-2. Click "Generate new private key"
-3. Save the JSON file securely
-4. Use the values in your `.env.local`
-
-### 4. Deploy Security Rules
-
-The project includes security rules for both Firestore and Storage:
+### Install
 
 ```bash
-# Install Firebase CLI
-npm install -g firebase-tools
-
-# Login to Firebase
-firebase login
-
-# Initialize (select Firestore and Storage)
-firebase init
-
-# Deploy rules
-firebase deploy --only firestore:rules,storage:rules
+git clone https://github.com/brown2020/ikigaifinder.git
+cd ikigaifinder
+cp env.sample .env.local
+# Replace placeholders — never commit real secrets
+npm ci
+npm run dev
 ```
 
-## Deployment
+Open [http://localhost:3000](http://localhost:3000). Deploy `firestore.rules` and `storage.rules` to Firebase for production-like security.
 
-### Vercel (Recommended)
+## Environment variables
 
-1. Push your code to GitHub
-2. Import the project in [Vercel](https://vercel.com/)
-3. Add all environment variables in Project Settings
-4. Deploy
+Documented in `env.sample` (there is no `.env.example`).
 
-### Other Platforms
-
-The app can be deployed to any platform that supports Next.js 16:
-
-- **Netlify** — Use the Next.js runtime
-- **AWS Amplify** — SSR support for Next.js
-- **Self-hosted** — `npm run build && npm start`
+| Name | Purpose | Where to get it |
+| --- | --- | --- |
+| `FIREBASE_*` | Admin SDK service account fields | Firebase Console → Service accounts |
+| `NEXT_PUBLIC_FIREBASE_*` | Client Firebase config | Firebase Console → Project settings |
+| `OPENAI_API_KEY` | GPT-4o ikigai + report generation | [platform.openai.com](https://platform.openai.com) |
+| `OPENAI_ORG_ID` | Optional OpenAI org | Same |
+| `FIREWORKS_API_KEY` | SDXL image generation | [fireworks.ai](https://fireworks.ai) |
+| `NEXT_PUBLIC_COOKIE_NAME` | Auth cookie name used by proxy | Choose a stable name (e.g. `ikigaiAuthToken`) |
+| `NEXT_PUBLIC_BASE_URL` | Optional public site URL for metadata / OG | Your production URL |
+| `FIREBASE_SESSION_COOKIE_NAME` / `FIREBASE_SESSION_EXPIRES_DAYS` / `COOKIE_SECURE` | Optional session cookie overrides (used in code) | Tune as needed |
 
 ## Scripts
 
-```bash
-npm run dev      # Start development server
-npm run build    # Create production build
-npm run start    # Start production server
-npm run lint     # Run ESLint
-```
+| Script | Description |
+| --- | --- |
+| `npm run dev` | Dev server |
+| `npm run build` | Production build |
+| `npm start` | Serve production build |
+| `npm run lint` | ESLint |
+| `npm run typecheck` | `tsc --noEmit` |
+| `npm test` | Vitest |
+| `npm run doctor` | React Doctor |
 
-## Security Features
+## Testing and CI
 
-- 🔒 **Route Protection** via Next.js 16 proxy middleware
-- 🔐 **Firebase Security Rules** for Firestore and Storage
-- 🛡️ **Content Security Policy** headers
-- ⚡ **Rate Limiting** on AI endpoints (20 text, 5 image per minute)
-- 🧹 **Input Sanitization** for all user inputs
-- 🚫 **Content Moderation** for image prompts
+- Vitest unit tests.
+- `.github/workflows/ci.yml` on `dev` / `main`: lint → typecheck → test → React Doctor → build (client env from Actions secrets).
+- Malware IOC scan workflow is also present.
+
+## Deployment
+
+Designed for Vercel. Set the same env vars in the host. Do not inline secrets in workflow YAML.
 
 ## Contributing
 
-Contributions are welcome! Please follow these steps:
-
-1. **Fork the repository**
-2. **Create a feature branch:**
-   ```bash
-   git checkout -b feature/amazing-feature
-   ```
-3. **Make your changes** and commit:
-   ```bash
-   git commit -m "Add amazing feature"
-   ```
-4. **Push to your fork:**
-   ```bash
-   git push origin feature/amazing-feature
-   ```
-5. **Open a Pull Request**
-
-### Development Guidelines
-
-- Follow the existing code style (Prettier/ESLint)
-- Use TypeScript for all new code
-- Add proper JSDoc comments for functions
-- Use atomic Zustand selectors for performance
-- Prefer Server Components where possible
+Branch from `dev`. See [`AGENTS.md`](./AGENTS.md). Run lint, typecheck, and tests before opening a PR.
 
 ## License
 
-This project is open source and available under the **GNU Affero General Public License v3.0 (AGPL-3.0)**.
-
-See [LICENSE.md](LICENSE.md).
-
----
-
-<p align="center">
-  Built with ❤️ using Next.js, Firebase, and AI
-</p>
+GNU Affero General Public License v3.0 — see [LICENSE.md](LICENSE.md).
