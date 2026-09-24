@@ -87,6 +87,8 @@ export interface Ikigai {
   updatedAt?: Timestamp;
   ikigaiOptions: IkigaiData[];
   ikigaiSelected: IkigaiData | null;
+  /** Statements the person starred to compare; kept when new answers clear the options. */
+  ikigaiShortlist?: IkigaiData[];
   ikigaiGuidance: string;
   ikigaiImage: string;
   ikigaiCoverImage: string;

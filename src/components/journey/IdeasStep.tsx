@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
-import { AlertCircle, ArrowLeft, ArrowRight, Sparkles } from "lucide-react";
+import { AlertCircle, ArrowLeft, ArrowRight, Blend, Sparkles } from "lucide-react";
 import toast from "react-hot-toast";
 import { Button, ButtonLink } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
@@ -14,8 +14,10 @@ import { useIkigaiStore } from "@/zustand";
 import { displayStatement, isSameStatement } from "@/utils/ikigaiList";
 import { REFINE_PRESETS } from "@/constants/questions";
 import { firstIncompleteSection, firstUnstartedSection, isSectionStarted } from "@/utils/journey";
+import { cn } from "@/utils/cn";
 import type { IkigaiData } from "@/types";
 import JourneyProgress from "./JourneyProgress";
+import ShortlistCompare from "./ShortlistCompare";
 import StatementCard from "./StatementCard";
 
 function StatementSkeleton() {
@@ -41,6 +43,8 @@ export default function IdeasStep(): React.ReactElement {
   const [options, setOptions] = useState<IkigaiData[]>(ikigai.ikigaiOptions);
   const [selected, setSelected] = useState<IkigaiData | null>(ikigai.ikigaiSelected);
   const [guidance, setGuidance] = useState(ikigai.ikigaiGuidance);
+  const [shortlist, setShortlist] = useState<IkigaiData[]>(ikigai.ikigaiShortlist ?? []);
+  const [view, setView] = useState<"all" | "shortlist">("all");
   const { generate, isGenerating, error, clearError } = useIkigaiGenerator(setOptions);
 
   const missingSection = firstUnstartedSection(ikigai.answers);
@@ -65,12 +69,33 @@ export default function IdeasStep(): React.ReactElement {
   const handleEdit = (item: IkigaiData, text: string) => {
     const edited = { ...item, ikigai: text };
     setOptions((list) => list.map((o) => (o === item ? edited : o)));
+    setShortlist((list) => list.map((o) => (isSameStatement(o, item) ? edited : o)));
     setSelected(edited);
+  };
+
+  const isShortlisted = (item: IkigaiData) => shortlist.some((o) => isSameStatement(o, item));
+
+  const toggleShortlist = (item: IkigaiData) => {
+    const next = isShortlisted(item) ? shortlist.filter((o) => !isSameStatement(o, item)) : [...shortlist, item];
+    setShortlist(next);
+    if (next.length === 0) setView("all");
+    void updateIkigai({ ikigaiShortlist: next });
+  };
+
+  const blendShortlist = () => {
+    setView("all");
+    const list = shortlist.map((o) => `- ${displayStatement(o.ikigai)}`).join("\n");
+    void runGeneration(options, `Blend the strongest parts of these statements I shortlisted into new ones:\n${list}`, guidance);
   };
 
   const handleContinue = async () => {
     if (!selected) return;
-    const ok = await updateIkigai({ ikigaiOptions: options, ikigaiSelected: selected, ikigaiGuidance: guidance });
+    const ok = await updateIkigai({
+      ikigaiOptions: options,
+      ikigaiSelected: selected,
+      ikigaiGuidance: guidance,
+      ikigaiShortlist: shortlist,
+    });
     if (ok) router.push("/generate-ikigai/report");
     else toast.error("We couldn't save your choice. Please try again.");
   };
@@ -130,7 +155,48 @@ export default function IdeasStep(): React.ReactElement {
             </div>
           )}
 
-          {options.length === 0 && !isGenerating && !error ? (
+          {shortlist.length > 0 && (
+            <div className="mb-5 flex flex-wrap items-center gap-2" role="group" aria-label="Which ideas to show">
+              {(["all", "shortlist"] as const).map((v) => (
+                <button
+                  key={v}
+                  type="button"
+                  aria-pressed={view === v}
+                  onClick={() => setView(v)}
+                  className={cn(
+                    "h-9 rounded-full px-4 text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
+                    view === v ? "bg-foreground text-background" : "bg-muted text-muted-foreground hover:text-foreground"
+                  )}
+                >
+                  {v === "all" ? `All ideas (${options.length})` : `Shortlist (${shortlist.length})`}
+                </button>
+              ))}
+              {view === "shortlist" && shortlist.length > 1 && (
+                <Button size="sm" variant="neutral" className="ml-auto" onClick={blendShortlist} disabled={isGenerating} leftIcon={<Blend className="size-4" aria-hidden="true" />}>
+                  Blend these
+                </Button>
+              )}
+            </div>
+          )}
+
+          {view === "shortlist" ? (
+            <div className="space-y-4">
+              {shortlist.length > 1 && <ShortlistCompare items={shortlist} />}
+              <ul className="space-y-4">
+                {shortlist.map((item) => (
+                  <StatementCard
+                    key={item.ikigai}
+                    item={item}
+                    selected={isSameStatement(item, selected)}
+                    onSelect={() => setSelected(item)}
+                    onEdit={(text) => handleEdit(item, text)}
+                    shortlisted
+                    onToggleShortlist={() => toggleShortlist(item)}
+                  />
+                ))}
+              </ul>
+            </div>
+          ) : options.length === 0 && !isGenerating && !error ? (
             <div className="rounded-2xl border border-dashed border-border-strong p-12 text-center">
               <Sparkles className="mx-auto size-8 text-primary" aria-hidden="true" />
               <p className="mt-3 font-display text-xl">No ideas yet</p>
@@ -153,6 +219,8 @@ export default function IdeasStep(): React.ReactElement {
                     )
                   }
                   busy={isGenerating}
+                  shortlisted={isShortlisted(item)}
+                  onToggleShortlist={() => toggleShortlist(item)}
                 />
               ))}
               {isGenerating && (showInitialSkeleton ? [0, 1, 2] : [0]).map((i) => <StatementSkeleton key={`s${i}`} />)}

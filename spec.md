@@ -173,6 +173,10 @@ Product-oriented, ordered by impact and dependency. Each item is sized for one c
 - **User value:** steering ideas no longer requires writing a prompt.
 - **Implemented:** `REFINE_PRESETS` chips (more creative, more practical, smaller scale, bigger impact, less corporate, more hands-on) run a batch with that steer without overwriting the person's typed guidance; the selected statement offers "More like this" for close variations. Existing in-place wording edits remain.
 
+### M14 — Shortlist, compare, and blend — DONE
+- **User value:** people can keep several statements they like, compare their scores side by side, and ask for new ones that blend them, instead of committing to one.
+- **Implemented:** `ikigaiShortlist` on the ikigai doc (kept when new answers clear the options). Every statement card has a Shortlist toggle; the ideas step switches between all ideas and the shortlist, which shows `ShortlistCompare` (per-overlap scores with each column's leader marked) and a "Blend these" action.
+
 ### Out of scope / non-goals (for now)
 
 - Distributed rate limiting (Redis) — only needed once multi-instance scale is real; revisit after M1.

@@ -24,6 +24,7 @@ export const defaultIkigai: Ikigai = {
   })),
   ikigaiOptions: [],
   ikigaiSelected: null,
+  ikigaiShortlist: [],
   ikigaiGuidance: "",
   ikigaiImage: "",
   ikigaiCoverImage: "",
@@ -62,6 +63,7 @@ export async function fetchIkigaiData(uid: string): Promise<Ikigai> {
     ...data,
     id: snap.id,
     ikigaiOptions: data.ikigaiOptions ?? [],
+    ikigaiShortlist: data.ikigaiShortlist ?? [],
     answers: withStoredAnswers(data.answers),
   };
 }

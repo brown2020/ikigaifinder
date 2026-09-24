@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Check, Pencil, Shuffle } from "lucide-react";
+import { Check, Pencil, Shuffle, Star } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { fieldClasses } from "@/components/ui/Input";
 import ScoreBars, { OverallBadge } from "@/components/ikigai/ScoreBars";
@@ -16,13 +16,24 @@ interface StatementCardProps {
   onEdit: (text: string) => void;
   /** Asks for new statements close to this one. */
   onMoreLikeThis?: () => void;
+  shortlisted?: boolean;
+  onToggleShortlist?: () => void;
   busy?: boolean;
 }
 
 const footerButton =
   "inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-sm font-medium text-primary hover:bg-primary-soft focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:opacity-50";
 
-export default function StatementCard({ item, selected, onSelect, onEdit, onMoreLikeThis, busy }: StatementCardProps) {
+export default function StatementCard({
+  item,
+  selected,
+  onSelect,
+  onEdit,
+  onMoreLikeThis,
+  shortlisted = false,
+  onToggleShortlist,
+  busy,
+}: StatementCardProps) {
   const [editing, setEditing] = useState(false);
   const [draft, setDraft] = useState("");
 
@@ -89,23 +100,31 @@ export default function StatementCard({ item, selected, onSelect, onEdit, onMore
             </span>
             <OverallBadge value={item.OverallCompatibility} className="hidden sm:flex" />
           </button>
-          {selected && (
+          {(selected || onToggleShortlist) && (
             <div className="flex flex-wrap justify-end gap-1 border-t border-border px-4 py-2">
-              {onMoreLikeThis && (
+              {onToggleShortlist && (
+                <button type="button" onClick={onToggleShortlist} aria-pressed={shortlisted} className={cn(footerButton, "mr-auto")}>
+                  <Star className={cn("size-3.5", shortlisted && "fill-current")} aria-hidden="true" />
+                  {shortlisted ? "Shortlisted" : "Shortlist"}
+                </button>
+              )}
+              {selected && onMoreLikeThis && (
                 <button type="button" onClick={onMoreLikeThis} disabled={busy} className={footerButton}>
                   <Shuffle className="size-3.5" aria-hidden="true" /> More like this
                 </button>
               )}
-              <button
-                type="button"
-                onClick={() => {
-                  setDraft(displayStatement(item.ikigai));
-                  setEditing(true);
-                }}
-                className={footerButton}
-              >
-                <Pencil className="size-3.5" aria-hidden="true" /> Edit wording
-              </button>
+              {selected && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    setDraft(displayStatement(item.ikigai));
+                    setEditing(true);
+                  }}
+                  className={footerButton}
+                >
+                  <Pencil className="size-3.5" aria-hidden="true" /> Edit wording
+                </button>
+              )}
             </div>
           )}
         </>
