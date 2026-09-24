@@ -35,7 +35,7 @@ export default function ShareImagePage({ userId, isOwner, imageUrl, statement, s
             ? "Finish your journey to create a card you can share."
             : "Its owner hasn't shared it publicly. You can still discover your own."}
         </p>
-        <ButtonLink href={isOwner ? "/dashboard" : "/"} size="lg" className="mt-8">
+        <ButtonLink href={isOwner ? "/dashboard" : "/ikigai-finder/quick"} size="lg" className="mt-8">
           {isOwner ? "Go to my ikigai" : "Find my ikigai"}
         </ButtonLink>
       </div>
@@ -63,11 +63,12 @@ export default function ShareImagePage({ userId, isOwner, imageUrl, statement, s
                 {statement ?? "Someone found their reason for being."}
               </h1>
               <p className="mt-5 text-lg text-muted-foreground">
-                Ikigai is where what you love, what you&apos;re good at, what the world needs, and what you can be paid for overlap. Find yours in about ten minutes.
+                Ikigai is where what you love, what you&apos;re good at, what the world needs, and what you can be paid for overlap. Answer four quick questions and see yours in about two minutes.
               </p>
-              <ButtonLink href="/" size="lg" className="mt-8">
+              <ButtonLink href="/ikigai-finder/quick" size="lg" className="mt-8">
                 Find my ikigai
               </ButtonLink>
+              <p className="mt-3 text-sm text-muted-foreground">Free · no sign-up to start</p>
               <IkigaiDiagram className="mt-10 max-w-[300px]" words={keywords ?? undefined} />
             </>
           )}

@@ -185,6 +185,10 @@ Product-oriented, ordered by impact and dependency. Each item is sized for one c
 - **User value:** turns insight into action. The report's three first steps become a week-long checklist the person ticks off from the dashboard.
 - **Implemented:** `ExperimentCard` (insights page and dashboard) starts an `ikigaiExperiment` from the current report's first steps, keyed to the selected statement, and shows day N of 7 with progress and toggles.
 
+### M17 — Sharing that converts, in more sizes — DONE
+- **User value:** a shared card now leads visitors straight into the two-minute, no-sign-up start, and owners can post to Stories and LinkedIn without cropping.
+- **Implemented:** public-page CTAs go to `/ikigai-finder/quick`. `IkigaiCard` takes a `format` (square, story 9:16, wide 1.91:1) with `cqmin`-based type; `CardFormatDownloads` renders the chosen size off-screen and downloads a 1080×1920 or 1200×630 PNG (card step and dashboard). The card name is saved as `ikigaiCardName` for re-rendering.
+
 ### Out of scope / non-goals (for now)
 
 - Distributed rate limiting (Redis) — only needed once multi-instance scale is real; revisit after M1.

@@ -9,6 +9,7 @@ import { Skeleton } from "@/components/ui/Skeleton";
 import IkigaiDiagram from "@/components/ikigai/IkigaiDiagram";
 import ScoreBars from "@/components/ikigai/ScoreBars";
 import SharePanel from "@/components/share/SharePanel";
+import CardFormatDownloads from "@/components/share/CardFormatDownloads";
 import CheckInCard from "@/components/journey/CheckInCard";
 import ExperimentCard from "@/components/journey/ExperimentCard";
 import { CIRCLE_BY_STEP, type CircleId } from "@/constants/ikigai";
@@ -58,6 +59,17 @@ export default function DashboardPage({ userId, initial }: DashboardPageProps): 
             ) : null}
 
             <SharePanel className="mt-8" userId={userId} coverImage={coverImage} initialSharable={initial.sharable} />
+            {selected && (
+              <div className="mt-4">
+                <p className="text-sm font-medium">More sizes</p>
+                <CardFormatDownloads
+                  className="mt-2"
+                  statement={selected.ikigai}
+                  name={ikigai.ikigaiCardName}
+                  imageUrl={ikigai.ikigaiImage || undefined}
+                />
+              </div>
+            )}
 
             <div className="mt-8 flex flex-wrap gap-2">
               {[

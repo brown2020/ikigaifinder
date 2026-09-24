@@ -108,6 +108,8 @@ export interface Ikigai {
   ikigaiGuidance: string;
   ikigaiImage: string;
   ikigaiCoverImage: string;
+  /** Name shown on the card, reused for the extra download sizes. */
+  ikigaiCardName?: string;
   ikigaiReport?: IkigaiReport | null;
   ikigaiExperiment?: IkigaiExperiment | null;
   /** Written only by the server sharing route. */

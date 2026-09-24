@@ -10,6 +10,7 @@ import { Card } from "@/components/ui/Card";
 import { Eyebrow } from "@/components/ui/Eyebrow";
 import { Input, Textarea } from "@/components/ui/Input";
 import IkigaiCard from "@/components/ikigai/IkigaiCard";
+import CardFormatDownloads from "@/components/share/CardFormatDownloads";
 import { CARD_STYLES } from "@/constants/questions";
 import { DEFAULT_COVER } from "@/constants/ikigai";
 import { generateImage } from "@/lib/generateImage";
@@ -32,7 +33,7 @@ export default function CardStep(): React.ReactElement {
 
   const [scene, setScene] = useState("");
   const [style, setStyle] = useState<string>("");
-  const [name, setName] = useState(firstName);
+  const [name, setName] = useState(ikigai.ikigaiCardName ?? firstName);
   const [history, setHistory] = useState<string[]>([]);
   const [isGenerating, setIsGenerating] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
@@ -92,7 +93,7 @@ export default function CardStep(): React.ReactElement {
     try {
       const url = await captureAndUploadImage(uid, CARD_ELEMENT_ID);
       if (!url) throw new Error("capture failed");
-      const ok = await updateIkigai({ ikigaiCoverImage: url });
+      const ok = await updateIkigai({ ikigaiCoverImage: url, ikigaiCardName: name.trim() });
       if (!ok) throw new Error("save failed");
       toast.success("Your ikigai card is saved");
       router.push("/dashboard");
@@ -120,6 +121,8 @@ export default function CardStep(): React.ReactElement {
               </div>
             )}
           </div>
+          <p className="mt-4 text-sm font-medium">Also download for</p>
+          <CardFormatDownloads className="mt-2" statement={statement} name={name.trim()} imageUrl={background} />
         </div>
 
         <div>
