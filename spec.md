@@ -20,8 +20,8 @@ Help a person move from "I don't know what my purpose is" to **a small set of co
 
 ### Core workflows
 
-1. **Sign in** — Google, email/password, or email-link ("magic link") via Firebase Auth.
-2. **Reflect** — answer a multi-step questionnaire about loves, skills, what the world needs, and what one could be paid for.
+1. **Reflect** — answer a multi-step questionnaire about loves, skills, what the world needs, and what one could be paid for. No account is needed to start; answers stay on the device.
+2. **Sign in** — Google, email/password, or email-link ("magic link") via Firebase Auth, asked for when the visitor wants to see ideas. Guest answers carry into the account.
 3. **Generate** — GPT‑4o streams ~10 candidate ikigai statements, each scored on Passion, Profession, Vocation, Mission, and Overall Compatibility.
 4. **Choose** — the user selects a preferred statement, saved to their profile.
 5. **Illustrate** — generate an AI cover image (Stable Diffusion XL via Fireworks), stored in Firebase Storage.
@@ -152,6 +152,10 @@ Product-oriented, ordered by impact and dependency. Each item is sized for one c
 - **Implementation intent:** update `app/privacy-policy` and `app/terms-conditions` content and dates to reflect current data handling (Firebase scoping, AI processing, cookie consent).
 - **Acceptance criteria:**
   - Pages state current practices and a current effective date; lint + build pass.
+
+### M9 — Answer before signing up — DONE
+- **User value:** visitors see the questions (and invest in them) before being asked for an account, removing the sign-up wall in front of the first question.
+- **Implemented:** `/ikigai-finder` is no longer protected. Signed-out answers are kept in `localStorage` (`src/utils/guestDraft.ts`) and hydrated by `useIkigaiStore.loadGuest`. Finishing the questionnaire as a guest opens the sign-up dialog with a reason; on first sign-in `fetchIkigai` adopts the guest answers when they go further than the account's saved answers. All AI generation still requires a session.
 
 ### Out of scope / non-goals (for now)
 

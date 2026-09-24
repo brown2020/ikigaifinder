@@ -36,7 +36,6 @@ describe("route matching", () => {
     expect(isProtectedRoute("/dashboard")).toBe(true);
     expect(isProtectedRoute("/dashboard/anything")).toBe(true);
     expect(isProtectedRoute("/generate-ikigai")).toBe(true);
-    expect(isProtectedRoute("/ikigai-finder")).toBe(true);
     expect(isProtectedRoute("/profile/edit")).toBe(true);
   });
 
@@ -45,6 +44,7 @@ describe("route matching", () => {
     expect(isProtectedRoute("/about")).toBe(false);
     expect(isProtectedRoute("/ikigai/abc123")).toBe(false); // public share page
     expect(isProtectedRoute("/privacy-policy")).toBe(false);
+    expect(isProtectedRoute("/ikigai-finder")).toBe(false); // guests can answer before signing up
   });
 
   it("does not protect lookalike prefixes", () => {

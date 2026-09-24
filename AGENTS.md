@@ -36,7 +36,7 @@ src/
 │   │   ├── auth/session/     # POST creates session cookie, DELETE clears it
 │   │   ├── downloadImage/    # GET image proxy (CORS) for downloads
 │   │   └── ikigai/sharing/   # PATCH toggle public sharing (admin SDK)
-│   ├── ikigai-finder/        # Questionnaire, ?step=1-4 (protected)
+│   ├── ikigai-finder/        # Questionnaire, ?step=1-4 (public; guests answer before signing up)
 │   ├── generate-ikigai/      # Ideas step; card/ = card designer (protected)
 │   ├── ikigai/[id]/          # Public shareable ikigai page
 │   ├── dashboard/ profile/   # "My ikigai" hub (resume + share) and account
@@ -146,7 +146,7 @@ npm run lint && npm run build
 
 ## Route-protection guidance
 
-- Route protection is centralized in `src/proxy.ts` (Next.js 16 proxy, Node runtime). Protected segments: `/dashboard`, `/generate-ikigai`, `/ikigai-finder`, `/profile`.
+- Route protection is centralized in `src/proxy.ts` (Next.js 16 proxy, Node runtime). Protected segments: `/dashboard`, `/generate-ikigai`, `/profile`. `/ikigai-finder` is public so visitors can answer before signing up: guest answers live in `localStorage` (`src/utils/guestDraft.ts`) and are adopted into the account on first sign-in by `useIkigaiStore.fetchIkigai`. All AI generation still requires a session.
 - To protect a new route, add it to **both** `PROTECTED_ROUTES` and the `config.matcher` array in `src/proxy.ts`.
 - Auth gating relies on the verified Firebase **session cookie** (`getSessionCookieName()`), not client state. Do not move auth checks into client components for security.
 - Firestore/Storage are the real security boundary — keep `firestore.rules` and `storage.rules` consistent with any new data path.

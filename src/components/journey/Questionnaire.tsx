@@ -11,8 +11,8 @@ import { Eyebrow } from "@/components/ui/Eyebrow";
 import { fieldClasses } from "@/components/ui/Input";
 import IkigaiDiagram from "@/components/ikigai/IkigaiDiagram";
 import { CIRCLE_BY_STEP, type CircleId } from "@/constants/ikigai";
-import { useIkigaiStore } from "@/zustand";
-import { firstIncompleteSection, isSectionComplete, type JourneyStepKey } from "@/utils/journey";
+import { useAuthStore, useIkigaiStore, useUIStore } from "@/zustand";
+import { firstIncompleteSection, isSectionComplete, SIGN_UP_PROMPT, type JourneyStepKey } from "@/utils/journey";
 import { cn } from "@/utils/cn";
 import type { QuestionStep } from "@/types";
 import JourneyProgress from "./JourneyProgress";
@@ -54,6 +54,8 @@ export default function Questionnaire(): React.ReactElement {
   const stored = useIkigaiStore((s) => s.ikigaiData.answers);
   const updateIkigai = useIkigaiStore((s) => s.updateIkigai);
   const isSaving = useIkigaiStore((s) => s.isSaving);
+  const isGuest = !useAuthStore((s) => s.uid);
+  const openAuthModal = useUIStore((s) => s.openAuthModal);
 
   const total = stored.length;
   const [step, setStep] = useState(() =>
@@ -106,8 +108,9 @@ export default function Questionnaire(): React.ReactElement {
       }
     }
 
-    if (isLast) router.push("/generate-ikigai");
-    else goTo(step + 1);
+    if (!isLast) goTo(step + 1);
+    else if (isGuest) openAuthModal("/generate-ikigai", SIGN_UP_PROMPT);
+    else router.push("/generate-ikigai");
   };
 
   const onBack = async () => {
@@ -127,6 +130,11 @@ export default function Questionnaire(): React.ReactElement {
             {section.title}
           </h1>
           <p className="mt-4 max-w-md text-lg text-muted-foreground">{section.description}</p>
+          {isGuest && (
+            <p className="mt-4 max-w-md text-sm text-muted-foreground">
+              No account needed yet. Your answers stay on this device until you sign up to see your ideas.
+            </p>
+          )}
           <div className="mt-8 hidden max-w-[300px] lg:block">
             <IkigaiDiagram active={activeCircles} highlight={circle?.id} centerActive={false} showLabels />
           </div>

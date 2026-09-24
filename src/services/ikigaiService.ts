@@ -33,7 +33,7 @@ export const defaultIkigai: Ikigai = {
  * The question structure (titles, labels, validation) always comes from code;
  * only answers are taken from storage, so copy edits apply to existing users.
  */
-function withStoredAnswers(stored?: QuestionStep[]): QuestionStep[] {
+export function withStoredAnswers(stored?: QuestionStep[]): QuestionStep[] {
   const answerById = new Map<string, string[]>();
   stored?.forEach((step) =>
     step.questions?.forEach((q) => {

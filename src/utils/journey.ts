@@ -9,6 +9,12 @@ export const JOURNEY_STEPS = [
   { key: "card", label: "Card", href: "/generate-ikigai/card" },
 ] as const;
 
+/** Shown when a guest finishes answering and needs an account to see ideas. */
+export const SIGN_UP_PROMPT = {
+  title: "Your answers are ready",
+  body: "Create a free account to see the ikigai statements written from them. Your answers come with you.",
+};
+
 export type JourneyStepKey = (typeof JOURNEY_STEPS)[number]["key"];
 
 export function isSectionComplete(step: QuestionStep | undefined): boolean {

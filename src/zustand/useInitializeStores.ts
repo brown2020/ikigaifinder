@@ -8,6 +8,7 @@ import { useIkigaiStore } from "./useIkigaiStore";
 /** Loads per-user data on sign-in and clears it on sign-out. Call once at the app root. */
 export function useInitializeStores(): void {
   const uid = useAuthStore((state) => state.uid);
+  const authReady = useAuthStore((state) => state.authReady);
 
   useEffect(() => {
     const profile = useProfileStore.getState();
@@ -21,4 +22,9 @@ export function useInitializeStores(): void {
       console.error("Error initializing stores:", error);
     });
   }, [uid]);
+
+  // Wait for Firebase to settle so a signed-in user never sees guest answers flash in.
+  useEffect(() => {
+    if (!uid && authReady) useIkigaiStore.getState().loadGuest();
+  }, [uid, authReady]);
 }

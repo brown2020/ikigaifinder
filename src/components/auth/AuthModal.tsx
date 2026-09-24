@@ -17,6 +17,7 @@ export default function AuthModal(): React.ReactElement | null {
   const isOpen = useUIStore((state) => state.isAuthModalOpen);
   const close = useUIStore((state) => state.closeAuthModal);
   const authRedirectPath = useUIStore(selectAuthRedirectPath);
+  const prompt = useUIStore((state) => state.authPrompt);
   const dialogRef = useRef<HTMLDialogElement>(null);
 
   const redirectQs =
@@ -54,24 +55,25 @@ export default function AuthModal(): React.ReactElement | null {
           id="auth-modal-title"
           className="font-display text-3xl font-semibold tracking-tight"
         >
-          Welcome to Ikigai Finder
+          {prompt?.title ?? "Welcome to Ikigai Finder"}
         </h2>
         <p className="mt-2 text-sm text-muted-foreground">
-          Sign in to save your progress and find your reason for being.
+          {prompt?.body ?? "Sign in to save your progress and find your reason for being."}
         </p>
       </div>
       <div className="flex flex-col gap-3">
-        <ButtonLink href={`/login${redirectQs}`} onClick={close} size="lg" fullWidth>
-          Sign in
+        {/* When a prompt explains the ask, the visitor is usually new, so lead with sign-up. */}
+        <ButtonLink href={`/${prompt ? "signup" : "login"}${redirectQs}`} onClick={close} size="lg" fullWidth>
+          {prompt ? "Create free account" : "Sign in"}
         </ButtonLink>
         <ButtonLink
-          href={`/signup${redirectQs}`}
+          href={`/${prompt ? "login" : "signup"}${redirectQs}`}
           onClick={close}
           variant="neutral"
           size="lg"
           fullWidth
         >
-          Create account
+          {prompt ? "I already have an account" : "Create account"}
         </ButtonLink>
         <Link
           href="/forgot-password"

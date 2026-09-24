@@ -8,7 +8,7 @@ import { useAuthStore } from "@/zustand";
 export default function StartButton({ className }: { className?: string }) {
   const uid = useAuthStore((s) => s.uid);
   return (
-    <ButtonLink href={uid ? "/dashboard" : "/signup"} size="lg" className={className}>
+    <ButtonLink href={uid ? "/dashboard" : "/ikigai-finder"} size="lg" className={className}>
       {uid ? "Continue my journey" : "Find my ikigai"}
       <ArrowRight className="size-4" aria-hidden="true" />
     </ButtonLink>

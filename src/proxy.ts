@@ -9,7 +9,6 @@ import { getSessionCookieName } from "@/lib/auth/session";
 const PROTECTED_ROUTES = [
   "/dashboard",
   "/generate-ikigai",
-  "/ikigai-finder",
   "/profile",
 ] as const;
 
@@ -99,7 +98,6 @@ export const config = {
     // Run proxy only for private route segments to avoid extra Node work on public pages.
     "/dashboard/:path*",
     "/generate-ikigai/:path*",
-    "/ikigai-finder/:path*",
     "/profile/:path*",
   ],
 };
