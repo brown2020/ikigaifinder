@@ -80,6 +80,12 @@ export interface IkigaiReport {
   keywords: Record<CircleId, string[]>;
 }
 
+/** A statement the person chose earlier and later replaced. Dates are ISO strings. */
+export interface IkigaiHistoryEntry extends IkigaiData {
+  chosenAt: string | null;
+  replacedAt: string;
+}
+
 export interface Ikigai {
   id: string;
   answers: QuestionStep[];
@@ -87,6 +93,9 @@ export interface Ikigai {
   updatedAt?: Timestamp;
   ikigaiOptions: IkigaiData[];
   ikigaiSelected: IkigaiData | null;
+  /** ISO date the current statement was chosen. */
+  ikigaiSelectedAt?: string | null;
+  ikigaiHistory?: IkigaiHistoryEntry[];
   /** Statements the person starred to compare; kept when new answers clear the options. */
   ikigaiShortlist?: IkigaiData[];
   ikigaiGuidance: string;

@@ -177,6 +177,10 @@ Product-oriented, ordered by impact and dependency. Each item is sized for one c
 - **User value:** people can keep several statements they like, compare their scores side by side, and ask for new ones that blend them, instead of committing to one.
 - **Implemented:** `ikigaiShortlist` on the ikigai doc (kept when new answers clear the options). Every statement card has a Shortlist toggle; the ideas step switches between all ideas and the shortlist, which shows `ShortlistCompare` (per-overlap scores with each column's leader marked) and a "Blend these" action.
 
+### M15 — Check-ins and ikigai history — DONE
+- **User value:** a reason to come back. The dashboard invites a check-in every three months and shows how the person's statement has changed over time.
+- **Implemented:** choosing a different statement records `ikigaiSelectedAt` and moves the previous one into `ikigaiHistory` (ISO dates, last 20). `CheckInCard` on the dashboard shows when the statement was chosen, highlights a check-in once 90 days pass, offers a downloadable `.ics` reminder (`src/utils/calendar.ts`, no server-side reminders), and lists past statements.
+
 ### Out of scope / non-goals (for now)
 
 - Distributed rate limiting (Redis) — only needed once multi-instance scale is real; revisit after M1.

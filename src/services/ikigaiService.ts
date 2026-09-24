@@ -64,6 +64,7 @@ export async function fetchIkigaiData(uid: string): Promise<Ikigai> {
     id: snap.id,
     ikigaiOptions: data.ikigaiOptions ?? [],
     ikigaiShortlist: data.ikigaiShortlist ?? [],
+    ikigaiHistory: data.ikigaiHistory ?? [],
     answers: withStoredAnswers(data.answers),
   };
 }

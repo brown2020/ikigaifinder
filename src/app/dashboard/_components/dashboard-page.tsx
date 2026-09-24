@@ -9,6 +9,7 @@ import { Skeleton } from "@/components/ui/Skeleton";
 import IkigaiDiagram from "@/components/ikigai/IkigaiDiagram";
 import ScoreBars from "@/components/ikigai/ScoreBars";
 import SharePanel from "@/components/share/SharePanel";
+import CheckInCard from "@/components/journey/CheckInCard";
 import { CIRCLE_BY_STEP, type CircleId } from "@/constants/ikigai";
 import { useIkigaiStore, useProfileStore } from "@/zustand";
 import { displayStatement } from "@/utils/ikigaiList";
@@ -69,6 +70,8 @@ export default function DashboardPage({ userId, initial }: DashboardPageProps): 
                 </ButtonLink>
               ))}
             </div>
+
+            {ready && selected && <CheckInCard ikigai={ikigai} className="mt-8 p-6" />}
 
             {ready && hasCurrentReport(ikigai) && ikigai.ikigaiReport && (
               <Card className="mt-8 p-6">

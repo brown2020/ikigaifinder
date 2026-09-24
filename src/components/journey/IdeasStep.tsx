@@ -90,11 +90,20 @@ export default function IdeasStep(): React.ReactElement {
 
   const handleContinue = async () => {
     if (!selected) return;
+    const previous = ikigai.ikigaiSelected;
+    const changed = !isSameStatement(previous, selected);
+    const now = new Date().toISOString();
     const ok = await updateIkigai({
       ikigaiOptions: options,
       ikigaiSelected: selected,
       ikigaiGuidance: guidance,
       ikigaiShortlist: shortlist,
+      ...(changed && {
+        ikigaiSelectedAt: now,
+        ikigaiHistory: previous
+          ? [...(ikigai.ikigaiHistory ?? []), { ...previous, chosenAt: ikigai.ikigaiSelectedAt ?? null, replacedAt: now }].slice(-20)
+          : ikigai.ikigaiHistory ?? [],
+      }),
     });
     if (ok) router.push("/generate-ikigai/report");
     else toast.error("We couldn't save your choice. Please try again.");
