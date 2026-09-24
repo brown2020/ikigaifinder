@@ -21,9 +21,12 @@ interface UseIkigaiGeneratorReturn {
 }
 
 function toQuestionSections(steps: QuestionStep[]) {
+  // Quick-path users leave most questions blank; only send what they wrote.
   return steps.map((step) => ({
     id: step.id,
-    questions: step.questions.map((q) => ({ question: q.label, answer: q.answer ?? [] })),
+    questions: step.questions
+      .map((q) => ({ question: q.label, answer: (q.answer ?? []).filter((a) => a.trim()) }))
+      .filter((q) => q.answer.length > 0),
   }));
 }
 

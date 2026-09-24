@@ -12,7 +12,7 @@ import SharePanel from "@/components/share/SharePanel";
 import { CIRCLE_BY_STEP, type CircleId } from "@/constants/ikigai";
 import { useIkigaiStore, useProfileStore } from "@/zustand";
 import { displayStatement } from "@/utils/ikigaiList";
-import { isSectionComplete, resumeHref } from "@/utils/journey";
+import { canGenerate, isSectionComplete, isSectionStarted, resumeHref } from "@/utils/journey";
 import type { IkigaiSummary } from "@/types";
 
 interface DashboardPageProps {
@@ -90,11 +90,11 @@ export default function DashboardPage({ userId, initial }: DashboardPageProps): 
     if (circle) active[circle.id] = isSectionComplete(step);
   });
   const doneCount = Object.values(active).filter(Boolean).length;
-  const started = doneCount > 0 || ikigai.answers.some((s) => s.questions.some((q) => q.answer?.length));
+  const started = ikigai.answers.some(isSectionStarted);
 
   const stage = !started
-    ? { title: "Let's find your ikigai", body: "Answer four short sets of questions about what you love, what you're good at, what the world needs, and what you can be paid for. It takes about ten minutes.", cta: "Begin" }
-    : doneCount < 4
+    ? { title: "Let's find your ikigai", body: "Start with four quick questions, one for each circle: what you love, what you're good at, what the world needs, and what you can be paid for. Your first ideas take about two minutes.", cta: "Begin" }
+    : !canGenerate(ikigai.answers)
       ? { title: "Pick up where you left off", body: `You've completed ${doneCount} of 4 parts. Your answers are saved as you go.`, cta: "Continue" }
       : !ikigai.ikigaiSelected
         ? { title: "Your ideas are ready to explore", body: "Your answers are complete. Choose the ikigai statement that sounds most like you.", cta: "See my ideas" }

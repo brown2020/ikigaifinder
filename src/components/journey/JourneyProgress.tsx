@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { Check } from "lucide-react";
 import { useAuthStore, useIkigaiStore } from "@/zustand";
-import { completedSteps, isSurveyComplete, JOURNEY_STEPS, type JourneyStepKey } from "@/utils/journey";
+import { canGenerate, completedSteps, isSectionStarted, JOURNEY_STEPS, type JourneyStepKey } from "@/utils/journey";
 import { cn } from "@/utils/cn";
 
 const STEP_COLORS: Partial<Record<JourneyStepKey, string>> = {
@@ -24,14 +24,14 @@ export default function JourneyProgress({
   const ikigai = useIkigaiStore((s) => s.ikigaiData);
   const isGuest = !useAuthStore((s) => s.uid);
   const done = completedSteps(ikigai);
-  const surveyDone = isSurveyComplete(ikigai.answers);
+  const ready = canGenerate(ikigai.answers);
   const currentIndex = JOURNEY_STEPS.findIndex((s) => s.key === current);
 
   const isReachable = (index: number) => {
     if (index <= currentIndex) return true;
-    if (index < 4) return JOURNEY_STEPS.slice(0, index).every((s) => done.has(s.key));
+    if (index < 4) return ikigai.answers.slice(0, index).every(isSectionStarted);
     if (isGuest) return false;
-    if (index === 4) return surveyDone;
+    if (index === 4) return ready;
     return done.has("ideas");
   };
 

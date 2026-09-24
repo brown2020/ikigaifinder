@@ -17,8 +17,25 @@ export const SIGN_UP_PROMPT = {
 
 export type JourneyStepKey = (typeof JOURNEY_STEPS)[number]["key"];
 
+const hasAnswer = (answer: string[] | undefined) => Boolean(answer?.some((a) => a.trim().length > 0));
+
 export function isSectionComplete(step: QuestionStep | undefined): boolean {
-  return Boolean(step?.questions.every((q) => q.answer?.some((a) => a.trim().length > 0)));
+  return Boolean(step?.questions.every((q) => hasAnswer(q.answer)));
+}
+
+export function isSectionStarted(step: QuestionStep | undefined): boolean {
+  return Boolean(step?.questions.some((q) => hasAnswer(q.answer)));
+}
+
+/** Ideas need at least one answer in every circle (the quick path's minimum). */
+export function canGenerate(answers: QuestionStep[]): boolean {
+  return answers.length > 0 && answers.every(isSectionStarted);
+}
+
+/** 1-based index of the first section with no answers at all, or null. */
+export function firstUnstartedSection(answers: QuestionStep[]): number | null {
+  const index = answers.findIndex((step) => !isSectionStarted(step));
+  return index === -1 ? null : index + 1;
 }
 
 export function isSurveyComplete(answers: QuestionStep[]): boolean {
@@ -43,7 +60,8 @@ export function completedSteps(ikigai: Ikigai): Set<JourneyStepKey> {
 
 /** Where a returning user should pick up. */
 export function resumeHref(ikigai: Ikigai): string {
-  const section = firstIncompleteSection(ikigai.answers);
+  if (!ikigai.answers.some(isSectionStarted)) return "/ikigai-finder/quick";
+  const section = firstUnstartedSection(ikigai.answers);
   if (section) return `/ikigai-finder?step=${section}`;
   if (!ikigai.ikigaiSelected) return "/generate-ikigai";
   return "/generate-ikigai/card";

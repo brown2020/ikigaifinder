@@ -36,7 +36,7 @@ src/
 │   │   ├── auth/session/     # POST creates session cookie, DELETE clears it
 │   │   ├── downloadImage/    # GET image proxy (CORS) for downloads
 │   │   └── ikigai/sharing/   # PATCH toggle public sharing (admin SDK)
-│   ├── ikigai-finder/        # Questionnaire, ?step=1-4 (public; guests answer before signing up)
+│   ├── ikigai-finder/        # Questionnaire, ?step=1-4, and quick/ (4-question start); public, guests answer before signing up
 │   ├── generate-ikigai/      # Ideas step; card/ = card designer (protected)
 │   ├── ikigai/[id]/          # Public shareable ikigai page
 │   ├── dashboard/ profile/   # "My ikigai" hub (resume + share) and account

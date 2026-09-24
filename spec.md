@@ -157,6 +157,10 @@ Product-oriented, ordered by impact and dependency. Each item is sized for one c
 - **User value:** visitors see the questions (and invest in them) before being asked for an account, removing the sign-up wall in front of the first question.
 - **Implemented:** `/ikigai-finder` is no longer protected. Signed-out answers are kept in `localStorage` (`src/utils/guestDraft.ts`) and hydrated by `useIkigaiStore.loadGuest`. Finishing the questionnaire as a guest opens the sign-up dialog with a reason; on first sign-in `fetchIkigai` adopts the guest answers when they go further than the account's saved answers. All AI generation still requires a session.
 
+### M10 — Quick start — DONE
+- **User value:** a first set of ideas in about two minutes instead of ten; the full reflection becomes an optional way to sharpen them.
+- **Implemented:** `/ikigai-finder/quick` asks one question per circle (`QUICK_QUESTION_IDS`). Ideas unlock once every circle has at least one answer (`canGenerate`); the ideas step invites quick-path users to go deeper. Blank questions are no longer sent to the model. The home page CTA leads to the quick start.
+
 ### Out of scope / non-goals (for now)
 
 - Distributed rate limiting (Redis) — only needed once multi-instance scale is real; revisit after M1.

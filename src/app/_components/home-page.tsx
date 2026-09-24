@@ -1,3 +1,4 @@
+import Link from "next/link";
 import IkigaiDiagram from "@/components/ikigai/IkigaiDiagram";
 import StartButton from "@/components/home/StartButton";
 import { Eyebrow } from "@/components/ui/Eyebrow";
@@ -10,7 +11,7 @@ const labelOf = Object.fromEntries(IKIGAI_CIRCLES.map((c) => [c.id, c.label.toLo
 const STEPS = [
   {
     title: "Reflect",
-    body: "Answer sixteen short questions across the four circles. Your answers save as you go, so you can stop and come back.",
+    body: "Start with four quick questions, one per circle, and see ideas in about two minutes. Go deeper with all sixteen whenever you want sharper results.",
   },
   {
     title: "Choose",
@@ -43,11 +44,11 @@ export default function HomePage(): React.ReactElement {
             </p>
             <div className="mt-9 flex flex-wrap items-center gap-4">
               <StartButton />
-              <a href="#how-it-works" className="text-sm font-medium text-muted-foreground underline-offset-4 hover:text-foreground hover:underline">
-                How it works
-              </a>
+              <Link href="/ikigai-finder?step=1" className="text-sm font-medium text-muted-foreground underline-offset-4 hover:text-foreground hover:underline">
+                Or take the full 10-minute reflection
+              </Link>
             </div>
-            <p className="mt-6 text-sm text-muted-foreground">Free · about 10 minutes · private until you share</p>
+            <p className="mt-6 text-sm text-muted-foreground">Free · first ideas in about 2 minutes · no sign-up to start</p>
           </div>
           <div className="relative mx-auto w-full max-w-[460px] animate-fade-in">
             <div className="absolute inset-8 rounded-full bg-primary-soft blur-3xl" aria-hidden="true" />

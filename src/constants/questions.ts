@@ -62,6 +62,17 @@ export const STEPPER_QUESTIONS_JSON: QuestionStep[] = [
   },
 ];
 
+/**
+ * One question per circle for the quick path. These alone are enough to
+ * generate ideas; the rest of the questionnaire sharpens them.
+ */
+export const QUICK_QUESTION_IDS: Record<string, string> = {
+  passion: "activities",
+  profession: "easy_tasks",
+  mission: "problems_to_solve",
+  vocation: "marketable_skills",
+};
+
 export const CARD_STYLES = [
   "Watercolor",
   "Ukiyo-e",

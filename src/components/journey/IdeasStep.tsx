@@ -12,7 +12,7 @@ import { Textarea } from "@/components/ui/Input";
 import { useIkigaiGenerator } from "@/hooks/use-ikigai-generator";
 import { useIkigaiStore } from "@/zustand";
 import { isSameStatement } from "@/utils/ikigaiList";
-import { firstIncompleteSection } from "@/utils/journey";
+import { firstIncompleteSection, firstUnstartedSection, isSectionStarted } from "@/utils/journey";
 import type { IkigaiData } from "@/types";
 import JourneyProgress from "./JourneyProgress";
 import StatementCard from "./StatementCard";
@@ -42,7 +42,8 @@ export default function IdeasStep(): React.ReactElement {
   const [guidance, setGuidance] = useState(ikigai.ikigaiGuidance);
   const { generate, isGenerating, error, clearError } = useIkigaiGenerator(setOptions);
 
-  const missingSection = firstIncompleteSection(ikigai.answers);
+  const missingSection = firstUnstartedSection(ikigai.answers);
+  const sharpenSection = firstIncompleteSection(ikigai.answers);
   const autoStarted = useRef(false);
 
   const runGeneration = useCallback(
@@ -78,10 +79,14 @@ export default function IdeasStep(): React.ReactElement {
         <Eyebrow>Almost there</Eyebrow>
         <h1 className="mt-3 font-display text-3xl font-semibold">Finish your answers first</h1>
         <p className="mt-3 text-muted-foreground">
-          Your ideas are built from all four parts of the questionnaire. Pick up where you left off.
+          Your ideas draw on all four circles, so each one needs at least one answer.
         </p>
-        <ButtonLink href={`/ikigai-finder?step=${missingSection}`} className="mt-8" size="lg">
-          Continue part {missingSection}
+        <ButtonLink
+          href={ikigai.answers.some(isSectionStarted) ? `/ikigai-finder?step=${missingSection}` : "/ikigai-finder/quick"}
+          className="mt-8"
+          size="lg"
+        >
+          {ikigai.answers.some(isSectionStarted) ? `Continue part ${missingSection}` : "Answer four quick questions"}
         </ButtonLink>
       </div>
     );
@@ -172,6 +177,17 @@ export default function IdeasStep(): React.ReactElement {
               {options.length ? "Generate more ideas" : "Generate ideas"}
             </Button>
           </Card>
+          {sharpenSection && (
+            <Card className="mt-4 p-5">
+              <p className="font-medium">Want sharper ideas?</p>
+              <p className="mt-1 text-sm text-muted-foreground">
+                These come from a few answers. The full reflection adds twelve more questions, and new ideas will draw on everything you write.
+              </p>
+              <ButtonLink href={`/ikigai-finder?step=${sharpenSection}`} variant="neutral" size="sm" className="mt-4">
+                Go deeper <ArrowRight className="size-4" aria-hidden="true" />
+              </ButtonLink>
+            </Card>
+          )}
         </aside>
       </div>
 
