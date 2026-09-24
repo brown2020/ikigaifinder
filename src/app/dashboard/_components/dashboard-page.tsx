@@ -10,6 +10,7 @@ import IkigaiDiagram from "@/components/ikigai/IkigaiDiagram";
 import ScoreBars from "@/components/ikigai/ScoreBars";
 import SharePanel from "@/components/share/SharePanel";
 import CheckInCard from "@/components/journey/CheckInCard";
+import ExperimentCard from "@/components/journey/ExperimentCard";
 import { CIRCLE_BY_STEP, type CircleId } from "@/constants/ikigai";
 import { useIkigaiStore, useProfileStore } from "@/zustand";
 import { displayStatement } from "@/utils/ikigaiList";
@@ -70,6 +71,8 @@ export default function DashboardPage({ userId, initial }: DashboardPageProps): 
                 </ButtonLink>
               ))}
             </div>
+
+            {ready && selected && <ExperimentCard className="mt-8" />}
 
             {ready && selected && <CheckInCard ikigai={ikigai} className="mt-8 p-6" />}
 

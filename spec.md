@@ -181,6 +181,10 @@ Product-oriented, ordered by impact and dependency. Each item is sized for one c
 - **User value:** a reason to come back. The dashboard invites a check-in every three months and shows how the person's statement has changed over time.
 - **Implemented:** choosing a different statement records `ikigaiSelectedAt` and moves the previous one into `ikigaiHistory` (ISO dates, last 20). `CheckInCard` on the dashboard shows when the statement was chosen, highlights a check-in once 90 days pass, offers a downloadable `.ics` reminder (`src/utils/calendar.ts`, no server-side reminders), and lists past statements.
 
+### M16 — 7-day experiment — DONE
+- **User value:** turns insight into action. The report's three first steps become a week-long checklist the person ticks off from the dashboard.
+- **Implemented:** `ExperimentCard` (insights page and dashboard) starts an `ikigaiExperiment` from the current report's first steps, keyed to the selected statement, and shows day N of 7 with progress and toggles.
+
 ### Out of scope / non-goals (for now)
 
 - Distributed rate limiting (Redis) — only needed once multi-instance scale is real; revisit after M1.

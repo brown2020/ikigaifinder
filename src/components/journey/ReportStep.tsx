@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import { AlertCircle, ArrowLeft, ArrowRight, Compass, Footprints, RotateCw, Sprout } from "lucide-react";
+import { AlertCircle, ArrowLeft, ArrowRight, Compass, RotateCw, Sprout } from "lucide-react";
 import { Button, ButtonLink } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
 import { Eyebrow } from "@/components/ui/Eyebrow";
@@ -14,6 +14,7 @@ import { useIkigaiStore } from "@/zustand";
 import { displayStatement } from "@/utils/ikigaiList";
 import { hasCurrentReport } from "@/utils/journey";
 import { toQuestionSections } from "@/utils/promptUtils";
+import ExperimentCard from "./ExperimentCard";
 import JourneyProgress from "./JourneyProgress";
 
 const circleById = Object.fromEntries(IKIGAI_CIRCLES.map((c) => [c.id, c]));
@@ -149,24 +150,7 @@ export default function ReportStep(): React.ReactElement {
                 <p className="mt-3">{report.growthEdge.advice}</p>
               </Card>
 
-              <Card className="p-6">
-                <h2 className="flex items-center gap-2 font-display text-xl font-semibold">
-                  <Footprints className="size-5 text-primary" aria-hidden="true" /> Try this week
-                </h2>
-                <ol className="mt-4 space-y-4">
-                  {report.firstSteps.map((step, i) => (
-                    <li key={step.title} className="flex gap-3">
-                      <span className="grid size-6 shrink-0 place-items-center rounded-full bg-primary-soft text-xs font-semibold text-primary">
-                        {i + 1}
-                      </span>
-                      <span>
-                        <span className="block font-medium">{step.title}</span>
-                        <span className="block text-sm text-muted-foreground">{step.detail}</span>
-                      </span>
-                    </li>
-                  ))}
-                </ol>
-              </Card>
+<ExperimentCard />
             </section>
 
             <section aria-labelledby="paths-heading">

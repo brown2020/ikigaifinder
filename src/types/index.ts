@@ -80,6 +80,13 @@ export interface IkigaiReport {
   keywords: Record<CircleId, string[]>;
 }
 
+/** A week of small actions drawn from the report's first steps. */
+export interface IkigaiExperiment {
+  statement: string;
+  startedAt: string;
+  steps: { title: string; detail: string; done: boolean }[];
+}
+
 /** A statement the person chose earlier and later replaced. Dates are ISO strings. */
 export interface IkigaiHistoryEntry extends IkigaiData {
   chosenAt: string | null;
@@ -102,6 +109,7 @@ export interface Ikigai {
   ikigaiImage: string;
   ikigaiCoverImage: string;
   ikigaiReport?: IkigaiReport | null;
+  ikigaiExperiment?: IkigaiExperiment | null;
   /** Written only by the server sharing route. */
   ikigaiSharableUrl?: boolean;
 }
