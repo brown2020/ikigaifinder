@@ -51,7 +51,7 @@ A working end-to-end flow exists: authenticate → questionnaire → streaming G
 - **Ikigai generation:** server action `src/lib/generateIkigai.ts` (GPT‑4o, temperature 0.8) using structured output (Zod schema, `Output.array`), streamed per completed statement via `@ai-sdk/rsc`, with validation, sanitization, rate limiting, and an "avoid these" list so "Generate more" returns new angles. Users can steer with guidance and edit the chosen statement's wording.
 - **Selection & persistence:** chosen statement, answers, and guidance saved under `ikigaiUsers/{uid}/ikigai/main` (`src/services/ikigaiService.ts`).
 - **Image generation:** server action `src/lib/generateImage.ts` calls Fireworks SDXL, uploads to Firebase Storage (`generated/{uid}/...`), returns a signed URL, and records a cover in history.
-- **Sharing:** `PATCH /api/ikigai/sharing` toggles `ikigaiSharableUrl`; public read of the `main` doc is allowed by `firestore.rules` only when sharable; public page at `app/ikigai/[id]`; social buttons + `html2canvas` download.
+- **Sharing:** `PATCH /api/ikigai/sharing` toggles `ikigaiSharableUrl`; the public page at `app/ikigai/[id]` reads a minimal summary (cover, statement, map words) through the Admin SDK only when sharable; `firestore.rules` never allows public client reads; social buttons + `html2canvas` download.
 - **Dashboard & profile:** authenticated areas with `loading.tsx`/`error.tsx` boundaries.
 - **Cross-cutting:** CSP/security headers (`next.config.mjs`), cookie-consent banner, four-circle ikigai diagram and overlap score bars, mobile-first responsive UI.
 
@@ -75,7 +75,7 @@ A working end-to-end flow exists: authenticate → questionnaire → streaming G
 - Auth gate centralized in `src/proxy.ts` (verifies the Firebase session cookie for protected segments).
 - Data access is **mixed**: client SDK from `src/services/*` (guarded by `firestore.rules`) plus Admin SDK for the sharing API and the public share page.
 - State in four Zustand stores with post-await UID re-checks to prevent cross-user races.
-- Security boundary enforced by `firestore.rules` (owner-based; conditional public read) and `storage.rules` (user-scoped; deny by default).
+- Security boundary enforced by `firestore.rules` (owner-only; no public reads) and `storage.rules` (user-scoped; deny by default).
 
 ### Existing technical constraints
 

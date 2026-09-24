@@ -14,10 +14,10 @@ service cloud.firestore {
       
       // Ikigai Subcollection
       match /ikigai/{docId} {
-        // Allow owner to read/write all documents
-        // Allow public read ONLY for the 'main' document IF it is marked as sharable
-        allow read: if isOwner(userId) || (docId == 'main' && resource.data.ikigaiSharableUrl == true);
-        allow write: if isOwner(userId);
+        // Owner only. Shared pages read through the Admin SDK (src/lib/ikigaiServer.ts),
+        // which exposes just the card, statement, and map words; a public client read
+        // would leak answers, reports, and history.
+        allow read, write: if isOwner(userId);
       }
       
       // Settings/Profile Subcollection

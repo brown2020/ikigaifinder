@@ -67,7 +67,7 @@ src/
 ├── firebase/                 # firebaseClient.ts, firebaseAdmin.ts
 └── types/                    # Centralized TypeScript types (index.ts)
 
-firestore.rules               # Owner-based access; public read of /ikigai/main when sharable
+firestore.rules               # Owner-only access; shared pages read via the Admin SDK, never public client reads
 storage.rules                 # User-scoped paths; deny by default
 env.sample                    # Required environment variables (copy to .env.local)
 ```
@@ -169,7 +169,7 @@ npm run lint && npm run build
 - **`postcss.config.mjs`** — must remain the minimal Tailwind config. This file was previously the target of a malware injection (obfuscated code appended after `export default config;`). Treat any non-trivial content here as suspicious.
 - **`src/firebase/firebaseAdmin.ts`** and **`src/lib/auth/*`** — handle admin credentials and session cookies; changes here have security impact.
 - **`src/proxy.ts`** — the auth gate. Test redirect behavior carefully.
-- **`firestore.rules` / `storage.rules`** — the data security boundary; keep in sync with data paths.
+- **`firestore.rules` / `storage.rules`** — the data security boundary; keep in sync with data paths. Don't reintroduce public client reads of the ikigai doc: it holds private answers, reports, and history. Expose shared data through `getIkigaiSummary` instead. Rule changes take effect only after `firebase deploy --only firestore:rules`.
 - **`src/lib/rateLimit.ts`** — in-memory and **not** distributed; do not assume global enforcement across instances.
 - **`src/lib/generateImage.ts`** — uses an effectively permanent signed-URL expiry (`03-17-2125`); be intentional if you change URL lifetime.
 - **`service_key.json`** and **`.env*.local`** — secrets, gitignored. Never read, print, or commit them.
