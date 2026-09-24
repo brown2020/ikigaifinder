@@ -7,6 +7,7 @@ import { ButtonLink } from "@/components/ui/Button";
 import { Eyebrow } from "@/components/ui/Eyebrow";
 import IkigaiDiagram from "@/components/ikigai/IkigaiDiagram";
 import SharePanel from "@/components/share/SharePanel";
+import type { IkigaiReport } from "@/types";
 
 interface ShareImagePageProps {
   userId: string;
@@ -14,9 +15,10 @@ interface ShareImagePageProps {
   imageUrl: string | null;
   statement: string | null;
   sharable: boolean;
+  keywords: IkigaiReport["keywords"] | null;
 }
 
-export default function ShareImagePage({ userId, isOwner, imageUrl, statement, sharable }: ShareImagePageProps) {
+export default function ShareImagePage({ userId, isOwner, imageUrl, statement, sharable, keywords }: ShareImagePageProps) {
   const [isPublic, setIsPublic] = useState(sharable);
 
   if (!imageUrl) {
@@ -66,7 +68,7 @@ export default function ShareImagePage({ userId, isOwner, imageUrl, statement, s
               <ButtonLink href="/" size="lg" className="mt-8">
                 Find my ikigai
               </ButtonLink>
-              <IkigaiDiagram className="mt-10 max-w-[220px]" />
+              <IkigaiDiagram className="mt-10 max-w-[300px]" words={keywords ?? undefined} />
             </>
           )}
         </div>

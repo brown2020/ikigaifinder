@@ -17,6 +17,7 @@ export default async function IkigaiShare({ params }: Props) {
       isOwner={isOwner}
       imageUrl={visible ? summary.coverImage : null}
       statement={visible ? summary.statement : null}
+      keywords={visible ? summary.keywords : null}
       sharable={summary.sharable}
     />
   );

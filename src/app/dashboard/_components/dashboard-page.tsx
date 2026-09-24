@@ -69,6 +69,13 @@ export default function DashboardPage({ userId, initial }: DashboardPageProps): 
                 </ButtonLink>
               ))}
             </div>
+
+            {ready && hasCurrentReport(ikigai) && ikigai.ikigaiReport && (
+              <Card className="mt-8 p-6">
+                <h2 className="font-display text-xl font-semibold">Your ikigai map</h2>
+                <IkigaiDiagram className="mx-auto mt-4 max-w-[340px]" words={ikigai.ikigaiReport.keywords} />
+              </Card>
+            )}
           </div>
         </div>
       </div>

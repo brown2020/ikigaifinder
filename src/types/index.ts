@@ -143,4 +143,6 @@ export interface IkigaiSummary {
   coverImage: string | null;
   sharable: boolean;
   statement: string | null;
+  /** Personal map words, present only when the report matches the statement. */
+  keywords: IkigaiReport["keywords"] | null;
 }

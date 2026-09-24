@@ -93,7 +93,7 @@ export default function SharePanel({ userId, coverImage, initialSharable, onShar
               {sharable ? "Public link is on" : "Private"}
             </p>
             <p className="text-sm text-muted-foreground">
-              {sharable ? "Anyone with the link can see your card." : "Only you can see your card."}
+              {sharable ? "Anyone with the link can see your card and ikigai map." : "Only you can see your card."}
             </p>
           </div>
         </div>

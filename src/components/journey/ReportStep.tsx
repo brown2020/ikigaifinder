@@ -6,6 +6,7 @@ import { Button, ButtonLink } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
 import { Eyebrow } from "@/components/ui/Eyebrow";
 import { Skeleton } from "@/components/ui/Skeleton";
+import IkigaiDiagram from "@/components/ikigai/IkigaiDiagram";
 import ScoreBars from "@/components/ikigai/ScoreBars";
 import { IKIGAI_CIRCLES } from "@/constants/ikigai";
 import { generateIkigaiReport } from "@/lib/generateReport";
@@ -80,12 +81,20 @@ export default function ReportStep(): React.ReactElement {
     <div className="mx-auto w-full max-w-6xl px-5 pb-32 pt-8 sm:px-8 sm:pt-10">
       <JourneyProgress current="report" />
 
-      <header className="mt-10 max-w-3xl">
-        <Eyebrow>Your insights</Eyebrow>
-        <h1 className="mt-3 font-display text-3xl font-semibold leading-tight tracking-tight sm:text-4xl">
-          {displayStatement(selected.ikigai)}
-        </h1>
-        <ScoreBars scores={selected} className="mt-6" />
+      <header className="mt-10 grid items-center gap-8 md:grid-cols-[minmax(0,1fr)_340px] lg:gap-14">
+        <div>
+          <Eyebrow>Your insights</Eyebrow>
+          <h1 className="mt-3 font-display text-3xl font-semibold leading-tight tracking-tight sm:text-4xl">
+            {displayStatement(selected.ikigai)}
+          </h1>
+          <ScoreBars scores={selected} className="mt-6" />
+        </div>
+        {report && (
+          <IkigaiDiagram
+            className="mx-auto w-full max-w-[340px] animate-fade-in"
+            words={report.keywords}
+          />
+        )}
       </header>
 
       <div className="mt-10" aria-live="polite" aria-busy={isWriting}>
