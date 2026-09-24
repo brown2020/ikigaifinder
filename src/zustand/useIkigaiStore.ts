@@ -21,8 +21,11 @@ interface IkigaiStore {
   fetchIkigai: () => Promise<void>;
   /** Hydrates a signed-out visitor's answers from this device. */
   loadGuest: () => void;
-  /** Persists a partial update. Resolves to false if it failed or the user changed mid-flight. */
-  updateIkigai: (data: Partial<Ikigai>) => Promise<boolean>;
+  /**
+   * Persists a partial update. Resolves to false if it failed or the user changed mid-flight.
+   * `quiet` saves (autosave) don't flip `isSaving`, so buttons don't flash a spinner while typing.
+   */
+  updateIkigai: (data: Partial<Ikigai>, options?: { quiet?: boolean }) => Promise<boolean>;
   resetIkigai: () => void;
 }
 
@@ -74,7 +77,8 @@ export const useIkigaiStore = create<IkigaiStore>()(
       set({ ikigaiData: { ...defaultIkigai, answers }, status: "ready", error: null }, false, "ikigai/loadGuest");
     },
 
-    updateIkigai: async (updateData) => {
+    updateIkigai: async (updateData, options) => {
+      const quiet = Boolean(options?.quiet);
       const uid = useAuthStore.getState().uid;
       if (!uid) {
         // Guests can only answer questions; everything else needs an account.
@@ -84,15 +88,16 @@ export const useIkigaiStore = create<IkigaiStore>()(
         set({ ikigaiData: { ...get().ikigaiData, answers } }, false, "ikigai/updateGuest");
         return true;
       }
-      set({ isSaving: true, error: null }, false, "ikigai/updateStart");
+      if (!quiet) set({ isSaving: true, error: null }, false, "ikigai/updateStart");
       try {
         const updated = await updateIkigaiData(uid, get().ikigaiData, updateData);
         if (!isCurrentUser(uid)) return false;
-        set({ ikigaiData: updated, isSaving: false }, false, "ikigai/updateSuccess");
+        set(quiet ? { ikigaiData: updated } : { ikigaiData: updated, isSaving: false }, false, "ikigai/updateSuccess");
         return true;
       } catch (err) {
         if (!isCurrentUser(uid)) return false;
-        set({ error: toError(err, "Failed to save your ikigai"), isSaving: false }, false, "ikigai/updateError");
+        const error = toError(err, "Failed to save your ikigai");
+        set(quiet ? { error } : { error, isSaving: false }, false, "ikigai/updateError");
         return false;
       }
     },

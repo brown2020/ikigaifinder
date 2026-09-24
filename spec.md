@@ -189,6 +189,10 @@ Product-oriented, ordered by impact and dependency. Each item is sized for one c
 - **User value:** a shared card now leads visitors straight into the two-minute, no-sign-up start, and owners can post to Stories and LinkedIn without cropping.
 - **Implemented:** public-page CTAs go to `/ikigai-finder/quick`. `IkigaiCard` takes a `format` (square, story 9:16, wide 1.91:1) with `cqmin`-based type; `CardFormatDownloads` renders the chosen size off-screen and downloads a 1080×1920 or 1200×630 PNG (card step and dashboard). The card name is saved as `ikigaiCardName` for re-rendering.
 
+### M18 — Easier answering: autosave, prompts, dictation — DONE
+- **User value:** answers survive a refresh or closed tab, people who get stuck have somewhere to start, and people can talk instead of type.
+- **Implemented:** `useAnswerAutosave` saves answers about a second after typing stops (quiet saves that don't flip `isSaving`) with a status line. Every written question has three reflective `hints` behind "Stuck? Try a prompt". `AnswerField` adds a Dictate button using the browser's Web Speech API (`useSpeechInput`, hidden where unsupported); `Permissions-Policy` now allows `microphone=(self)`.
+
 ### Out of scope / non-goals (for now)
 
 - Distributed rate limiting (Redis) — only needed once multi-instance scale is real; revisit after M1.

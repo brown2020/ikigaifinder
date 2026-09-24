@@ -25,6 +25,8 @@ export interface QuestionStepper {
   placeholder?: string;
   answer?: string[];
   validation: QuestionValidation;
+  /** Reflective nudges shown when someone is stuck. */
+  hints?: string[];
 }
 
 export interface QuestionStep {

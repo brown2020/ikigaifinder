@@ -8,13 +8,14 @@ import toast from "react-hot-toast";
 import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
 import { Eyebrow } from "@/components/ui/Eyebrow";
-import { fieldClasses } from "@/components/ui/Input";
 import IkigaiDiagram from "@/components/ikigai/IkigaiDiagram";
 import { CIRCLE_BY_STEP, type CircleId } from "@/constants/ikigai";
 import { useAuthStore, useIkigaiStore, useUIStore } from "@/zustand";
 import { firstIncompleteSection, isSectionComplete, SIGN_UP_PROMPT, type JourneyStepKey } from "@/utils/journey";
-import { cn } from "@/utils/cn";
 import type { QuestionStep } from "@/types";
+import { sameAnswers, useAnswerAutosave } from "@/hooks/use-answer-autosave";
+import AnswerField from "./AnswerField";
+import AutosaveStatus from "./AutosaveStatus";
 import JourneyProgress from "./JourneyProgress";
 import TagInput from "./TagInput";
 
@@ -37,10 +38,11 @@ function toAnswer(value: string | string[] | undefined): string[] {
   return text ? [text] : [];
 }
 
-function sameAnswers(a: QuestionStep[], b: QuestionStep[]): boolean {
-  const flat = (steps: QuestionStep[]) =>
-    JSON.stringify(steps.flatMap((s) => s.questions.map((q) => [q.id, q.answer ?? []])));
-  return flat(a) === flat(b);
+function toAnswers(values: FormValues, stored: QuestionStep[]): QuestionStep[] {
+  return stored.map((s) => ({
+    ...s,
+    questions: s.questions.map((q) => ({ ...q, answer: toAnswer(values[String(q.id)]) })),
+  }));
 }
 
 function clampStep(raw: string | null, fallback: number, total: number): number {
@@ -65,10 +67,18 @@ export default function Questionnaire(): React.ReactElement {
   const circle = CIRCLE_BY_STEP[section.id as keyof typeof CIRCLE_BY_STEP];
 
   const defaultValues = useMemo(() => toFormValues(stored), [stored]);
-  const { control, register, handleSubmit, getValues, formState: { errors } } = useForm<FormValues>({
+  const { control, register, handleSubmit, getValues, setValue, watch, formState: { errors } } = useForm<FormValues>({
     defaultValues,
     mode: "onTouched",
   });
+  const autosave = useAnswerAutosave(watch, getValues, toAnswers);
+  // Autosave keeps the store current, so compare against what was saved when the page opened.
+  const [answersAtOpen] = useState(stored);
+
+  const appendDictation = (id: string, text: string) => {
+    const current = String(getValues(id) ?? "").trim();
+    setValue(id, current ? `${current} ${text}` : text, { shouldDirty: true, shouldValidate: true });
+  };
 
   const activeCircles = useMemo(() => {
     const map: Partial<Record<CircleId, boolean>> = {};
@@ -79,11 +89,7 @@ export default function Questionnaire(): React.ReactElement {
     return map;
   }, [stored]);
 
-  const buildAnswers = (values: FormValues): QuestionStep[] =>
-    stored.map((s) => ({
-      ...s,
-      questions: s.questions.map((q) => ({ ...q, answer: toAnswer(values[String(q.id)]) })),
-    }));
+  const buildAnswers = (values: FormValues): QuestionStep[] => toAnswers(values, stored);
 
   const goTo = (next: number) => {
     setStep(next);
@@ -96,12 +102,10 @@ export default function Questionnaire(): React.ReactElement {
     const changed = !sameAnswers(answers, stored);
     const isLast = step === total;
 
-    if (changed) {
-      const allDone = answers.every(isSectionComplete);
-      // New answers deserve fresh ideas; a card made from old ideas stays on the dashboard.
-      const ok = await updateIkigai(
-        allDone && isLast ? { answers, ikigaiOptions: [], ikigaiSelected: null } : { answers }
-      );
+    // New answers deserve fresh ideas; a card made from old ideas stays on the dashboard.
+    const refresh = isLast && answers.every(isSectionComplete) && !sameAnswers(answers, answersAtOpen);
+    if (changed || refresh) {
+      const ok = await updateIkigai(refresh ? { answers, ikigaiOptions: [], ikigaiSelected: null } : { answers });
       if (!ok) {
         toast.error("We couldn't save your answers. Check your connection and try again.");
         return;
@@ -177,14 +181,13 @@ export default function Questionnaire(): React.ReactElement {
                         )}
                       />
                     ) : (
-                      <textarea
+                      <AnswerField
                         id={id}
-                        rows={3}
                         placeholder={q.placeholder}
-                        aria-invalid={error ? true : undefined}
-                        aria-describedby={describedBy}
-                        className={cn(fieldClasses, "min-h-24 resize-y py-3 leading-relaxed [field-sizing:content]")}
-                        {...register(id, {
+                        hints={q.hints}
+                        error={error}
+                        onDictate={(text) => appendDictation(id, text)}
+                        registration={register(id, {
                           validate: (v) =>
                             (typeof v === "string" && v.trim().length > 0) || String(q.validation.required),
                           maxLength: { value: 2000, message: "Please keep this under 2,000 characters." },
@@ -214,6 +217,7 @@ export default function Questionnaire(): React.ReactElement {
             >
               Back
             </Button>
+            <AutosaveStatus state={autosave} className="ml-auto hidden sm:block" />
             <Button
               type="submit"
               size="lg"

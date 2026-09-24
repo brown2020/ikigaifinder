@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { ArrowRight } from "lucide-react";
@@ -7,15 +8,28 @@ import toast from "react-hot-toast";
 import { Button, ButtonLink } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
 import { Eyebrow } from "@/components/ui/Eyebrow";
-import { fieldClasses } from "@/components/ui/Input";
 import IkigaiDiagram from "@/components/ikigai/IkigaiDiagram";
 import { CIRCLE_BY_STEP } from "@/constants/ikigai";
 import { QUICK_QUESTION_IDS } from "@/constants/questions";
 import { useAuthStore, useIkigaiStore, useUIStore } from "@/zustand";
 import { SIGN_UP_PROMPT } from "@/utils/journey";
-import { cn } from "@/utils/cn";
+import { sameAnswers, useAnswerAutosave } from "@/hooks/use-answer-autosave";
+import type { QuestionStep } from "@/types";
+import AnswerField from "./AnswerField";
+import AutosaveStatus from "./AutosaveStatus";
 
 type FormValues = Record<string, string>;
+
+function toQuickAnswers(values: FormValues, stored: QuestionStep[]): QuestionStep[] {
+  return stored.map((section) => ({
+    ...section,
+    questions: section.questions.map((q) => {
+      if (q.id !== QUICK_QUESTION_IDS[section.id]) return q;
+      const text = (values[String(q.id)] ?? "").trim();
+      return { ...q, answer: text ? [text] : [] };
+    }),
+  }));
+}
 
 /** One question per circle: the shortest path to a first set of ideas. */
 export default function QuickQuestionnaire(): React.ReactElement {
@@ -32,24 +46,24 @@ export default function QuickQuestionnaire(): React.ReactElement {
     return question && circle ? [{ section, question, circle }] : [];
   });
 
-  const { register, handleSubmit, formState: { errors } } = useForm<FormValues>({
+  const { register, handleSubmit, getValues, setValue, watch, formState: { errors } } = useForm<FormValues>({
     defaultValues: Object.fromEntries(
       items.map(({ question }) => [String(question.id), (question.answer ?? []).join("\n")])
     ),
     mode: "onTouched",
   });
+  const autosave = useAnswerAutosave(watch, getValues, toQuickAnswers);
+  // Autosave keeps the store current, so compare against what was saved when the page opened.
+  const [answersAtOpen] = useState(stored);
+
+  const appendDictation = (id: string, text: string) => {
+    const current = (getValues(id) ?? "").trim();
+    setValue(id, current ? `${current} ${text}` : text, { shouldDirty: true, shouldValidate: true });
+  };
 
   const onSubmit = async (values: FormValues) => {
-    let changed = false;
-    const answers = stored.map((section) => ({
-      ...section,
-      questions: section.questions.map((q) => {
-        if (q.id !== QUICK_QUESTION_IDS[section.id]) return q;
-        const text = (values[String(q.id)] ?? "").trim();
-        if (text !== (q.answer ?? []).join("\n")) changed = true;
-        return { ...q, answer: text ? [text] : [] };
-      }),
-    }));
+    const answers = toQuickAnswers(values, stored);
+    const changed = !sameAnswers(answers, answersAtOpen);
 
     if (changed && !(await updateIkigai({ answers, ikigaiOptions: [] }))) {
       toast.error("We couldn't save your answers. Check your connection and try again.");
@@ -94,14 +108,14 @@ export default function QuickQuestionnaire(): React.ReactElement {
                   <label htmlFor={id} className="mt-3 block font-display text-lg font-medium leading-snug sm:text-xl">
                     {question.label}
                   </label>
-                  <textarea
+                  <AnswerField
                     id={id}
-                    rows={3}
+                    className="mt-4"
                     placeholder={question.placeholder}
-                    aria-invalid={error ? true : undefined}
-                    aria-describedby={error ? `${id}-error` : undefined}
-                    className={cn(fieldClasses, "mt-4 min-h-24 resize-y py-3 leading-relaxed [field-sizing:content]")}
-                    {...register(id, {
+                    hints={question.hints}
+                    error={error}
+                    onDictate={(text) => appendDictation(id, text)}
+                    registration={register(id, {
                       validate: (v) => v.trim().length > 0 || "Please add an answer.",
                       maxLength: { value: 2000, message: "Please keep this under 2,000 characters." },
                     })}
@@ -120,6 +134,7 @@ export default function QuickQuestionnaire(): React.ReactElement {
             <ButtonLink href="/ikigai-finder?step=1" variant="ghost">
               Take the full reflection instead
             </ButtonLink>
+            <AutosaveStatus state={autosave} className="ml-auto hidden sm:block" />
             <Button
               type="submit"
               size="lg"
