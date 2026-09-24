@@ -218,8 +218,8 @@ export default function CardStep(): React.ReactElement {
           </Card>
 
           <div className="mt-6 flex items-center justify-between gap-3">
-            <ButtonLink href="/generate-ikigai" variant="ghost">
-              <ArrowLeft className="size-4" aria-hidden="true" /> Ideas
+            <ButtonLink href="/generate-ikigai/report" variant="ghost">
+              <ArrowLeft className="size-4" aria-hidden="true" /> Insights
             </ButtonLink>
             <Button size="lg" onClick={handleSave} isLoading={isSaving} loadingText="Saving card…" disabled={isGenerating}>
               Save my card

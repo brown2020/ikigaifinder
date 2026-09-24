@@ -1,3 +1,20 @@
+import type { QuestionStep } from "@/types";
+
+export interface QuestionSection {
+  id: string;
+  questions: { question: string; answer: string[] }[];
+}
+
+/** Shapes answers for the AI server actions. Quick-path users leave most questions blank; only send what they wrote. */
+export function toQuestionSections(steps: QuestionStep[]): QuestionSection[] {
+  return steps.map((step) => ({
+    id: step.id,
+    questions: step.questions
+      .map((q) => ({ question: q.label, answer: (q.answer ?? []).filter((a) => a.trim()) }))
+      .filter((q) => q.answer.length > 0),
+  }));
+}
+
 /** Builds the background-image prompt for a card. The statement is used when no scene is described. */
 export function buildCoverPrompt({
   scene,

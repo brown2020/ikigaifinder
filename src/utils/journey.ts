@@ -6,6 +6,7 @@ export const JOURNEY_STEPS = [
   { key: "mission", label: "World", href: "/ikigai-finder?step=3" },
   { key: "vocation", label: "Livelihood", href: "/ikigai-finder?step=4" },
   { key: "ideas", label: "Ideas", href: "/generate-ikigai" },
+  { key: "report", label: "Insights", href: "/generate-ikigai/report" },
   { key: "card", label: "Card", href: "/generate-ikigai/card" },
 ] as const;
 
@@ -48,12 +49,18 @@ export function firstIncompleteSection(answers: QuestionStep[]): number | null {
   return index === -1 ? null : index + 1;
 }
 
+/** Whether the saved report was written for the currently selected statement. */
+export function hasCurrentReport(ikigai: Ikigai): boolean {
+  return Boolean(ikigai.ikigaiReport && ikigai.ikigaiReport.statement === ikigai.ikigaiSelected?.ikigai);
+}
+
 export function completedSteps(ikigai: Ikigai): Set<JourneyStepKey> {
   const done = new Set<JourneyStepKey>();
   ikigai.answers.forEach((step) => {
     if (isSectionComplete(step)) done.add(step.id as JourneyStepKey);
   });
   if (ikigai.ikigaiSelected) done.add("ideas");
+  if (hasCurrentReport(ikigai)) done.add("report");
   if (ikigai.ikigaiCoverImage) done.add("card");
   return done;
 }
@@ -64,5 +71,6 @@ export function resumeHref(ikigai: Ikigai): string {
   const section = firstUnstartedSection(ikigai.answers);
   if (section) return `/ikigai-finder?step=${section}`;
   if (!ikigai.ikigaiSelected) return "/generate-ikigai";
+  if (!hasCurrentReport(ikigai)) return "/generate-ikigai/report";
   return "/generate-ikigai/card";
 }

@@ -27,6 +27,7 @@ export const defaultIkigai: Ikigai = {
   ikigaiGuidance: "",
   ikigaiImage: "",
   ikigaiCoverImage: "",
+  ikigaiReport: null,
 };
 
 /**

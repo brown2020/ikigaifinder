@@ -69,7 +69,7 @@ export default function IdeasStep(): React.ReactElement {
   const handleContinue = async () => {
     if (!selected) return;
     const ok = await updateIkigai({ ikigaiOptions: options, ikigaiSelected: selected, ikigaiGuidance: guidance });
-    if (ok) router.push("/generate-ikigai/card");
+    if (ok) router.push("/generate-ikigai/report");
     else toast.error("We couldn't save your choice. Please try again.");
   };
 
@@ -204,7 +204,7 @@ export default function IdeasStep(): React.ReactElement {
             loadingText="Saving…"
             rightIcon={<ArrowRight className="size-4" aria-hidden="true" />}
           >
-            {selected ? "Design my card" : "Select a statement"}
+            {selected ? "See my insights" : "Select a statement"}
           </Button>
         </div>
       </div>

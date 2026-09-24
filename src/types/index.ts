@@ -4,6 +4,7 @@
 
 import type { Timestamp } from "firebase/firestore";
 import type { FieldValues } from "react-hook-form";
+import type { CircleId } from "@/constants/ikigai";
 
 // ============================================================================
 // Question & Survey Types
@@ -66,6 +67,19 @@ export interface IkigaiData extends IkigaiScores {
   ikigai: string;
 }
 
+/** A personal read-out of one statement, written from the person's answers. */
+export interface IkigaiReport {
+  /** The statement this report explains; a new selection needs a new report. */
+  statement: string;
+  summary: string;
+  circles: { circle: CircleId; insight: string; evidence: string }[];
+  growthEdge: { circle: CircleId; advice: string };
+  firstSteps: { title: string; detail: string }[];
+  paths: { title: string; why: string }[];
+  /** Two or three short words per circle for the personal diagram. */
+  keywords: Record<CircleId, string[]>;
+}
+
 export interface Ikigai {
   id: string;
   answers: QuestionStep[];
@@ -76,6 +90,7 @@ export interface Ikigai {
   ikigaiGuidance: string;
   ikigaiImage: string;
   ikigaiCoverImage: string;
+  ikigaiReport?: IkigaiReport | null;
   /** Written only by the server sharing route. */
   ikigaiSharableUrl?: boolean;
 }

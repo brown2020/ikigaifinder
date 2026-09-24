@@ -37,7 +37,7 @@ src/
 │   │   ├── downloadImage/    # GET image proxy (CORS) for downloads
 │   │   └── ikigai/sharing/   # PATCH toggle public sharing (admin SDK)
 │   ├── ikigai-finder/        # Questionnaire, ?step=1-4, and quick/ (4-question start); public, guests answer before signing up
-│   ├── generate-ikigai/      # Ideas step; card/ = card designer (protected)
+│   ├── generate-ikigai/      # Ideas step; report/ = insights; card/ = card designer (protected)
 │   ├── ikigai/[id]/          # Public shareable ikigai page
 │   ├── dashboard/ profile/   # "My ikigai" hub (resume + share) and account
 │   └── (marketing/legal)/    # home, about, support, privacy-policy, terms-conditions
@@ -53,6 +53,7 @@ src/
 ├── lib/
 │   ├── generateIkigai.ts     # SERVER ACTION: GPT-4o structured ikigai generation (rate-limited, validated)
 │   ├── ikigaiServer.ts       # server-only Admin SDK summary read (dashboard + share page)
+│   ├── generateReport.ts     # SERVER ACTION: GPT-4o personal insights report for the chosen statement
 │   ├── generateImage.ts      # SERVER ACTION: Fireworks SDXL → Firebase Storage → signed URL
 │   ├── rateLimit.ts          # In-memory rate limiter (NOT distributed)
 │   ├── validation.ts         # Zod schemas + sanitizeInput()

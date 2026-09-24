@@ -9,11 +9,7 @@ import { requireAuth } from "@/lib/auth/session-server";
 import { rateLimitAI } from "./rateLimit";
 import { generateIkigaiSchema, sanitizeInput } from "./validation";
 import type { IkigaiData } from "@/types";
-
-interface QuestionSection {
-  id: string;
-  questions: { question: string; answer: string[] }[];
-}
+import type { QuestionSection } from "@/utils/promptUtils";
 
 const AI_MODEL = "gpt-4o";
 const STATEMENTS_PER_RUN = 5;

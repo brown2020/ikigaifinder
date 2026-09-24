@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { ArrowRight, Palette, RefreshCcw, Sparkles } from "lucide-react";
+import { ArrowRight, Lightbulb, Palette, RefreshCcw, Sparkles } from "lucide-react";
 import { ButtonLink } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
 import { Eyebrow } from "@/components/ui/Eyebrow";
@@ -12,7 +12,7 @@ import SharePanel from "@/components/share/SharePanel";
 import { CIRCLE_BY_STEP, type CircleId } from "@/constants/ikigai";
 import { useIkigaiStore, useProfileStore } from "@/zustand";
 import { displayStatement } from "@/utils/ikigaiList";
-import { canGenerate, isSectionComplete, isSectionStarted, resumeHref } from "@/utils/journey";
+import { canGenerate, hasCurrentReport, isSectionComplete, isSectionStarted, resumeHref } from "@/utils/journey";
 import type { IkigaiSummary } from "@/types";
 
 interface DashboardPageProps {
@@ -59,6 +59,7 @@ export default function DashboardPage({ userId, initial }: DashboardPageProps): 
 
             <div className="mt-8 flex flex-wrap gap-2">
               {[
+                { href: "/generate-ikigai/report", label: "My insights", icon: Lightbulb },
                 { href: "/generate-ikigai/card", label: "Redesign card", icon: Palette },
                 { href: "/generate-ikigai", label: "Explore ideas", icon: Sparkles },
                 { href: "/ikigai-finder?step=1", label: "Revisit answers", icon: RefreshCcw },
@@ -98,7 +99,9 @@ export default function DashboardPage({ userId, initial }: DashboardPageProps): 
       ? { title: "Pick up where you left off", body: `You've completed ${doneCount} of 4 parts. Your answers are saved as you go.`, cta: "Continue" }
       : !ikigai.ikigaiSelected
         ? { title: "Your ideas are ready to explore", body: "Your answers are complete. Choose the ikigai statement that sounds most like you.", cta: "See my ideas" }
-        : { title: "One last step: your card", body: "Turn your statement into a card you can keep, download, or share.", cta: "Design my card" };
+        : !hasCurrentReport(ikigai)
+          ? { title: "See why it fits you", body: "Get a short report on how your statement draws on each circle, your growth edge, and first steps to try this week.", cta: "See my insights" }
+          : { title: "One last step: your card", body: "Turn your statement into a card you can keep, download, or share.", cta: "Design my card" };
 
   return (
     <div className="mx-auto w-full max-w-5xl px-5 py-12 sm:px-8 sm:py-16">

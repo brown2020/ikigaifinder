@@ -34,6 +34,14 @@ export const generateIkigaiSchema = z.object({
 });
 
 /**
+ * Schema for the personal report request
+ */
+export const generateReportSchema = z.object({
+  questions: z.array(questionSectionSchema).min(1).max(10),
+  statement: z.string().min(10).max(1000),
+});
+
+/**
  * Schema for image generation request
  */
 export const generateImageSchema = z.object({

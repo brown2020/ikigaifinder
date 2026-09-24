@@ -4,6 +4,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { readStreamableValue } from "@ai-sdk/rsc";
 import { generateIkigai } from "@/lib/generateIkigai";
 import { mergeIkigaiLists } from "@/utils/ikigaiList";
+import { toQuestionSections } from "@/utils/promptUtils";
 import type { IkigaiData, QuestionStep } from "@/types";
 
 interface GenerateArgs {
@@ -18,16 +19,6 @@ interface UseIkigaiGeneratorReturn {
   isGenerating: boolean;
   error: string | null;
   clearError: () => void;
-}
-
-function toQuestionSections(steps: QuestionStep[]) {
-  // Quick-path users leave most questions blank; only send what they wrote.
-  return steps.map((step) => ({
-    id: step.id,
-    questions: step.questions
-      .map((q) => ({ question: q.label, answer: (q.answer ?? []).filter((a) => a.trim()) }))
-      .filter((q) => q.answer.length > 0),
-  }));
 }
 
 export function useIkigaiGenerator(

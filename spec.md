@@ -161,6 +161,10 @@ Product-oriented, ordered by impact and dependency. Each item is sized for one c
 - **User value:** a first set of ideas in about two minutes instead of ten; the full reflection becomes an optional way to sharpen them.
 - **Implemented:** `/ikigai-finder/quick` asks one question per circle (`QUICK_QUESTION_IDS`). Ideas unlock once every circle has at least one answer (`canGenerate`); the ideas step invites quick-path users to go deeper. Blank questions are no longer sent to the model. The home page CTA leads to the quick start.
 
+### M11 — Personal insights report — DONE
+- **User value:** choosing a statement now pays off with a short report: why it fits (each circle tied to the person's own words), their growth edge, three first steps for this week, and paths to explore.
+- **Implemented:** `generateIkigaiReport` server action (`src/lib/generateReport.ts`, GPT‑4o structured output, session-gated and rate-limited on the same AI limiter). The report is saved on the ikigai doc as `ikigaiReport`, keyed to the statement it explains, so it is written once per selection. New journey step "Insights" at `/generate-ikigai/report`, between Ideas and Card.
+
 ### Out of scope / non-goals (for now)
 
 - Distributed rate limiting (Redis) — only needed once multi-instance scale is real; revisit after M1.

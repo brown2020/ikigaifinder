@@ -40,7 +40,7 @@ export default function JourneyProgress({
       <p className="mb-3 text-xs font-medium text-muted-foreground sm:hidden">
         Step {currentIndex + 1} of {JOURNEY_STEPS.length} · {JOURNEY_STEPS[currentIndex]?.label}
       </p>
-      <ol className="grid grid-cols-6 gap-1.5 sm:gap-2">
+      <ol className="grid grid-cols-7 gap-1.5 sm:gap-2">
         {JOURNEY_STEPS.map((step, index) => {
           const isCurrent = step.key === current;
           const isDone = done.has(step.key);
