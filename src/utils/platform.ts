@@ -3,27 +3,15 @@
 // ============================================================================
 
 /**
- * Check if running in a React Native WebView
- *
- * @returns true if running in a React Native WebView environment
+ * True inside the native app. react-native-webview injects `window.ReactNativeWebView`
+ * on every platform; the user agent is not reliable because iPadOS WKWebView reports
+ * a desktop Macintosh UA.
  */
 export function isReactNativeWebView(): boolean {
   if (typeof window === "undefined") {
     return false;
   }
   return typeof window.ReactNativeWebView !== "undefined";
-}
-
-/**
- * Check if running in an iOS React Native WebView
- *
- * Note: This currently just checks for any React Native WebView.
- * In the future, we could add iOS-specific detection if needed.
- *
- * @returns true if running in iOS React Native WebView
- */
-export function isIOSReactNativeWebView(): boolean {
-  return isReactNativeWebView();
 }
 
 // ============================================================================

@@ -2,7 +2,7 @@
 
 import React, { useSyncExternalStore } from "react";
 import { useAuthActions } from "@/hooks/use-auth-actions";
-import { isIOSReactNativeWebView } from "@/utils/platform";
+import { isReactNativeWebView } from "@/utils/platform";
 import { Button } from "@/components/ui/Button";
 
 interface SocialLoginProps {
@@ -13,8 +13,9 @@ function subscribe() {
   return () => {};
 }
 
+/** Google blocks OAuth in embedded webviews, so the native app (iPhone and iPad) never offers it. */
 function getSnapshot(): boolean {
-  return !isIOSReactNativeWebView();
+  return !isReactNativeWebView();
 }
 
 function getServerSnapshot(): boolean {

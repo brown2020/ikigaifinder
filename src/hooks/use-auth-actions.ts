@@ -19,6 +19,7 @@ import {
   createServerSession,
 } from "@/lib/auth/session-client";
 import { deleteCookie } from "cookies-next";
+import { isReactNativeWebView } from "@/utils/platform";
 
 // ============================================================================
 // Types
@@ -140,6 +141,10 @@ export function useAuthActions(): UseAuthActionsReturn {
    */
   const signInWithGoogle = useCallback(
     async (onSuccess?: () => void): Promise<void> => {
+      if (isReactNativeWebView()) {
+        setError("Google sign-in isn't available in the app. Please use your email instead.");
+        return;
+      }
       setIsLoading(true);
       setError("");
       if (!ensureClient()) return;
