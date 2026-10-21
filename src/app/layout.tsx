@@ -4,6 +4,7 @@ import { ClientProvider } from "@/components/ClientProvider";
 import SiteHeader from "@/components/layout/SiteHeader";
 import SiteFooter from "@/components/layout/SiteFooter";
 import MobileNav from "@/components/layout/MobileNav";
+import { absoluteSiteUrl, jsonLdScript, siteUrl } from "@/utils/siteUrl";
 import "./globals.css";
 
 const fraunces = Fraunces({
@@ -19,26 +20,17 @@ const geist = Geist({
   display: "swap",
 });
 
-function safeSiteUrl(): URL {
-  const raw = process.env.NEXT_PUBLIC_BASE_URL || "https://ikigaifinder.ai";
-  try {
-    return new URL(raw);
-  } catch {
-    return new URL("https://ikigaifinder.ai");
-  }
-}
-
-function safeJsonLdScript(data: unknown): string {
-  return JSON.stringify(data).replace(/</g, "\\u003c").replace(/>/g, "\\u003e").replace(/&/g, "\\u0026");
-}
+const DEFAULT_TITLE = "Ikigai Finder AI: find your reason for being";
+const DEFAULT_DESCRIPTION =
+  "Find your ikigai, the Japanese idea of a reason for being. Answer a few honest questions, get personal ikigai statements drafted by AI, see why one fits you, and turn it into a card you can keep or share. Free, and no sign-up to start.";
 
 export const metadata: Metadata = {
   title: {
-    default: "Ikigai Finder AI - Discover Your Life Purpose",
+    default: DEFAULT_TITLE,
     template: "%s | Ikigai Finder AI",
   },
-  description:
-    "Discover your Ikigai - the Japanese concept of life purpose - through an AI-powered guided journey. Answer thoughtful questions and receive personalized purpose statements with beautiful shareable cards.",
+  description: DEFAULT_DESCRIPTION,
+  applicationName: "Ikigai Finder AI",
   keywords: [
     "ikigai",
     "life purpose",
@@ -56,7 +48,7 @@ export const metadata: Metadata = {
   authors: [{ name: "Ikigai Finder AI" }],
   creator: "Ikigai Finder AI",
   publisher: "Ikigai Finder AI",
-  metadataBase: safeSiteUrl(),
+  metadataBase: siteUrl(),
   alternates: {
     canonical: "/",
   },
@@ -65,21 +57,20 @@ export const metadata: Metadata = {
     locale: "en_US",
     url: "/",
     siteName: "Ikigai Finder AI",
-    title: "Ikigai Finder AI - Discover Your Life Purpose",
-    description:
-      "AI-powered tool to discover your Ikigai. Complete a guided survey and receive personalized purpose statements with beautiful shareable cards.",
+    title: DEFAULT_TITLE,
+    description: DEFAULT_DESCRIPTION,
     images: [
       {
         url: "/assets/ikigai-finder.webp",
-        alt: "Ikigai Finder AI - Discover Your Purpose",
+        alt: "Ikigai Finder AI: find your reason for being",
       },
     ],
   },
   twitter: {
     card: "summary_large_image",
-    title: "Ikigai Finder AI - Discover Your Life Purpose",
+    title: DEFAULT_TITLE,
     description:
-      "AI-powered tool to discover your Ikigai. Find the intersection of what you love, what you're good at, what the world needs, and what you can be paid for.",
+      "Find where what you love, what you're good at, what the world needs, and what you can be paid for overlap, and put it into one sentence.",
     images: ["/assets/ikigai-finder.webp"],
   },
   robots: {
@@ -114,25 +105,42 @@ export const viewport: Viewport = {
   maximumScale: 5,
 };
 
+const SITE = absoluteSiteUrl("/");
+
 const jsonLd = {
   "@context": "https://schema.org",
-  "@type": "WebApplication",
-  name: "Ikigai Finder AI",
-  description:
-    "AI-powered tool to discover your Ikigai - the Japanese concept of life purpose.",
-  url: "https://ikigaifinder.ai",
-  applicationCategory: "LifestyleApplication",
-  operatingSystem: "Any",
-  offers: {
-    "@type": "Offer",
-    price: "0",
-    priceCurrency: "USD",
-  },
-  featureList: [
-    "AI-guided self-discovery",
-    "Personalized Ikigai statements",
-    "Beautiful shareable cards",
-    "Venn diagram visualization",
+  "@graph": [
+    {
+      "@type": "WebSite",
+      "@id": `${SITE}#website`,
+      url: SITE,
+      name: "Ikigai Finder AI",
+      alternateName: "Ikigai Finder",
+      description: DEFAULT_DESCRIPTION,
+      inLanguage: "en",
+    },
+    {
+      "@type": "WebApplication",
+      "@id": `${SITE}#app`,
+      name: "Ikigai Finder AI",
+      url: SITE,
+      description: DEFAULT_DESCRIPTION,
+      applicationCategory: "LifestyleApplication",
+      operatingSystem: "Any",
+      isPartOf: { "@id": `${SITE}#website` },
+      offers: {
+        "@type": "Offer",
+        price: "0",
+        priceCurrency: "USD",
+      },
+      featureList: [
+        "Four-question quick start, no sign-up needed",
+        "Personal ikigai statements scored on passion, mission, vocation, and profession",
+        "Personal insights report with first steps for the week",
+        "Personal ikigai map in your own words",
+        "Shareable ikigai card in square, story, and wide sizes",
+      ],
+    },
   ],
 };
 
@@ -146,7 +154,7 @@ export default function RootLayout({
       <head>
         <script
           type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: safeJsonLdScript(jsonLd) }}
+          dangerouslySetInnerHTML={{ __html: jsonLdScript(jsonLd) }}
         />
       </head>
       <body className="flex min-h-dvh flex-col overflow-x-hidden">

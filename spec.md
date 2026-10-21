@@ -201,6 +201,10 @@ Product-oriented, ordered by impact and dependency. Each item is sized for one c
 - **User value:** after "Generate more", a steer, or "More like this", the new statements appear at the top instead of below a long list.
 - **Implemented:** `mergeIkigaiLists` puts unseen statements ahead of the current list. The ideas step marks the latest batch with a "New" badge, shows the loading placeholder beside it, scrolls the list back into view when a batch starts from further down the page, and announces how many were added.
 
+### M21 — Findable, and clear about how it works — DONE
+- **User value:** search engines can find and describe the public pages, and visitors get straight answers about cost, accounts, privacy, and AI before they start.
+- **Implemented:** `/robots.txt` (protected and API routes disallowed) and `/sitemap.xml` (public routes) built from one canonical origin in `src/utils/siteUrl.ts`. The root layout publishes WebSite and WebApplication JSON-LD with a current feature list and plain-language title and description. About describes the current journey (reflect, choose, understand, keep it close), replaces generic copy with a short "why it matters", and adds a "Common questions" section with matching FAQPage JSON-LD. Public share pages set a canonical URL.
+
 ### Out of scope / non-goals (for now)
 
 - Distributed rate limiting (Redis) — only needed once multi-instance scale is real; revisit after M1.

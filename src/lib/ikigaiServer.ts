@@ -37,11 +37,3 @@ export const getIkigaiSummary = cache(async (uid: string): Promise<IkigaiSummary
     return EMPTY;
   }
 });
-
-export function siteUrl(): URL {
-  try {
-    return new URL(process.env.NEXT_PUBLIC_BASE_URL || "https://ikigaifinder.ai");
-  } catch {
-    return new URL("https://ikigaifinder.ai");
-  }
-}

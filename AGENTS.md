@@ -40,7 +40,8 @@ src/
 │   ├── generate-ikigai/      # Ideas step; report/ = insights; card/ = card designer (protected)
 │   ├── ikigai/[id]/          # Public shareable ikigai page
 │   ├── dashboard/ profile/   # "My ikigai" hub (resume + share) and account
-│   └── (marketing/legal)/    # home, about, support, privacy-policy, terms-conditions
+│   ├── robots.ts sitemap.ts  # Crawl rules + public-route sitemap (origin from utils/siteUrl.ts)
+│   └── (marketing/legal)/    # home, about (FAQ + FAQPage JSON-LD), support, privacy-policy, terms-conditions
 ├── components/
 │   ├── ui/                   # Primitives (Button/ButtonLink, Card, Input/Textarea, Skeleton, Eyebrow, …)
 │   ├── layout/               # SiteHeader, UserMenu, MobileNav, SiteFooter (rendered by root layout)
@@ -63,7 +64,7 @@ src/
 ├── hooks/                    # use-auth-actions, use-auth-token, use-ikigai-generator
 ├── zustand/                  # useAuthStore, useIkigaiStore, useProfileStore, useUIStore
 ├── constants/                # ikigai.ts (circles/overlaps), questions.ts, systemPrompt.ts, menuItems.ts
-├── utils/                    # ikigaiList, journey, downloadImage, canvasUtils, promptUtils, baseUrl, …
+├── utils/                    # ikigaiList, journey, downloadImage, canvasUtils, promptUtils, baseUrl, siteUrl (canonical origin + JSON-LD), …
 ├── firebase/                 # firebaseClient.ts, firebaseAdmin.ts
 └── types/                    # Centralized TypeScript types (index.ts)
 

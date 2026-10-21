@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { getOptionalServerUid } from "@/lib/auth/session-server";
-import { getIkigaiSummary, siteUrl } from "@/lib/ikigaiServer";
+import { getIkigaiSummary } from "@/lib/ikigaiServer";
+import { siteUrl } from "@/utils/siteUrl";
 import ShareImagePage from "./_components/share-image-page";
 
 type Props = { params: Promise<{ id: string }> };
@@ -37,6 +38,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     title,
     description,
     robots: isPublic ? undefined : { index: false, follow: false },
+    alternates: isPublic ? { canonical: `/ikigai/${id}` } : undefined,
     openGraph: {
       title,
       description,
