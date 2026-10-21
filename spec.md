@@ -53,6 +53,8 @@ A working end-to-end flow exists: authenticate → questionnaire → streaming G
 - **Image generation:** server action `src/lib/generateImage.ts` calls Fireworks SDXL, uploads to Firebase Storage (`generated/{uid}/...`), returns a signed URL, and records a cover in history.
 - **Sharing:** `PATCH /api/ikigai/sharing` toggles `ikigaiSharableUrl`; the public page at `app/ikigai/[id]` reads a minimal summary (cover, statement, map words) through the Admin SDK only when sharable; `firestore.rules` never allows public client reads; social buttons + `html2canvas` download.
 - **Dashboard & profile:** authenticated areas with `loading.tsx`/`error.tsx` boundaries.
+- **Account deletion:** `/profile` → type DELETE ACCOUNT → `DELETE /api/account` (fresh ID token, revocation-checked) deletes `generated/{uid}/` and `users/{uid}/` in Storage, the `ikigaiUsers/{uid}` and `ikigaiProfiles/{uid}` trees, then the Auth user, and clears the session cookie. Success is shown only after the server confirms; the client then signs out and clears local drafts. Retrying after a partial failure finishes the job.
+- **Native app:** inside the React Native webview, Google sign-in is hidden on iPhone and iPad; email/password and email-link sign-in remain.
 - **Cross-cutting:** CSP/security headers (`next.config.mjs`), cookie-consent banner, four-circle ikigai diagram and overlap score bars, mobile-first responsive UI.
 
 ### Current user flows

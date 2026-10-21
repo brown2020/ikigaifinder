@@ -33,6 +33,7 @@ src/
 ├── proxy.ts                  # Next.js 16 route protection (Node runtime, verifies session cookie)
 ├── app/                      # App Router pages + API routes
 │   ├── api/
+│   │   ├── account/          # DELETE deletes the caller's account and all data (lib/accountDeletion.ts)
 │   │   ├── auth/session/     # POST creates session cookie, DELETE clears it
 │   │   ├── downloadImage/    # GET image proxy (CORS) for downloads
 │   │   └── ikigai/sharing/   # PATCH toggle public sharing (admin SDK)
@@ -85,7 +86,8 @@ env.sample                    # Required environment variables (copy to .env.loc
 
 ## Key app features that exist today
 
-- Email/password, Google, and email-link ("magic link") sign-in (Firebase Auth).
+- Email/password, Google, and email-link ("magic link") sign-in (Firebase Auth). Google is never offered inside the React Native app (`isReactNativeWebView()` in `src/utils/platform.ts` checks the injected `window.ReactNativeWebView`, which also covers iPad, whose webview reports a Mac user agent).
+- Complete in-app account deletion from `/profile`: `DELETE /api/account` verifies a fresh ID token and deletes both Storage prefixes, both Firestore trees, and the Auth user last; it is never refused and is safe to retry.
 - Four-part ikigai questionnaire (`src/constants/questions.ts`); section/question ids are persisted, and titles/labels always come from code.
 - Streaming GPT‑4o generation of ~10 ikigai statements, each with compatibility scores.
 - Selection of a preferred statement, persisted per user in Firestore.
@@ -170,6 +172,7 @@ npm run lint && npm run build
 - **`postcss.config.mjs`** — must remain the minimal Tailwind config. This file was previously the target of a malware injection (obfuscated code appended after `export default config;`). Treat any non-trivial content here as suspicious.
 - **`src/firebase/firebaseAdmin.ts`** and **`src/lib/auth/*`** — handle admin credentials and session cookies; changes here have security impact.
 - **`src/proxy.ts`** — the auth gate. Test redirect behavior carefully.
+- **`src/lib/accountDeletion.ts`** — lists every per-user Firestore tree and Storage prefix. When you add a per-user data path, add it here and to its test, or account deletion (required for the mobile app stores) leaves data behind.
 - **`firestore.rules` / `storage.rules`** — the data security boundary; keep in sync with data paths. Don't reintroduce public client reads of the ikigai doc: it holds private answers, reports, and history. Expose shared data through `getIkigaiSummary` instead. Rule changes take effect only after `firebase deploy --only firestore:rules`.
 - **`src/lib/rateLimit.ts`** — in-memory and **not** distributed; do not assume global enforcement across instances.
 - **`src/lib/generateImage.ts`** — uses an effectively permanent signed-URL expiry (`03-17-2125`); be intentional if you change URL lifetime.

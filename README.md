@@ -36,6 +36,7 @@ No Stripe / payments in this app.
 ```
 src/
   app/
+    api/account/           # Delete the caller's account and all data
     api/auth/session/      # Session cookie create/clear
     api/downloadImage/     # Image download proxy
     api/ikigai/sharing/    # Toggle public sharing

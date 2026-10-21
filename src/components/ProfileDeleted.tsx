@@ -1,23 +1,13 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { auth, db, storage } from "@/firebase/firebaseClient";
-import { ref, listAll, deleteObject } from "firebase/storage";
-import {
-  collection,
-  deleteDoc,
-  doc,
-  DocumentReference,
-  getDocs,
-} from "firebase/firestore";
-import { deleteUser, getAuth, signOut } from "firebase/auth";
 import { useRouter } from "next/navigation";
-import { useAuthStore } from "@/zustand";
 import { AlertTriangle } from "lucide-react";
+import toast from "react-hot-toast";
 import { Button } from "@/components/ui/Button";
 import { fieldClasses } from "@/components/ui/Input";
+import { useDeleteAccount } from "@/hooks/use-delete-account";
 import { cn } from "@/utils/cn";
-import toast from "react-hot-toast";
 
 type ProfileDeletedProps = {
   isOpen: boolean;
@@ -28,36 +18,26 @@ export default function ProfileDeleted({
   isOpen,
   closeModal,
 }: ProfileDeletedProps) {
-  const { uid } = useAuthStore();
   const router = useRouter();
   const modalRef = useRef<HTMLDialogElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
-  const deleteTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const [isLoading, setIsLoading] = useState(false);
   const [confirmText, setConfirmText] = useState("");
-  const authApp = getAuth();
-  const user = authApp.currentUser;
+  const { deleteAccount, isDeleting, error } = useDeleteAccount();
 
   useEffect(() => {
-    return () => {
-      if (deleteTimerRef.current) clearTimeout(deleteTimerRef.current);
-    };
-  }, []);
-
-  useEffect(() => {
+    if (!isOpen || isDeleting) return;
     const handleClickOutside = (event: MouseEvent) => {
       if (modalRef.current && !modalRef.current.contains(event.target as Node))
         closeModal();
     };
-
-    if (isOpen) document.addEventListener("mousedown", handleClickOutside);
+    document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, [isOpen, closeModal]);
+  }, [isOpen, isDeleting, closeModal]);
 
   useEffect(() => {
     if (!isOpen) return;
-
     inputRef.current?.focus();
+    if (isDeleting) return;
 
     function handleKeyDown(event: KeyboardEvent): void {
       if (event.key === "Escape") {
@@ -67,89 +47,12 @@ export default function ProfileDeleted({
 
     document.addEventListener("keydown", handleKeyDown);
     return () => document.removeEventListener("keydown", handleKeyDown);
-  }, [isOpen, closeModal]);
+  }, [isOpen, isDeleting, closeModal]);
 
-  const deleteDocs = async (refs: DocumentReference[]) => {
-    try {
-      await Promise.all(refs.map(deleteDoc));
-      return true;
-    } catch (error) {
-      console.error("Error deleting document:", error);
-      toast.error("Failed to delete account data. Please try again.");
-      return false;
-    }
-  };
-
-  const handleDeleteIkigaiProfileData = async (): Promise<
-    string | undefined
-  > => {
-    if (!uid) return;
-    const mainIkigaiProfileRef = doc(db, "ikigaiProfiles", uid);
-    const coverCollectionRef = collection(db, "ikigaiProfiles", uid, "covers");
-    const storeFolderRef = ref(storage, `generated/${uid}`);
-    const ikigaiRefs = [
-      doc(db, `/ikigaiUsers/${uid}/ikigai/main`),
-      doc(db, `/ikigaiUsers/${uid}`),
-    ];
-
-    try {
-      const subCollectionSnapshot = await getDocs(coverCollectionRef);
-      await Promise.all([
-        ...subCollectionSnapshot.docs.map((doc) => deleteDoc(doc.ref)),
-        deleteDocs([mainIkigaiProfileRef, ...ikigaiRefs]),
-      ]);
-
-      const fileList = await listAll(storeFolderRef);
-      await Promise.all(fileList.items.map(deleteObject));
-      return "Ikigai profile data successfully deleted!";
-    } catch (error) {
-      console.error("Error deleting data:", error);
-      toast.error("Failed to delete account data. Please try again.");
-    }
-  };
-
-  const handleDeleteProfileData = async () => {
-    if (!uid) return false;
-    const profileRefs = [
-      doc(db, `/ikigaiUsers/${uid}/settings/profile`),
-      doc(db, `/ikigaiUsers/${uid}`),
-    ];
-    return await deleteDocs(profileRefs);
-  };
-
-  const handleAuthDelete = async () => {
-    if (user) {
-      try {
-        await deleteUser(user);
-        await signOut(auth);
-        router.replace("/");
-      } catch (error) {
-        console.error("Error during account deletion/sign out:", error);
-        toast.error(
-          "Your data was deleted, but sign-out failed. Please refresh the page."
-        );
-      }
-    }
-  };
-
-  const deleteConfirmIkigaiProfile = async () => {
-    setIsLoading(true);
-    try {
-      if (!uid) {
-        toast.error("You must be signed in to delete your account.");
-        return;
-      }
-      const removeIkigaiData = await handleDeleteIkigaiProfileData();
-      if (removeIkigaiData) {
-        await handleDeleteProfileData();
-        toast.success("Your account has been deleted.");
-        deleteTimerRef.current = setTimeout(handleAuthDelete, 4000);
-      }
-    } catch (error) {
-      console.error("Error deleting data:", error);
-      toast.error("Failed to delete account. Please try again.");
-    } finally {
-      setIsLoading(false);
+  const confirmDelete = async () => {
+    if (await deleteAccount()) {
+      toast.success("Your account has been deleted.", { duration: 6000 });
+      router.replace("/");
     }
   };
 
@@ -182,8 +85,9 @@ export default function ProfileDeleted({
               id="delete-account-description"
               className="mt-2 text-sm leading-relaxed text-muted-foreground"
             >
-              This permanently removes your profile, ikigai results, and
-              generated images. To confirm, type{" "}
+              This permanently deletes your account and sign-in, your profile and
+              photo, your answers, ikigai results, and generated images. Shared
+              links stop working. To confirm, type{" "}
               <strong className="font-semibold text-foreground">DELETE ACCOUNT</strong>{" "}
               below.
             </p>
@@ -194,19 +98,25 @@ export default function ProfileDeleted({
               id="delete-account-confirm"
               ref={inputRef}
               className={cn(fieldClasses, "mt-6 h-12 font-medium")}
-              onChange={(e) => setConfirmText(e.target.value?.toLowerCase())}
+              onChange={(e) => setConfirmText(e.target.value.trim().toLowerCase())}
               placeholder="DELETE ACCOUNT"
               autoComplete="off"
+              disabled={isDeleting}
             />
+            {error && (
+              <p role="alert" className="mt-4 rounded-xl border border-destructive/20 bg-destructive-soft px-4 py-3 text-sm text-destructive">
+                {error}
+              </p>
+            )}
             <div className="mt-6 flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
-              <Button variant="neutral" onClick={closeModal}>
+              <Button variant="neutral" onClick={closeModal} disabled={isDeleting}>
                 Cancel
               </Button>
               <Button
                 variant="danger"
-                onClick={deleteConfirmIkigaiProfile}
+                onClick={confirmDelete}
                 disabled={confirmText !== "delete account"}
-                isLoading={isLoading}
+                isLoading={isDeleting}
                 loadingText="Deleting…"
               >
                 Delete account
