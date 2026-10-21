@@ -24,9 +24,9 @@ const STEPS = [
 ];
 
 const EXAMPLES = [
-  "My ikigai is to help small manufacturers go green and stay resilient while attracting global talent.",
-  "My ikigai is to teach healthcare workers to reach their potential and become the best versions of themselves.",
-  "My ikigai is to lead retreats that help people reconnect with their vitality and sense of purpose.",
+  "My ikigai is to help small manufacturers cut their energy waste.",
+  "My ikigai is to coach new nurses through their first hard year.",
+  "My ikigai is to run weekend retreats where burned-out founders learn to rest.",
 ];
 
 export default function HomePage(): React.ReactElement {

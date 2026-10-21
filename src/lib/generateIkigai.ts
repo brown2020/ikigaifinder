@@ -16,7 +16,7 @@ const STATEMENTS_PER_RUN = 5;
 
 const score = z.number().int().min(0).max(100);
 const statementSchema = z.object({
-  statement: z.string().describe('One sentence starting with "My ikigai is to"'),
+  statement: z.string().describe('One plain sentence of 10 to 22 words starting with "My ikigai is to"'),
   passion: score,
   mission: score,
   vocation: score,
@@ -80,10 +80,10 @@ export async function generateIkigai(
 
   const prompt = [
     `Questionnaire answers:\n${JSON.stringify(sections, null, 2)}`,
-    cleanGuidance && `Guidance from the person, follow it closely: ${cleanGuidance}`,
+    cleanGuidance && `Guidance from the person (highest priority, follow it closely): ${cleanGuidance}`,
     avoid.length > 0 &&
-      `They have already seen these statements. Write new ones that take different angles:\n${avoid.map((s) => `- ${s}`).join("\n")}`,
-    `Write ${STATEMENTS_PER_RUN} ikigai statements.`,
+      `They have already seen these statements. Do not repeat them; take fresh angles still grounded in their answers:\n${avoid.map((s) => `- ${s}`).join("\n")}`,
+    `Write ${STATEMENTS_PER_RUN} new, distinct ikigai statements. Keep each one short and plain: one clear idea, no tacked-on clauses.`,
   ]
     .filter(Boolean)
     .join("\n\n");

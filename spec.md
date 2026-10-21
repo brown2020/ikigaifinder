@@ -193,6 +193,10 @@ Product-oriented, ordered by impact and dependency. Each item is sized for one c
 - **User value:** answers survive a refresh or closed tab, people who get stuck have somewhere to start, and people can talk instead of type.
 - **Implemented:** `useAnswerAutosave` saves answers about a second after typing stops (quiet saves that don't flip `isSaving`) with a status line. Every written question has three reflective `hints` behind "Stuck? Try a prompt". `AnswerField` adds a Dictate button using the browser's Web Speech API (`useSpeechInput`, hidden where unsupported); `Permissions-Policy` now allows `microphone=(self)`.
 
+### M19 — Sharper, plainer statements — DONE
+- **User value:** statements read like something a person would say out loud, not a stitched-together list of answers.
+- **Implemented:** `IKIGAI_SYSTEM_PROMPT` sets a priority order (the person's guidance, then their answers, then variety of angle and sentence structure) and strict style rules: 10 to 22 words, one clear idea, no tacked-on "while…"/", enabling…" clauses, and no jargon. The examples in the prompt and on the home page follow the same rules.
+
 ### Out of scope / non-goals (for now)
 
 - Distributed rate limiting (Redis) — only needed once multi-instance scale is real; revisit after M1.
