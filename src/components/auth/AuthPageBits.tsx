@@ -50,6 +50,23 @@ export function PasswordField({
   );
 }
 
+/** Covers every sign-in method on the page, including Google, so no checkbox is needed. */
+export function ConsentNote() {
+  return (
+    <p className="text-center text-xs leading-relaxed text-muted-foreground">
+      By continuing, you agree to the{" "}
+      <Link href="/terms-conditions" className={authLinkClasses} target="_blank">
+        Terms
+      </Link>{" "}
+      and{" "}
+      <Link href="/privacy-policy" className={authLinkClasses} target="_blank">
+        Privacy Policy
+      </Link>
+      .
+    </p>
+  );
+}
+
 export function FooterLinks({ mode }: { mode: AuthPageMode }) {
   if (mode === "login") {
     return (

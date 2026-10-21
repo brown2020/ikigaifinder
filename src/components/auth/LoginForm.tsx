@@ -11,7 +11,7 @@ import { hasClientConfig } from "@/firebase/firebaseClient";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { cn } from "@/utils/cn";
-import { FooterLinks, PasswordField } from "./AuthPageBits";
+import { ConsentNote, FooterLinks, PasswordField } from "./AuthPageBits";
 import { AuthCard, AuthErrorAlert, authLinkClasses } from "./AuthCard";
 import { sanitizeRedirect } from "./auth-page-utils";
 
@@ -87,6 +87,7 @@ export function LoginForm() {
         >
           Sign in
         </Button>
+        <ConsentNote />
       </form>
     </AuthCard>
   );

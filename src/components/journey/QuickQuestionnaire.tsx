@@ -17,6 +17,7 @@ import { sameAnswers, useAnswerAutosave } from "@/hooks/use-answer-autosave";
 import type { QuestionStep } from "@/types";
 import AnswerField from "./AnswerField";
 import AutosaveStatus from "./AutosaveStatus";
+import JourneyActions from "./JourneyActions";
 
 type FormValues = Record<string, string>;
 
@@ -130,8 +131,11 @@ export default function QuickQuestionnaire(): React.ReactElement {
             })}
           </Card>
 
-          <div className="mt-6 flex flex-wrap items-center justify-between gap-3">
-            <ButtonLink href="/ikigai-finder?step=1" variant="ghost">
+          <ButtonLink href="/ikigai-finder?step=1" variant="ghost" className="mt-4 sm:hidden">
+            Take the full reflection instead
+          </ButtonLink>
+          <JourneyActions aboveNav={!isGuest} className="flex-wrap justify-end sm:justify-between">
+            <ButtonLink href="/ikigai-finder?step=1" variant="ghost" className="hidden sm:inline-flex">
               Take the full reflection instead
             </ButtonLink>
             <AutosaveStatus state={autosave} className="ml-auto hidden sm:block" />
@@ -144,7 +148,7 @@ export default function QuickQuestionnaire(): React.ReactElement {
             >
               Show my ideas
             </Button>
-          </div>
+          </JourneyActions>
         </form>
       </div>
     </div>

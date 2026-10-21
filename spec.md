@@ -205,6 +205,10 @@ Product-oriented, ordered by impact and dependency. Each item is sized for one c
 - **User value:** search engines can find and describe the public pages, and visitors get straight answers about cost, accounts, privacy, and AI before they start.
 - **Implemented:** `/robots.txt` (protected and API routes disallowed) and `/sitemap.xml` (public routes) built from one canonical origin in `src/utils/siteUrl.ts`. The root layout publishes WebSite and WebApplication JSON-LD with a current feature list and plain-language title and description. About describes the current journey (reflect, choose, understand, keep it close), replaces generic copy with a short "why it matters", and adds a "Common questions" section with matching FAQPage JSON-LD. Public share pages set a canonical URL.
 
+### M22 — Design polish from review — DONE
+- **User value:** fewer dead ends and less friction: a lost link lands somewhere helpful, signing up has no pre-ticked box, and the next step in the questionnaire is always in reach on a phone.
+- **Implemented:** a branded `app/not-found.tsx` (noindex) with links home and to the quick start. Sign-in and sign-up show one consent line (`ConsentNote`) covering every method, including Google, instead of a pre-checked terms checkbox. `JourneyActions` pins the questionnaire and quick-start actions above the bottom nav on phones (or the screen edge for guests) and leaves desktop unchanged.
+
 ### Out of scope / non-goals (for now)
 
 - Distributed rate limiting (Redis) — only needed once multi-instance scale is real; revisit after M1.

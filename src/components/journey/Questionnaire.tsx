@@ -16,6 +16,7 @@ import type { QuestionStep } from "@/types";
 import { sameAnswers, useAnswerAutosave } from "@/hooks/use-answer-autosave";
 import AnswerField from "./AnswerField";
 import AutosaveStatus from "./AutosaveStatus";
+import JourneyActions from "./JourneyActions";
 import JourneyProgress from "./JourneyProgress";
 import TagInput from "./TagInput";
 
@@ -208,7 +209,7 @@ export default function Questionnaire(): React.ReactElement {
             })}
           </Card>
 
-          <div className="mt-6 flex items-center justify-between gap-3">
+          <JourneyActions aboveNav={!isGuest}>
             <Button
               variant="ghost"
               onClick={onBack}
@@ -227,7 +228,7 @@ export default function Questionnaire(): React.ReactElement {
             >
               {section.button || `Continue to part ${step + 1}`}
             </Button>
-          </div>
+          </JourneyActions>
         </form>
       </div>
     </div>
