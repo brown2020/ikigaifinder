@@ -126,6 +126,41 @@
   }
 }
 
+/*
+ * The cookie banner sits above the phone nav ([data-mobile-nav]) and any action
+ * bar pinned to the bottom of the screen ([data-bottom-bar]) so it never covers
+ * the next step.
+ */
+@layer components {
+  .consent-banner {
+    bottom: calc(0.75rem + env(safe-area-inset-bottom, 0px));
+  }
+
+  @media (width < 40rem) {
+    body:has([data-mobile-nav]) .consent-banner {
+      bottom: calc(4.25rem + env(safe-area-inset-bottom, 0px));
+    }
+
+    body:has([data-bottom-bar]) .consent-banner {
+      bottom: calc(5.5rem + env(safe-area-inset-bottom, 0px));
+    }
+
+    body:has([data-mobile-nav]):has([data-bottom-bar]) .consent-banner {
+      bottom: calc(9rem + env(safe-area-inset-bottom, 0px));
+    }
+  }
+
+  @media (width >= 40rem) {
+    .consent-banner {
+      bottom: 1.5rem;
+    }
+
+    body:has([data-bottom-bar="always"]) .consent-banner {
+      bottom: 6rem;
+    }
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   *,
   ::before,

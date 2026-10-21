@@ -135,9 +135,11 @@ export default function QuickQuestionnaire(): React.ReactElement {
             Take the full reflection instead
           </ButtonLink>
           <JourneyActions aboveNav={!isGuest} className="flex-wrap justify-end sm:justify-between">
-            <ButtonLink href="/ikigai-finder?step=1" variant="ghost" className="hidden sm:inline-flex">
-              Take the full reflection instead
-            </ButtonLink>
+            <div className="hidden sm:block">
+              <ButtonLink href="/ikigai-finder?step=1" variant="ghost">
+                Take the full reflection instead
+              </ButtonLink>
+            </div>
             <AutosaveStatus state={autosave} className="ml-auto hidden sm:block" />
             <Button
               type="submit"

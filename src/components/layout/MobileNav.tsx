@@ -14,6 +14,7 @@ export default function MobileNav(): React.ReactElement | null {
   return (
     <nav
       aria-label="Mobile"
+      data-mobile-nav
       className="fixed inset-x-0 bottom-0 z-40 border-t border-border bg-background/95 pb-[env(safe-area-inset-bottom,0px)] backdrop-blur sm:hidden"
     >
       <ul className="grid h-14 grid-cols-3">

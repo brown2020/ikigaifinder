@@ -181,7 +181,7 @@ export default function ReportStep(): React.ReactElement {
         )}
       </div>
 
-      <div className="fixed inset-x-0 bottom-14 z-30 border-t border-border bg-background/95 backdrop-blur sm:bottom-0">
+      <div data-bottom-bar="always" className="fixed inset-x-0 bottom-14 z-30 border-t border-border bg-background/95 backdrop-blur sm:bottom-0">
         <div className="mx-auto flex w-full max-w-6xl items-center justify-between gap-3 px-5 py-3 sm:px-8">
           <ButtonLink href="/generate-ikigai" variant="ghost">
             <ArrowLeft className="size-4" aria-hidden="true" /> Ideas

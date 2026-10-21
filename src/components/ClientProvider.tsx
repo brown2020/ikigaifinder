@@ -41,7 +41,8 @@ export function ClientProvider({
             cookieName="ikigai-cookie-consent"
             expires={365}
             disableStyles
-            containerClasses="fixed inset-x-3 bottom-20 z-50 mx-auto flex max-w-xl items-center justify-between gap-4 rounded-2xl border border-border bg-card px-5 py-4 text-sm text-foreground shadow-lg sm:bottom-6"
+            location="none"
+            containerClasses="consent-banner fixed inset-x-3 z-50 mx-auto flex max-w-xl items-center justify-between gap-4 rounded-2xl border border-border bg-card px-5 py-4 text-sm text-foreground shadow-lg"
             buttonClasses="shrink-0 whitespace-nowrap rounded-full bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary-hover"
             contentClasses="text-muted-foreground"
           >
