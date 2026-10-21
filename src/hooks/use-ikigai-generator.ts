@@ -14,7 +14,7 @@ interface GenerateArgs {
 }
 
 interface UseIkigaiGeneratorReturn {
-  /** Streams new statements, merged after `current`. Resolves to the final list, or null on failure. */
+  /** Streams new statements, merged ahead of `current`. Resolves to the final list, or null on failure. */
   generate: (args: GenerateArgs) => Promise<IkigaiData[] | null>;
   isGenerating: boolean;
   error: string | null;

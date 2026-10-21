@@ -12,9 +12,16 @@ const make = (ikigai: string, n = 50): IkigaiData => ({
 });
 
 describe("mergeIkigaiLists", () => {
-  it("appends new unique items in order", () => {
-    const merged = mergeIkigaiLists([make("My ikigai is to teach")], [make("My ikigai is to build")]);
-    expect(merged.map((m) => m.ikigai)).toEqual(["My ikigai is to teach", "My ikigai is to build"]);
+  it("puts new unique items first, in the order they arrived", () => {
+    const merged = mergeIkigaiLists(
+      [make("My ikigai is to teach")],
+      [make("My ikigai is to build"), make("My ikigai is to coach")]
+    );
+    expect(merged.map((m) => m.ikigai)).toEqual([
+      "My ikigai is to build",
+      "My ikigai is to coach",
+      "My ikigai is to teach",
+    ]);
   });
 
   it("keeps the existing copy when a duplicate arrives", () => {

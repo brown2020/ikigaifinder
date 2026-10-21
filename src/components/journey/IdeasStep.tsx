@@ -45,15 +45,24 @@ export default function IdeasStep(): React.ReactElement {
   const [guidance, setGuidance] = useState(ikigai.ikigaiGuidance);
   const [shortlist, setShortlist] = useState<IkigaiData[]>(ikigai.ikigaiShortlist ?? []);
   const [view, setView] = useState<"all" | "shortlist">("all");
+  /** Length of the list before the latest batch; new statements are merged ahead of it. */
+  const [previousCount, setPreviousCount] = useState<number | null>(null);
   const { generate, isGenerating, error, clearError } = useIkigaiGenerator(setOptions);
 
   const missingSection = firstUnstartedSection(ikigai.answers);
   const sharpenSection = firstIncompleteSection(ikigai.answers);
   const autoStarted = useRef(false);
+  const listRef = useRef<HTMLElement>(null);
 
   const runGeneration = useCallback(
     /** `remembered` is the typed guidance to keep; one-tap steers aren't saved over it. */
     async (current: IkigaiData[], steer: string, remembered = steer) => {
+      setPreviousCount(current.length > 0 ? current.length : null);
+      const list = listRef.current;
+      if (current.length > 0 && list && list.getBoundingClientRect().top < 0) {
+        const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+        list.scrollIntoView({ behavior: reduceMotion ? "auto" : "smooth", block: "start" });
+      }
       const result = await generate({ answers: ikigai.answers, current, guidance: steer });
       if (result) void updateIkigai({ ikigaiOptions: result, ikigaiGuidance: remembered });
     },
@@ -129,6 +138,29 @@ export default function IdeasStep(): React.ReactElement {
   }
 
   const showInitialSkeleton = isGenerating && options.length === 0;
+  const freshCount = Math.max(0, options.length - (previousCount ?? 0));
+  const newCount = previousCount === null ? 0 : freshCount;
+
+  const renderOption = (item: IkigaiData, isNew: boolean) => (
+    <StatementCard
+      key={item.ikigai}
+      item={item}
+      isNew={isNew}
+      selected={isSameStatement(item, selected)}
+      onSelect={() => setSelected(item)}
+      onEdit={(text) => handleEdit(item, text)}
+      onMoreLikeThis={() =>
+        runGeneration(
+          options,
+          `Write close variations of this statement, keeping its core idea but changing the audience, format, or scale: "${displayStatement(item.ikigai)}"`,
+          guidance
+        )
+      }
+      busy={isGenerating}
+      shortlisted={isShortlisted(item)}
+      onToggleShortlist={() => toggleShortlist(item)}
+    />
+  );
 
   return (
     <div className="mx-auto w-full max-w-6xl px-5 pb-32 pt-8 sm:px-8 sm:pt-10">
@@ -146,7 +178,7 @@ export default function IdeasStep(): React.ReactElement {
         </header>
 
 
-        <section aria-label="Ikigai statements" aria-busy={isGenerating} className="lg:col-start-2 lg:row-span-2 lg:row-start-1">
+        <section ref={listRef} aria-label="Ikigai statements" aria-busy={isGenerating} className="scroll-mt-24 lg:col-start-2 lg:row-span-2 lg:row-start-1">
           {error && (
             <div role="alert" className="mb-5 flex items-start gap-3 rounded-2xl border border-destructive/30 bg-destructive-soft p-4 text-sm">
               <AlertCircle className="mt-0.5 size-5 shrink-0 text-destructive" aria-hidden="true" />
@@ -213,30 +245,17 @@ export default function IdeasStep(): React.ReactElement {
             </div>
           ) : (
             <ul className="space-y-4">
-              {options.map((item) => (
-                <StatementCard
-                  key={item.ikigai}
-                  item={item}
-                  selected={isSameStatement(item, selected)}
-                  onSelect={() => setSelected(item)}
-                  onEdit={(text) => handleEdit(item, text)}
-                  onMoreLikeThis={() =>
-                    runGeneration(
-                      options,
-                      `Write close variations of this statement, keeping its core idea but changing the audience, format, or scale: "${displayStatement(item.ikigai)}"`,
-                      guidance
-                    )
-                  }
-                  busy={isGenerating}
-                  shortlisted={isShortlisted(item)}
-                  onToggleShortlist={() => toggleShortlist(item)}
-                />
-              ))}
+              {options.slice(0, freshCount).map((item) => renderOption(item, newCount > 0))}
               {isGenerating && (showInitialSkeleton ? [0, 1, 2] : [0]).map((i) => <StatementSkeleton key={`s${i}`} />)}
+              {options.slice(freshCount).map((item) => renderOption(item, false))}
             </ul>
           )}
           <p className="sr-only" aria-live="polite">
-            {isGenerating ? "Generating ideas" : `${options.length} ideas available`}
+            {isGenerating
+              ? "Generating ideas"
+              : newCount > 0
+                ? `${newCount} new ${newCount === 1 ? "idea" : "ideas"} added at the top. ${options.length} ideas in total.`
+                : `${options.length} ideas available`}
           </p>
         </section>
 

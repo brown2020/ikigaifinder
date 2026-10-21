@@ -13,17 +13,20 @@ export function isSameStatement(a: IkigaiData | null | undefined, b: IkigaiData 
   return Boolean(a && b && normalizeStatement(a.ikigai) === normalizeStatement(b.ikigai));
 }
 
-/** Appends statements not already present (compared case/punctuation-insensitively). */
+/**
+ * Puts statements not already present (compared case/punctuation-insensitively)
+ * ahead of the current list, so the newest batch is the first thing people see.
+ */
 export function mergeIkigaiLists(current: IkigaiData[], incoming: IkigaiData[]): IkigaiData[] {
   const seen = new Set(current.map((item) => normalizeStatement(item.ikigai)));
-  const merged = [...current];
+  const added: IkigaiData[] = [];
   for (const item of incoming) {
     const key = normalizeStatement(item.ikigai);
     if (!key || seen.has(key)) continue;
     seen.add(key);
-    merged.push(item);
+    added.push(item);
   }
-  return merged;
+  return [...added, ...current];
 }
 
 /** Legacy statements may contain markdown bold markers from the old text format. */

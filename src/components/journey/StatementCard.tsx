@@ -19,6 +19,8 @@ interface StatementCardProps {
   shortlisted?: boolean;
   onToggleShortlist?: () => void;
   busy?: boolean;
+  /** Part of the batch that just arrived. */
+  isNew?: boolean;
 }
 
 const footerButton =
@@ -33,6 +35,7 @@ export default function StatementCard({
   shortlisted = false,
   onToggleShortlist,
   busy,
+  isNew = false,
 }: StatementCardProps) {
   const [editing, setEditing] = useState(false);
   const [draft, setDraft] = useState("");
@@ -93,6 +96,11 @@ export default function StatementCard({
               {selected && <Check className="size-3.5" strokeWidth={3} />}
             </span>
             <span className="min-w-0 flex-1">
+              {isNew && (
+                <span className="mb-2 inline-flex rounded-full bg-primary-soft px-2 py-0.5 text-xs font-semibold text-primary-hover">
+                  New
+                </span>
+              )}
               <span className="block font-display text-lg leading-snug sm:text-xl">
                 {displayStatement(item.ikigai)}
               </span>
