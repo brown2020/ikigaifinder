@@ -199,7 +199,7 @@ Product-oriented, ordered by impact and dependency. Each item is sized for one c
 
 ### M20 — New ideas first — DONE
 - **User value:** after "Generate more", a steer, or "More like this", the new statements appear at the top instead of below a long list.
-- **Implemented:** `mergeIkigaiLists` puts unseen statements ahead of the current list. The ideas step marks the latest batch with a "New" badge, shows the loading placeholder beside it, scrolls the list back into view when a batch starts from further down the page, and announces how many were added.
+- **Implemented:** `mergeIkigaiLists` puts unseen statements ahead of the current list. The ideas step marks the latest batch with a "New" badge, shows the loading placeholder beside it, scrolls the list back into view when a batch starts from further down the page, and announces how many were added. Only the newest 20 statements (`recentStatements`) are sent as "avoid these", so long idea lists never exceed the server's limit; older repeats are still dropped on the client.
 
 ### M21 — Findable, and clear about how it works — DONE
 - **User value:** search engines can find and describe the public pages, and visitors get straight answers about cost, accounts, privacy, and AI before they start.
@@ -207,7 +207,7 @@ Product-oriented, ordered by impact and dependency. Each item is sized for one c
 
 ### M22 — Design polish from review — DONE
 - **User value:** fewer dead ends and less friction: a lost link lands somewhere helpful, signing up has no pre-ticked box, and the next step in the questionnaire is always in reach on a phone.
-- **Implemented:** a branded `app/not-found.tsx` (noindex) with links home and to the quick start. Sign-in and sign-up show one consent line (`ConsentNote`) covering every method, including Google, instead of a pre-checked terms checkbox. `JourneyActions` pins the questionnaire and quick-start actions above the bottom nav on phones (or the screen edge for guests) and leaves desktop unchanged.
+- **Implemented:** a branded `app/not-found.tsx` (noindex) with links home and to the quick start. Sign-in and sign-up show one consent line (`ConsentNote`) covering every method, including Google, instead of a pre-checked terms checkbox. `JourneyActions` pins the questionnaire and quick-start actions above the bottom nav on phones (or the screen edge for guests) and leaves desktop unchanged. The cookie banner positions itself above the phone nav and any pinned action bar (`data-mobile-nav`, `data-bottom-bar` rules in `globals.css`) so it never covers the next step.
 
 ### Out of scope / non-goals (for now)
 

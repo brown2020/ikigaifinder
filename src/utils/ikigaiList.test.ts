@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
-import { displayStatement, isSameStatement, mergeIkigaiLists } from "./ikigaiList";
+import { generateIkigaiSchema } from "@/lib/validation";
+import { AVOID_LIST_LIMIT, displayStatement, isSameStatement, mergeIkigaiLists, recentStatements } from "./ikigaiList";
 import type { IkigaiData } from "@/types";
 
 const make = (ikigai: string, n = 50): IkigaiData => ({
@@ -36,6 +37,22 @@ describe("mergeIkigaiLists", () => {
 
   it("ignores empty statements", () => {
     expect(mergeIkigaiLists([], [make("  ")])).toHaveLength(0);
+  });
+});
+
+describe("recentStatements", () => {
+  const many = Array.from({ length: 65 }, (_, i) => make(`My ikigai is to teach group ${i}`));
+
+  it("keeps only the newest statements", () => {
+    const recent = recentStatements(many);
+    expect(recent).toHaveLength(AVOID_LIST_LIMIT);
+    expect(recent[0]).toBe("My ikigai is to teach group 0");
+  });
+
+  it("stays within the server's existing-statements limit after many batches", () => {
+    const questions = [{ id: "love", questions: [{ question: "What do you love?", answer: ["Teaching"] }] }];
+    const parsed = generateIkigaiSchema.safeParse({ questions, customPrompt: "", existing: recentStatements(many) });
+    expect(parsed.success).toBe(true);
   });
 });
 

@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { readStreamableValue } from "@ai-sdk/rsc";
 import { generateIkigai } from "@/lib/generateIkigai";
-import { mergeIkigaiLists } from "@/utils/ikigaiList";
+import { mergeIkigaiLists, recentStatements } from "@/utils/ikigaiList";
 import { toQuestionSections } from "@/utils/promptUtils";
 import type { IkigaiData, QuestionStep } from "@/types";
 
@@ -47,7 +47,7 @@ export function useIkigaiGenerator(
       const stream = await generateIkigai(
         toQuestionSections(answers),
         guidance,
-        current.map((item) => item.ikigai)
+        recentStatements(current)
       );
       for await (const batch of readStreamableValue(stream)) {
         if (run !== runRef.current) return null;

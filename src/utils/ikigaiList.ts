@@ -29,6 +29,14 @@ export function mergeIkigaiLists(current: IkigaiData[], incoming: IkigaiData[]):
   return [...added, ...current];
 }
 
+/** How many already-shown statements the model is asked not to repeat. Must stay within `generateIkigaiSchema`'s `existing` limit. */
+export const AVOID_LIST_LIMIT = 20;
+
+/** The newest statements to send as "avoid these"; older repeats are still dropped by `mergeIkigaiLists`. */
+export function recentStatements(list: IkigaiData[]): string[] {
+  return list.slice(0, AVOID_LIST_LIMIT).map((item) => item.ikigai);
+}
+
 /** Legacy statements may contain markdown bold markers from the old text format. */
 export function displayStatement(text: string): string {
   return text.replace(/\*\*/g, "").trim();
