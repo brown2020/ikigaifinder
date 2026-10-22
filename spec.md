@@ -211,6 +211,11 @@ Product-oriented, ordered by impact and dependency. Each item is sized for one c
 - **User value:** fewer dead ends and less friction: a lost link lands somewhere helpful, signing up has no pre-ticked box, and the next step in the questionnaire is always in reach on a phone.
 - **Implemented:** a branded `app/not-found.tsx` (noindex) with links home and to the quick start. Sign-in and sign-up show one consent line (`ConsentNote`) covering every method, including Google, instead of a pre-checked terms checkbox. `JourneyActions` pins the questionnaire and quick-start actions above the bottom nav on phones (or the screen edge for guests) and leaves desktop unchanged. The cookie banner positions itself above the phone nav and any pinned action bar (`data-mobile-nav`, `data-bottom-bar` rules in `globals.css`) so it never covers the next step.
 
+### M23 — Quality pass (app-eval until-100) — DONE
+- **User value:** faster first load, accessible questionnaires, honest share pages, and safer data handling.
+- **Implemented:** Firestore/Storage SDKs load on first use (landing and quick start 236/254 KB gzip first-load JS, budget 300 KB); circle text colors meet 4.5:1 (`ink` shades); public pages show the statement baked into the card (`ikigaiCardStatement`) and owners see when their card is out of date; "Clear ideas" keeps the shortlist and current choice; the image download proxy accepts only the app's bucket; React Doctor 100; production `npm audit` 0. Tests now cover route-handler and server-action authorization, Firestore/Storage rules on the emulators (CI job), account deletion, and `env.sample` drift.
+- **Still open:** migrate `gpt-4o` (API shutdown 2027-01-14) and replace the deprecated Fireworks image API (needs one paid verification call each); add production monitoring; run signed-in end-to-end checks with a test account.
+
 ### Out of scope / non-goals (for now)
 
 - Distributed rate limiting (Redis) — only needed once multi-instance scale is real; revisit after M1.
