@@ -124,7 +124,7 @@ export default function ReportStep(): React.ReactElement {
                   const meta = circleById[c.circle];
                   return (
                     <li key={c.circle} className="rounded-2xl border border-border bg-card p-5" style={{ borderTopColor: meta?.color, borderTopWidth: 3 }}>
-                      <p className="text-xs font-semibold uppercase tracking-[0.14em]" style={{ color: meta?.color }}>
+                      <p className="text-xs font-semibold uppercase tracking-[0.14em]" style={{ color: meta?.ink }}>
                         {meta?.label}
                       </p>
                       <p className="mt-2">{c.insight}</p>
@@ -144,7 +144,7 @@ export default function ReportStep(): React.ReactElement {
                 <h2 id="edge-heading" className="flex items-center gap-2 font-display text-xl font-semibold">
                   <Sprout className="size-5 text-success" aria-hidden="true" /> Your growth edge
                 </h2>
-                <p className="mt-1 text-sm font-medium" style={{ color: circleById[report.growthEdge.circle]?.color }}>
+                <p className="mt-1 text-sm font-medium" style={{ color: circleById[report.growthEdge.circle]?.ink }}>
                   {circleById[report.growthEdge.circle]?.label}
                 </p>
                 <p className="mt-3">{report.growthEdge.advice}</p>

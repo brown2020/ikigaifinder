@@ -93,7 +93,7 @@ export default function CardStep(): React.ReactElement {
     try {
       const url = await captureAndUploadImage(uid, CARD_ELEMENT_ID);
       if (!url) throw new Error("capture failed");
-      const ok = await updateIkigai({ ikigaiCoverImage: url, ikigaiCardName: name.trim() });
+      const ok = await updateIkigai({ ikigaiCoverImage: url, ikigaiCardName: name.trim(), ikigaiCardStatement: statement });
       if (!ok) throw new Error("save failed");
       toast.success("Your ikigai card is saved");
       router.push("/dashboard");

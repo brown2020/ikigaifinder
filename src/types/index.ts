@@ -112,6 +112,8 @@ export interface Ikigai {
   ikigaiCoverImage: string;
   /** Name shown on the card, reused for the extra download sizes. */
   ikigaiCardName?: string;
+  /** The statement baked into the cover image; differs from ikigaiSelected once the person picks another. */
+  ikigaiCardStatement?: string;
   ikigaiReport?: IkigaiReport | null;
   ikigaiExperiment?: IkigaiExperiment | null;
   /** Written only by the server sharing route. */

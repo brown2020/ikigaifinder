@@ -38,6 +38,7 @@ export function ClientProvider({
         <div role="region" aria-label="Cookie consent">
           <CookieConsent
             buttonText="Got it"
+            ariaAcceptLabel="Got it, accept cookies"
             cookieName="ikigai-cookie-consent"
             expires={365}
             disableStyles

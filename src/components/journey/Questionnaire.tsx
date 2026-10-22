@@ -130,7 +130,7 @@ export default function Questionnaire(): React.ReactElement {
 
       <div className="mt-10 grid gap-10 lg:grid-cols-[minmax(0,5fr)_minmax(0,7fr)] lg:gap-16">
         <aside className="lg:sticky lg:top-28 lg:self-start">
-          <Eyebrow style={{ color: circle?.color }}>Part {step} of {total}</Eyebrow>
+          <Eyebrow style={{ color: circle?.ink }}>Part {step} of {total}</Eyebrow>
           <h1 className="mt-3 font-display text-4xl font-semibold tracking-tight sm:text-5xl">
             {section.title}
           </h1>
@@ -154,7 +154,7 @@ export default function Questionnaire(): React.ReactElement {
               return (
                 <div key={id} className="p-6 sm:p-8">
                   <label id={`${id}-label`} htmlFor={id} className="flex gap-3 font-display text-lg font-medium leading-snug sm:text-xl">
-                    <span className="mt-0.5 text-sm font-sans font-semibold tabular-nums" style={{ color: circle?.color }}>
+                    <span className="mt-0.5 text-sm font-sans font-semibold tabular-nums" style={{ color: circle?.ink }}>
                       {String(i + 1).padStart(2, "0")}
                     </span>
                     <span>{q.label}</span>

@@ -77,8 +77,9 @@ export default function JourneyProgress({
                   </Link>
                 )
               ) : (
-                <div aria-label={label} aria-current={isCurrent ? "step" : undefined}>
-                  {bar}
+                <div aria-current={isCurrent ? "step" : undefined}>
+                  <span className="sr-only">{label}</span>
+                  <div aria-hidden="true">{bar}</div>
                 </div>
               )}
             </li>

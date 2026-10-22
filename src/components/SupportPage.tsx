@@ -44,42 +44,38 @@ export default function Support({
 
         <Card padded className="mt-6">
           <dl className="grid gap-8 sm:grid-cols-2">
-            <div className="flex gap-4">
-              <span className="flex size-10 shrink-0 items-center justify-center rounded-full bg-primary-soft text-primary">
-                <Mail className="size-4" aria-hidden="true" />
-              </span>
-              <div>
-                <dt className="text-xs font-semibold uppercase tracking-[0.14em] text-muted-foreground">
-                  Email
-                </dt>
-                <dd className="mt-1">
-                  <a
-                    href={`mailto:${companyEmail}`}
-                    className="break-all font-medium text-primary underline-offset-4 hover:text-primary-hover hover:underline focus-visible:rounded-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-                  >
-                    {companyEmail}
-                  </a>
-                </dd>
-              </div>
+            <div>
+              <dt className="flex items-center gap-3 text-xs font-semibold uppercase tracking-[0.14em] text-muted-foreground">
+                <span className="flex size-10 shrink-0 items-center justify-center rounded-full bg-primary-soft text-primary">
+                  <Mail className="size-4" aria-hidden="true" />
+                </span>
+                Email
+              </dt>
+              <dd className="mt-1 pl-[3.25rem]">
+                <a
+                  href={`mailto:${companyEmail}`}
+                  className="break-all font-medium text-primary underline-offset-4 hover:text-primary-hover hover:underline focus-visible:rounded-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                >
+                  {companyEmail}
+                </a>
+              </dd>
             </div>
-            <div className="flex gap-4">
-              <span className="flex size-10 shrink-0 items-center justify-center rounded-full bg-primary-soft text-primary">
-                <MapPin className="size-4" aria-hidden="true" />
-              </span>
-              <div>
-                <dt className="text-xs font-semibold uppercase tracking-[0.14em] text-muted-foreground">
-                  Mailing address
-                </dt>
-                <dd className="mt-1 not-italic leading-relaxed text-foreground">
-                  <address className="not-italic">
-                    {companyName}
-                    <br />
-                    {companyAddress}
-                    <br />
-                    {companyLocation}
-                  </address>
-                </dd>
-              </div>
+            <div>
+              <dt className="flex items-center gap-3 text-xs font-semibold uppercase tracking-[0.14em] text-muted-foreground">
+                <span className="flex size-10 shrink-0 items-center justify-center rounded-full bg-primary-soft text-primary">
+                  <MapPin className="size-4" aria-hidden="true" />
+                </span>
+                Mailing address
+              </dt>
+              <dd className="mt-1 pl-[3.25rem] leading-relaxed text-foreground">
+                <address className="not-italic">
+                  {companyName}
+                  <br />
+                  {companyAddress}
+                  <br />
+                  {companyLocation}
+                </address>
+              </dd>
             </div>
           </dl>
         </Card>

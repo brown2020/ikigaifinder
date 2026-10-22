@@ -102,7 +102,7 @@ export default function QuickQuestionnaire(): React.ReactElement {
               const error = errors[id]?.message;
               return (
                 <div key={id} className="p-6 sm:p-8">
-                  <p className="flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.14em]" style={{ color: circle.color }}>
+                  <p className="flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.14em]" style={{ color: circle.ink }}>
                     <span className="size-2.5 rounded-full" style={{ backgroundColor: circle.color }} aria-hidden="true" />
                     {circle.label}
                   </p>

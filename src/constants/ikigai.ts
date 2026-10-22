@@ -9,13 +9,15 @@ export interface IkigaiCircle {
   label: string;
   short: string;
   color: string;
+  /** Darker shade for text: at least 4.5:1 on every light surface in the palette. */
+  ink: string;
 }
 
 export const IKIGAI_CIRCLES: readonly IkigaiCircle[] = [
-  { id: "love", stepId: "passion", label: "What you love", short: "Love", color: "#d9546f" },
-  { id: "skill", stepId: "profession", label: "What you're good at", short: "Strengths", color: "#4a73a8" },
-  { id: "world", stepId: "mission", label: "What the world needs", short: "World", color: "#2f8a6d" },
-  { id: "paid", stepId: "vocation", label: "What you can be paid for", short: "Livelihood", color: "#c98a1b" },
+  { id: "love", stepId: "passion", label: "What you love", short: "Love", color: "#d9546f", ink: "#c62c4b" },
+  { id: "skill", stepId: "profession", label: "What you're good at", short: "Strengths", color: "#4a73a8", ink: "#456c9d" },
+  { id: "world", stepId: "mission", label: "What the world needs", short: "World", color: "#2f8a6d", ink: "#29775e" },
+  { id: "paid", stepId: "vocation", label: "What you can be paid for", short: "Livelihood", color: "#c98a1b", ink: "#8c6013" },
 ] as const;
 
 export const CIRCLE_BY_STEP = Object.fromEntries(

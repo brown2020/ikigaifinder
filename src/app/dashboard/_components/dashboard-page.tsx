@@ -14,7 +14,7 @@ import CheckInCard from "@/components/journey/CheckInCard";
 import ExperimentCard from "@/components/journey/ExperimentCard";
 import { CIRCLE_BY_STEP, type CircleId } from "@/constants/ikigai";
 import { useIkigaiStore, useProfileStore } from "@/zustand";
-import { displayStatement } from "@/utils/ikigaiList";
+import { displayStatement, normalizeStatement } from "@/utils/ikigaiList";
 import { canGenerate, hasCurrentReport, isSectionComplete, isSectionStarted, resumeHref } from "@/utils/journey";
 import type { Ikigai, IkigaiSummary } from "@/types";
 
@@ -48,6 +48,9 @@ export default function DashboardPage({ userId, initial }: DashboardPageProps): 
 function CardDashboard({ userId, initial, coverImage, ikigai, ready }: DashboardPageProps & { coverImage: string; ikigai: Ikigai; ready: boolean }) {
   const selected = ready ? ikigai.ikigaiSelected : null;
   const statement = selected ? displayStatement(selected.ikigai) : initial.statement;
+  const cardIsStale = Boolean(
+    selected && ikigai.ikigaiCardStatement && normalizeStatement(selected.ikigai) !== normalizeStatement(ikigai.ikigaiCardStatement)
+  );
 
   return (
     <div className="mx-auto w-full max-w-6xl px-5 pb-16 pt-10 sm:px-8 sm:pt-14">
@@ -64,6 +67,14 @@ function CardDashboard({ userId, initial, coverImage, ikigai, ready }: Dashboard
             {statement ?? "Your ikigai"}
           </h1>
           {selected ? <ScoreBars scores={selected} className="mt-6" /> : !ready && <Skeleton className="mt-6 h-10 w-full" />}
+          {cardIsStale && (
+            <div role="status" className="mt-6 flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-border-strong bg-primary-soft p-4 text-sm">
+              <p>Your card still shows your earlier statement, and so does your public page.</p>
+              <ButtonLink href="/generate-ikigai/card" size="sm">
+                <Palette className="size-4" aria-hidden="true" /> Update card
+              </ButtonLink>
+            </div>
+          )}
 
           <SharePanel className="mt-8" userId={userId} coverImage={coverImage} initialSharable={initial.sharable} />
           {selected && (

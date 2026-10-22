@@ -29,6 +29,12 @@ export function mergeIkigaiLists(current: IkigaiData[], incoming: IkigaiData[]):
   return [...added, ...current];
 }
 
+/** The statement a visitor should read: the one baked into the card image when there is one, else the current choice. */
+export function shownStatement(coverImage: string | null, cardStatement: unknown, selected: unknown): string | null {
+  if (coverImage && typeof cardStatement === "string" && cardStatement) return cardStatement;
+  return typeof selected === "string" && selected ? selected : null;
+}
+
 /** How many already-shown statements the model is asked not to repeat. Must stay within `generateIkigaiSchema`'s `existing` limit. */
 export const AVOID_LIST_LIMIT = 20;
 

@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { generateIkigaiSchema } from "@/lib/validation";
-import { AVOID_LIST_LIMIT, displayStatement, isSameStatement, mergeIkigaiLists, recentStatements } from "./ikigaiList";
+import { AVOID_LIST_LIMIT, displayStatement, isSameStatement, mergeIkigaiLists, recentStatements, shownStatement } from "./ikigaiList";
 import type { IkigaiData } from "@/types";
 
 const make = (ikigai: string, n = 50): IkigaiData => ({
@@ -66,5 +66,17 @@ describe("isSameStatement", () => {
 describe("displayStatement", () => {
   it("strips legacy markdown markers", () => {
     expect(displayStatement("My ikigai is to **teach** ")).toBe("My ikigai is to teach");
+  });
+});
+
+describe("shownStatement", () => {
+  it("shows the statement baked into the card, not a newer choice", () => {
+    expect(shownStatement("https://img/card.png", "My ikigai is to teach", "My ikigai is to build")).toBe("My ikigai is to teach");
+  });
+
+  it("falls back to the current choice for legacy cards and when there is no card", () => {
+    expect(shownStatement("https://img/card.png", undefined, "My ikigai is to build")).toBe("My ikigai is to build");
+    expect(shownStatement(null, "My ikigai is to teach", "My ikigai is to build")).toBe("My ikigai is to build");
+    expect(shownStatement(null, undefined, null)).toBeNull();
   });
 });

@@ -1,7 +1,7 @@
 import "server-only";
 import { cache } from "react";
 import { adminDb } from "@/firebase/firebaseAdmin";
-import { displayStatement } from "@/utils/ikigaiList";
+import { displayStatement, shownStatement } from "@/utils/ikigaiList";
 import { IKIGAI_CIRCLES } from "@/constants/ikigai";
 import type { IkigaiReport, IkigaiSummary } from "@/types";
 
@@ -26,11 +26,13 @@ export const getIkigaiSummary = cache(async (uid: string): Promise<IkigaiSummary
     if (!snap.exists) return EMPTY;
     const data = snap.data() ?? {};
     const selected = data.ikigaiSelected as { ikigai?: unknown } | null | undefined;
+    const coverImage = typeof data.ikigaiCoverImage === "string" && data.ikigaiCoverImage ? data.ikigaiCoverImage : null;
+    const raw = shownStatement(coverImage, data.ikigaiCardStatement, selected?.ikigai);
     return {
-      coverImage: typeof data.ikigaiCoverImage === "string" && data.ikigaiCoverImage ? data.ikigaiCoverImage : null,
+      coverImage,
       sharable: data.ikigaiSharableUrl === true,
-      statement: typeof selected?.ikigai === "string" ? displayStatement(selected.ikigai) : null,
-      keywords: readKeywords(data.ikigaiReport, selected?.ikigai),
+      statement: raw ? displayStatement(raw) : null,
+      keywords: readKeywords(data.ikigaiReport, raw),
     };
   } catch (error) {
     console.error("Failed to read ikigai summary:", error);
