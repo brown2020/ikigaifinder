@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { isOwnBucketUrl } from "@/utils/storageUrl";
 
 // ============================================================================
 // Types
@@ -12,34 +13,12 @@ interface ErrorResponse {
 // Configuration
 // ============================================================================
 
-/** Allowed domains for image downloads */
-const ALLOWED_DOMAINS = [
-  "firebasestorage.googleapis.com",
-  "storage.googleapis.com",
-];
-
 /** Maximum file size (10MB) */
 const MAX_FILE_SIZE = 10 * 1024 * 1024;
 
 // ============================================================================
 // Utilities
 // ============================================================================
-
-/**
- * Validate that the URL is from an allowed domain
- */
-function isAllowedDomain(url: string): boolean {
-  try {
-    const parsedUrl = new URL(url);
-    return ALLOWED_DOMAINS.some(
-      (domain) =>
-        parsedUrl.hostname === domain ||
-        parsedUrl.hostname.endsWith(`.${domain}`)
-    );
-  } catch {
-    return false;
-  }
-}
 
 /**
  * Create a JSON error response
@@ -71,8 +50,8 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
   }
 
   // Validate domain
-  if (!isAllowedDomain(imageUrl)) {
-    return errorResponse("Image URL domain not allowed", 403);
+  if (!isOwnBucketUrl(imageUrl, process.env.NEXT_PUBLIC_FIREBASE_STORAGEBUCKET)) {
+    return errorResponse("Image URL not allowed", 403);
   }
 
   try {
