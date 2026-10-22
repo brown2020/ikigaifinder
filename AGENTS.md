@@ -20,8 +20,8 @@ Turn a short, structured self-reflection survey into a small set of concrete, pe
 - **Styling:** Tailwind CSS v4 (`@tailwindcss/postcss`), utility-first, no CSS-in-JS
 - **State:** Zustand 5 (with `devtools`)
 - **Auth + data:** Firebase Web SDK 12 (client) + Firebase Admin 14 (server)
-- **AI text:** Vercel AI SDK (`ai` v7) + `@ai-sdk/openai` v4 (GPT‑4o), streamed to the client via `@ai-sdk/rsc` v3 (`createStreamableValue` / `readStreamableValue`)
-- **AI images:** Fireworks AI REST API — Stable Diffusion XL 1024 v1.0 (`fetch`-based, no SDK)
+- **AI text:** Vercel AI SDK (`ai` v7) + `@ai-sdk/openai` v4 (GPT‑4o), streamed to the client via `@ai-sdk/rsc` v3 (`createStreamableValue` / `readStreamableValue`). OpenAI shuts `gpt-4o` down in the API on 2027-01-14; migrate `TEXT_MODEL` in `src/constants/ai.ts` (the only place model IDs live) before then.
+- **AI images:** Fireworks AI REST API — Stable Diffusion XL 1024 v1.0 (`fetch`-based, no SDK, `IMAGE_ENDPOINT` in `src/constants/ai.ts`). Fireworks deprecated image generation in 2026; replace the provider before it is removed.
 - **Forms:** React Hook Form 7 + Zod 4
 - **Lint:** ESLint 9 + `eslint-config-next`
 - **Package manager:** **npm** (lockfile: `package-lock.json`). Do not switch package managers.
@@ -178,7 +178,7 @@ npm run lint && npm run build
 - **`src/lib/generateImage.ts`** — uses an effectively permanent signed-URL expiry (`03-17-2125`); be intentional if you change URL lifetime.
 - **`service_key.json`** and **`.env*.local`** — secrets, gitignored. Never read, print, or commit them.
 - **Generated/derived files** — `package-lock.json`, `tsconfig.tsbuildinfo`, `.next/`, `next-env.d.ts`. Don't hand-edit; change the source and regenerate.
-- **Dependency policy** — `package.json` intentionally pins reviewed install scripts with `allowScripts` and uses overrides to keep Next/Firebase transitive dependencies on patched compatible releases. Review changed lifecycle scripts before re-approving them, and require a clean audit plus full validation before removing overrides.
+- **Dependency policy** — `package.json` intentionally pins reviewed install scripts with `allowScripts` and uses overrides to keep Next/Firebase transitive dependencies on patched compatible releases. Review changed lifecycle scripts before re-approving them, and require a clean audit plus full validation before removing overrides. Current overrides include `sharp` 0.35.5, `@grpc/grpc-js` 1.14.6 under `@firebase/firestore` (the SDK uses it only as a Node client), `@fastify/busboy` and `source-map-js`; drop each once its parent ships the patched version. `npm audit --omit=dev` must stay at 0. The remaining dev-only advisory is `braces` (via `eslint-config-next` → `fast-glob`), which has no patched release and only processes this repo's own lint globs; revisit when a fixed `braces` or `fast-glob` ships.
 - **Node types** — keep `@types/node` on the latest 22.x release while Node 22 is the minimum supported runtime; newer type majors can expose APIs unavailable in production.
 - **TypeScript 7** — currently incompatible with the latest `typescript-eslint` parser used by `eslint-config-next` (which supports TypeScript `<6.1`); keep TypeScript on the latest 6.x release until that peer range advances.
 - **ESLint 10** — `eslint-config-next` still installs React/import/accessibility plugins whose peer ranges stop at ESLint 9; keep ESLint on the latest 9.x release until those peers add ESLint 10 support.

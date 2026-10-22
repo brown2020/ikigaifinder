@@ -18,7 +18,6 @@ import {
   clearServerSession,
   createServerSession,
 } from "@/lib/auth/session-client";
-import { deleteCookie } from "cookies-next";
 import { isReactNativeWebView } from "@/utils/platform";
 
 // ============================================================================
@@ -257,9 +256,8 @@ export function useAuthActions(): UseAuthActionsReturn {
         // 1. Delete the server-managed httpOnly session cookie
         await clearServerSession().catch(() => {});
 
-        // 2. Explicitly delete any client-readable auth cookies
-        deleteCookie("__session", { path: "/" });
-        deleteCookie("authToken", { path: "/" });
+        // 2. Expire the legacy client-readable auth cookie (the session cookie is httpOnly and cleared above)
+        document.cookie = "authToken=; Max-Age=0; path=/";
 
         // 3. Clear localStorage auth artifacts
         if (typeof window !== "undefined") {

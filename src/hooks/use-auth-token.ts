@@ -1,10 +1,9 @@
 "use client";
 
-import { useEffect, useCallback, useRef } from "react";
-import { getIdToken } from "firebase/auth";
+import { useEffect, useCallback, useRef, useState } from "react";
+import { getIdToken, onAuthStateChanged, type User } from "firebase/auth";
 import { useAuthStore } from "@/zustand/useAuthStore";
 import { auth } from "@/firebase/firebaseClient";
-import { useAuthState } from "react-firebase-hooks/auth";
 import { updateUserDetailsInFirestore } from "@/services/userService";
 import { isReactNativeWebView } from "@/utils/platform";
 import { clearServerSession, createServerSession } from "@/lib/auth/session-client";
@@ -39,6 +38,26 @@ interface UseAuthTokenReturn {
 // Hook Implementation
 // ============================================================================
 
+interface FirebaseUserState {
+  user: User | null;
+  isLoading: boolean;
+  error?: Error;
+}
+
+function useFirebaseUser(): FirebaseUserState {
+  const [state, setState] = useState<FirebaseUserState>({ user: null, isLoading: true });
+  useEffect(
+    () =>
+      onAuthStateChanged(
+        auth,
+        (user) => setState({ user, isLoading: false }),
+        (error) => setState({ user: null, isLoading: false, error })
+      ),
+    []
+  );
+  return state;
+}
+
 /**
  * Custom hook to bridge Firebase client auth -> server session cookie
  *
@@ -55,7 +74,7 @@ export function useAuthToken(
     autoRefreshSession = true,
   } = options;
 
-  const [user, isLoading, error] = useAuthState(auth);
+  const { user, isLoading, error } = useFirebaseUser();
   const setAuthDetails = useAuthStore((state) => state.setAuthDetails);
   const clearAuthDetails = useAuthStore((state) => state.clearAuthDetails);
 

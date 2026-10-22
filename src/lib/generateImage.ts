@@ -2,6 +2,7 @@
 
 import { adminBucket } from "@/firebase/firebaseAdmin";
 import { requireAuth } from "@/lib/auth/session-server";
+import { IMAGE_ENDPOINT } from "@/constants/ai";
 import { rateLimitImageGen } from "./rateLimit";
 import { generateImageSchema, sanitizeInput } from "./validation";
 
@@ -33,8 +34,6 @@ interface FireworksRequestBody {
 // Constants
 // ============================================================================
 
-const FIREWORKS_API_URL =
-  "https://api.fireworks.ai/inference/v1/image_generation/accounts/fireworks/models/stable-diffusion-xl-1024-v1-0";
 
 const IMAGE_CONFIG: Omit<FireworksRequestBody, "prompt"> = {
   cfg_scale: 7,
@@ -123,7 +122,7 @@ export async function generateImage(
 
   try {
     // Generate the image using Fireworks AI
-    const response = await fetch(FIREWORKS_API_URL, {
+    const response = await fetch(IMAGE_ENDPOINT, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",

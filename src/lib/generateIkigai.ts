@@ -3,6 +3,7 @@
 import { createStreamableValue } from "@ai-sdk/rsc";
 import { Output, streamText } from "ai";
 import { openai } from "@ai-sdk/openai";
+import { TEXT_MODEL } from "@/constants/ai";
 import { z } from "zod";
 import { IKIGAI_SYSTEM_PROMPT } from "@/constants/systemPrompt";
 import { requireAuth } from "@/lib/auth/session-server";
@@ -11,7 +12,6 @@ import { generateIkigaiSchema, sanitizeInput } from "./validation";
 import type { IkigaiData } from "@/types";
 import type { QuestionSection } from "@/utils/promptUtils";
 
-const AI_MODEL = "gpt-4o";
 const STATEMENTS_PER_RUN = 5;
 
 const score = z.number().int().min(0).max(100);
@@ -93,7 +93,7 @@ export async function generateIkigai(
   (async () => {
     try {
       const result = streamText({
-        model: openai(AI_MODEL),
+        model: openai(TEXT_MODEL),
         system: IKIGAI_SYSTEM_PROMPT,
         prompt,
         temperature: 0.8,

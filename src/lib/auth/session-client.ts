@@ -1,11 +1,5 @@
 "use client";
 
-import { z } from "zod";
-
-const CreateSessionResponseSchema = z.object({
-  ok: z.boolean(),
-});
-
 export async function createServerSession(idToken: string): Promise<void> {
   const response = await fetch("/api/auth/session", {
     method: "POST",
@@ -17,9 +11,8 @@ export async function createServerSession(idToken: string): Promise<void> {
     throw new Error(`Failed to create session (${response.status})`);
   }
 
-  const json = await response.json();
-  const parsed = CreateSessionResponseSchema.safeParse(json);
-  if (!parsed.success || !parsed.data.ok) {
+  const json = (await response.json().catch(() => null)) as { ok?: unknown } | null;
+  if (json?.ok !== true) {
     throw new Error("Failed to create session");
   }
 }

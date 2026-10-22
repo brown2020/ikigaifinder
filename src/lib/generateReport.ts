@@ -2,6 +2,7 @@
 
 import { generateText, Output } from "ai";
 import { openai } from "@ai-sdk/openai";
+import { TEXT_MODEL } from "@/constants/ai";
 import { z } from "zod";
 import { IKIGAI_REPORT_PROMPT } from "@/constants/systemPrompt";
 import { requireAuth } from "@/lib/auth/session-server";
@@ -10,7 +11,6 @@ import { generateReportSchema, sanitizeInput } from "./validation";
 import type { IkigaiReport } from "@/types";
 import type { QuestionSection } from "@/utils/promptUtils";
 
-const AI_MODEL = "gpt-4o";
 
 const circle = z.enum(["love", "skill", "world", "paid"]);
 const words = z.array(z.string()).describe("Two or three words or short phrases");
@@ -84,7 +84,7 @@ export async function generateIkigaiReport(
 
   try {
     const { output } = await generateText({
-      model: openai(AI_MODEL),
+      model: openai(TEXT_MODEL),
       system: IKIGAI_REPORT_PROMPT,
       prompt: `Questionnaire answers:\n${JSON.stringify(sections, null, 2)}\n\nChosen statement: ${chosen}`,
       temperature: 0.6,
