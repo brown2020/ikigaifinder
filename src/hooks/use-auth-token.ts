@@ -84,16 +84,15 @@ export function useAuthToken(
    * Create/refresh the server session cookie using the current Firebase ID token.
    */
   const refreshServerSession = useCallback(async (): Promise<void> => {
+    const currentUser = auth.currentUser;
+    // Signed out before this ran (sign-out, account deletion): the sign-out path clears the session.
+    if (!currentUser) return;
     try {
-      const currentUser = auth.currentUser;
-      if (!currentUser) {
-        throw new Error("No authenticated user found");
-      }
-
       const idToken = await getIdToken(currentUser, true);
       await createServerSession(idToken);
     } catch (err) {
-      console.error("Failed to refresh server session:", err);
+      const code = (err as { code?: unknown } | null)?.code;
+      console.warn(`Failed to refresh server session (${typeof code === "string" ? code : "unknown"})`);
       // If we can't refresh the session, ensure we clear it so proxy blocks protected routes.
       try {
         await clearServerSession();

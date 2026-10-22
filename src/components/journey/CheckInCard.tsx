@@ -4,7 +4,7 @@ import { useState } from "react";
 import { CalendarPlus, History, RefreshCcw } from "lucide-react";
 import { Button, ButtonLink } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
-import { absoluteUrl } from "@/utils/baseUrl";
+import { absoluteSiteUrl } from "@/utils/siteUrl";
 import { downloadCalendarReminder } from "@/utils/calendar";
 import { displayStatement } from "@/utils/ikigaiList";
 import type { Ikigai } from "@/types";
@@ -33,7 +33,7 @@ export default function CheckInCard({ ikigai, className }: { ikigai: Ikigai; cla
       date: new Date(base + CHECK_IN_DAYS * DAY_MS),
       title: "Ikigai check-in",
       description: "Revisit your answers and see how your ikigai has changed.",
-      url: absoluteUrl("/dashboard"),
+      url: absoluteSiteUrl("/dashboard"),
     });
   };
 

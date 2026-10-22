@@ -1,4 +1,4 @@
-import { loadFirestore } from "@/firebase/firebaseClient";
+import { auth, loadFirestore } from "@/firebase/firebaseClient";
 import type { AuthState } from "@/zustand/useAuthStore";
 
 // ============================================================================
@@ -47,6 +47,8 @@ export async function updateUserDetailsInFirestore(
     }
 
     const { db, doc, setDoc, serverTimestamp } = await loadFirestore();
+    // The SDK loads lazily; if the person signed out (or deleted their account) meanwhile, don't write for them.
+    if (auth?.currentUser?.uid !== uid) return;
     const userRef = doc(db, `ikigaiUsers/${uid}`);
 
     // Make serializable (removes undefined values, converts special types)

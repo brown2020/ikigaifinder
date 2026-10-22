@@ -51,7 +51,7 @@ function CardDashboard({ userId, initial, coverImage, ikigai, ready }: Dashboard
 
   return (
     <div className="mx-auto w-full max-w-6xl px-5 pb-16 pt-10 sm:px-8 sm:pt-14">
-      <div className="grid gap-10 lg:grid-cols-[minmax(0,6fr)_minmax(0,5fr)] lg:gap-14">
+      <div className="grid grid-cols-1 gap-10 lg:grid-cols-[minmax(0,6fr)_minmax(0,5fr)] lg:gap-14">
         <div className="lg:sticky lg:top-24 lg:self-start">
           <div className="relative aspect-square w-full overflow-hidden rounded-2xl bg-muted shadow-[0_24px_60px_-30px_rgba(31,26,23,0.45)]">
             <Image src={coverImage} alt={statement ? `Ikigai card: ${statement}` : "My ikigai card"} fill sizes="(max-width: 1024px) 100vw, 600px" className="object-cover" priority />

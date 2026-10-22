@@ -10,7 +10,7 @@ import {
   TwitterShareButton,
 } from "react-share";
 import { Button } from "@/components/ui/Button";
-import { absoluteUrl } from "@/utils/baseUrl";
+import { absoluteSiteUrl } from "@/utils/siteUrl";
 import { downloadImage } from "@/utils/downloadImage";
 import { cn } from "@/utils/cn";
 
@@ -33,7 +33,8 @@ export default function SharePanel({ userId, coverImage, initialSharable, onShar
   const toggling = useRef(false);
   const [downloading, setDownloading] = useState(false);
   const [copied, setCopied] = useState(false);
-  const url = absoluteUrl(`/ikigai/${userId}`);
+  // The canonical origin renders the same text on the server and in the browser.
+  const url = absoluteSiteUrl(`/ikigai/${userId}`);
 
   const toggle = async () => {
     if (toggling.current) return;
