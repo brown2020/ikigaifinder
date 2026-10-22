@@ -214,7 +214,7 @@ Product-oriented, ordered by impact and dependency. Each item is sized for one c
 ### M23 — Quality pass (app-eval until-100) — DONE
 - **User value:** faster first load, accessible questionnaires, honest share pages, and safer data handling.
 - **Implemented:** Firestore/Storage SDKs load on first use (landing and quick start 236/254 KB gzip first-load JS, budget 300 KB); circle text colors meet 4.5:1 (`ink` shades); public pages show the statement baked into the card (`ikigaiCardStatement`) and owners see when their card is out of date; "Clear ideas" keeps the shortlist and current choice; the image download proxy accepts only the app's bucket; React Doctor 100; production `npm audit` 0. Tests now cover route-handler and server-action authorization, Firestore/Storage rules on the emulators (CI job), account deletion, and `env.sample` drift.
-- **Follow-up (2026-10-22):** text moved from `gpt-4o` (API shutdown 2027-01-14) to `gpt-6.1-sol` and card backgrounds from deprecated Fireworks SDXL to OpenAI `gpt-image-2.5-flare`, both verified with live calls. Still open: production monitoring.
+- **Follow-up (2026-10-22):** text moved from `gpt-4o` (API shutdown 2027-01-14) to `gpt-6.1-sol` and card backgrounds from deprecated Fireworks SDXL to OpenAI `gpt-image-2.5-flare`, both verified with live calls. Signed-in end-to-end checks on a test account then found and fixed a share-link overflow on phones, a hydration mismatch in share links, late writes after sign-out, edits lost between two open tabs (saves now merge per question onto the latest answers), and focused controls hidden behind pinned bars (scroll padding). Still open: production monitoring.
 
 ### Out of scope / non-goals (for now)
 

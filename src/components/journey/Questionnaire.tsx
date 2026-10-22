@@ -72,7 +72,7 @@ export default function Questionnaire(): React.ReactElement {
     defaultValues,
     mode: "onTouched",
   });
-  const autosave = useAnswerAutosave(watch, getValues, toAnswers);
+  const { state: autosave, base: answerBase } = useAnswerAutosave(watch, getValues, toAnswers);
   // Autosave keeps the store current, so compare against what was saved when the page opened.
   const [answersAtOpen] = useState(stored);
 
@@ -106,7 +106,7 @@ export default function Questionnaire(): React.ReactElement {
     // New answers deserve fresh ideas; a card made from old ideas stays on the dashboard.
     const refresh = isLast && answers.every(isSectionComplete) && !sameAnswers(answers, answersAtOpen);
     if (changed || refresh) {
-      const ok = await updateIkigai(refresh ? { answers, ikigaiOptions: [], ikigaiSelected: null } : { answers });
+      const ok = await updateIkigai(refresh ? { answers, ikigaiOptions: [], ikigaiSelected: null } : { answers }, { base: answerBase() });
       if (!ok) {
         toast.error("We couldn't save your answers. Check your connection and try again.");
         return;
@@ -120,7 +120,7 @@ export default function Questionnaire(): React.ReactElement {
 
   const onBack = async () => {
     const answers = buildAnswers(getValues());
-    if (!sameAnswers(answers, stored)) void updateIkigai({ answers });
+    if (!sameAnswers(answers, stored)) void updateIkigai({ answers }, { base: answerBase() });
     goTo(step - 1);
   };
 

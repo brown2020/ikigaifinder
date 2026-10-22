@@ -8,7 +8,8 @@ import {
   withStoredAnswers,
 } from "@/services/ikigaiService";
 import { clearGuestAnswers, countAnswered, loadGuestAnswers, saveGuestAnswers } from "@/utils/guestDraft";
-import type { Ikigai } from "@/types";
+import { mergeAnswerEdits } from "@/utils/answers";
+import type { Ikigai, QuestionStep } from "@/types";
 
 type LoadStatus = "idle" | "loading" | "ready" | "error";
 
@@ -24,8 +25,10 @@ interface IkigaiStore {
   /**
    * Persists a partial update. Resolves to false if it failed or the user changed mid-flight.
    * `quiet` saves (autosave) don't flip `isSaving`, so buttons don't flash a spinner while typing.
+   * `base` is the answers the form last saw; when given, only the questions it changed are applied
+   * onto the latest saved answers, so another tab's edits to other questions survive.
    */
-  updateIkigai: (data: Partial<Ikigai>, options?: { quiet?: boolean }) => Promise<boolean>;
+  updateIkigai: (data: Partial<Ikigai>, options?: { quiet?: boolean; base?: QuestionStep[] }) => Promise<boolean>;
   resetIkigai: () => void;
 }
 
@@ -83,14 +86,25 @@ export const useIkigaiStore = create<IkigaiStore>()(
       if (!uid) {
         // Guests can only answer questions; everything else needs an account.
         if (!updateData.answers) return false;
-        const answers = withStoredAnswers(updateData.answers);
+        const edited = withStoredAnswers(updateData.answers);
+        const answers = options?.base
+          ? mergeAnswerEdits(options.base, edited, withStoredAnswers(loadGuestAnswers() ?? undefined))
+          : edited;
         saveGuestAnswers(answers);
         set({ ikigaiData: { ...get().ikigaiData, answers } }, false, "ikigai/updateGuest");
         return true;
       }
       if (!quiet) set({ isSaving: true, error: null }, false, "ikigai/updateStart");
       try {
-        const updated = await updateIkigaiData(uid, get().ikigaiData, updateData);
+        let current = get().ikigaiData;
+        let data = updateData;
+        if (updateData.answers && options?.base) {
+          const latest = await fetchIkigaiData(uid);
+          if (!isCurrentUser(uid)) return false;
+          current = { ...current, answers: latest.answers };
+          data = { ...updateData, answers: mergeAnswerEdits(options.base, withStoredAnswers(updateData.answers), latest.answers) };
+        }
+        const updated = await updateIkigaiData(uid, current, data);
         if (!isCurrentUser(uid)) return false;
         set(quiet ? { ikigaiData: updated } : { ikigaiData: updated, isSaving: false }, false, "ikigai/updateSuccess");
         return true;

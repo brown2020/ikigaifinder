@@ -53,7 +53,7 @@ export default function QuickQuestionnaire(): React.ReactElement {
     ),
     mode: "onTouched",
   });
-  const autosave = useAnswerAutosave(watch, getValues, toQuickAnswers);
+  const { state: autosave, base: answerBase } = useAnswerAutosave(watch, getValues, toQuickAnswers);
   // Autosave keeps the store current, so compare against what was saved when the page opened.
   const [answersAtOpen] = useState(stored);
 
@@ -66,7 +66,7 @@ export default function QuickQuestionnaire(): React.ReactElement {
     const answers = toQuickAnswers(values, stored);
     const changed = !sameAnswers(answers, answersAtOpen);
 
-    if (changed && !(await updateIkigai({ answers, ikigaiOptions: [] }))) {
+    if (changed && !(await updateIkigai({ answers, ikigaiOptions: [] }, { base: answerBase() }))) {
       toast.error("We couldn't save your answers. Check your connection and try again.");
       return;
     }
