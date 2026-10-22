@@ -48,9 +48,6 @@ export default function DashboardPage({ userId, initial }: DashboardPageProps): 
 function CardDashboard({ userId, initial, coverImage, ikigai, ready }: DashboardPageProps & { coverImage: string; ikigai: Ikigai; ready: boolean }) {
   const selected = ready ? ikigai.ikigaiSelected : null;
   const statement = selected ? displayStatement(selected.ikigai) : initial.statement;
-  const cardIsStale = Boolean(
-    selected && ikigai.ikigaiCardStatement && normalizeStatement(selected.ikigai) !== normalizeStatement(ikigai.ikigaiCardStatement)
-  );
 
   return (
     <div className="mx-auto w-full max-w-6xl px-5 pb-16 pt-10 sm:px-8 sm:pt-14">
@@ -67,14 +64,7 @@ function CardDashboard({ userId, initial, coverImage, ikigai, ready }: Dashboard
             {statement ?? "Your ikigai"}
           </h1>
           {selected ? <ScoreBars scores={selected} className="mt-6" /> : !ready && <Skeleton className="mt-6 h-10 w-full" />}
-          {cardIsStale && (
-            <div role="status" className="mt-6 flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-border-strong bg-primary-soft p-4 text-sm">
-              <p>Your card still shows your earlier statement, and so does your public page.</p>
-              <ButtonLink href="/generate-ikigai/card" size="sm">
-                <Palette className="size-4" aria-hidden="true" /> Update card
-              </ButtonLink>
-            </div>
-          )}
+          {selected && <StaleCardNotice selected={selected.ikigai} cardStatement={ikigai.ikigaiCardStatement} />}
 
           <SharePanel className="mt-8" userId={userId} coverImage={coverImage} initialSharable={initial.sharable} />
           {selected && (
@@ -83,31 +73,51 @@ function CardDashboard({ userId, initial, coverImage, ikigai, ready }: Dashboard
               <CardFormatDownloads className="mt-2" statement={selected.ikigai} name={ikigai.ikigaiCardName} imageUrl={ikigai.ikigaiImage || undefined} />
             </div>
           )}
-
-          <div className="mt-8 flex flex-wrap gap-2">
-            {CARD_ACTIONS.map((action) => (
-              <ButtonLink key={action.href} href={action.href} variant="neutral" size="sm">
-                <action.icon className="size-4" aria-hidden="true" /> {action.label}
-              </ButtonLink>
-            ))}
-          </div>
-
-          {selected && (
-            <>
-              <ExperimentCard className="mt-8" />
-              <CheckInCard ikigai={ikigai} className="mt-8 p-6" />
-            </>
-          )}
-
-          {ready && hasCurrentReport(ikigai) && ikigai.ikigaiReport && (
-            <Card className="mt-8 p-6">
-              <h2 className="font-display text-xl font-semibold">Your ikigai map</h2>
-              <IkigaiDiagram className="mx-auto mt-4 max-w-[340px]" words={ikigai.ikigaiReport.keywords} />
-            </Card>
-          )}
+          <CardActions />
+          {selected && <OngoingCards ikigai={ikigai} />}
         </div>
       </div>
     </div>
+  );
+}
+
+function StaleCardNotice({ selected, cardStatement }: { selected: string; cardStatement?: string }) {
+  if (!cardStatement || normalizeStatement(selected) === normalizeStatement(cardStatement)) return null;
+  return (
+    <div role="status" className="mt-6 flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-border-strong bg-primary-soft p-4 text-sm">
+      <p>Your card still shows your earlier statement, and so does your public page.</p>
+      <ButtonLink href="/generate-ikigai/card" size="sm">
+        <Palette className="size-4" aria-hidden="true" /> Update card
+      </ButtonLink>
+    </div>
+  );
+}
+
+function CardActions() {
+  return (
+    <div className="mt-8 flex flex-wrap gap-2">
+      {CARD_ACTIONS.map((action) => (
+        <ButtonLink key={action.href} href={action.href} variant="neutral" size="sm">
+          <action.icon className="size-4" aria-hidden="true" /> {action.label}
+        </ButtonLink>
+      ))}
+    </div>
+  );
+}
+
+/** The experiment, check-in, and personal map that follow a chosen statement. */
+function OngoingCards({ ikigai }: { ikigai: Ikigai }) {
+  return (
+    <>
+      <ExperimentCard className="mt-8" />
+      <CheckInCard ikigai={ikigai} className="mt-8 p-6" />
+      {hasCurrentReport(ikigai) && ikigai.ikigaiReport && (
+        <Card className="mt-8 p-6">
+          <h2 className="font-display text-xl font-semibold">Your ikigai map</h2>
+          <IkigaiDiagram className="mx-auto mt-4 max-w-[340px]" words={ikigai.ikigaiReport.keywords} />
+        </Card>
+      )}
+    </>
   );
 }
 
