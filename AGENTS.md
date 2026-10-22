@@ -104,13 +104,14 @@ npm run dev        # local dev server (DO NOT run in autonomous validation — l
 npm run build      # production build; runs TypeScript type-checking
 npm run start      # serve a production build
 npm run lint       # ESLint
-npm test           # Vitest one-shot runner (currently proxy + ikigai list coverage)
+npm test           # Vitest one-shot: proxy, list utils, account deletion, route handlers, env.sample drift
+npm run test:rules # Firestore/Storage rules on the emulators (Java 21; npx-pinned firebase-tools)
 npx tsc --noEmit   # standalone type-check (no dedicated npm script exists)
 ```
 
 ## Canonical validation/check command
 
-Vitest is wired as a one-shot runner via `npm test` and currently covers `src/proxy.ts` plus the ikigai list utilities. The canonical, non-interactive regression check is:
+Vitest is wired as a one-shot runner via `npm test` and covers `src/proxy.ts`, the ikigai list utilities, account deletion, the sharing and account route handlers (including wrong-user and revoked-token denials), and `env.sample` drift. `npm run test:rules` runs the Firestore and Storage rules against the emulators; CI runs both. The canonical, non-interactive regression check is:
 
 ```bash
 npm run lint && npm run build
@@ -163,7 +164,7 @@ npm run lint && npm run build
 
 ## Testing expectations
 
-- Automated tests currently cover route-protection helpers and ikigai list utilities. Do **not** scaffold a large test suite as part of an unrelated change.
+- Automated tests cover route protection, list utilities, account deletion, route-handler authorization, rules (emulator), and env drift. Do **not** scaffold a large test suite as part of an unrelated change.
 - If you add tests, use the existing Vitest runner (`npm test`), keep them non-interactive, and add them alongside the feature they cover rather than as a separate cleanup pass.
 - Until meaningful tests exist, `npm run lint && npm run build` is the regression gate.
 

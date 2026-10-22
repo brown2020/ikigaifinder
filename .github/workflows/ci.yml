@@ -31,7 +31,6 @@ jobs:
         run: npm run doctor
       - name: Production build
         env:
-          NEXT_PUBLIC_COOKIE_NAME: ${{ secrets.NEXT_PUBLIC_COOKIE_NAME }}
           NEXT_PUBLIC_FIREBASE_APIKEY: ${{ secrets.NEXT_PUBLIC_FIREBASE_APIKEY }}
           NEXT_PUBLIC_FIREBASE_AUTHDOMAIN: ${{ secrets.NEXT_PUBLIC_FIREBASE_AUTHDOMAIN }}
           NEXT_PUBLIC_FIREBASE_PROJECTID: ${{ secrets.NEXT_PUBLIC_FIREBASE_PROJECTID }}
@@ -41,3 +40,21 @@ jobs:
           NEXT_PUBLIC_FIREBASE_MEASUREMENTID: ${{ secrets.NEXT_PUBLIC_FIREBASE_MEASUREMENTID }}
         # Soft-skip Firebase client init when secrets are unset — do not re-inline values.
         run: npm run build
+
+  # Firestore and Storage security rules against the local emulators (demo project, no secrets).
+  rules:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "21"
+      - run: npm ci --ignore-scripts
+      - name: Security rules tests
+        run: npm run test:rules

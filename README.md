@@ -83,11 +83,11 @@ Documented in `env.sample` (there is no `.env.example`).
 | `FIREBASE_*` | Admin SDK service account fields | Firebase Console → Service accounts |
 | `NEXT_PUBLIC_FIREBASE_*` | Client Firebase config | Firebase Console → Project settings |
 | `OPENAI_API_KEY` | GPT-4o ikigai + report generation | [platform.openai.com](https://platform.openai.com) |
-| `OPENAI_ORG_ID` | Optional OpenAI org | Same |
 | `FIREWORKS_API_KEY` | SDXL image generation | [fireworks.ai](https://fireworks.ai) |
-| `NEXT_PUBLIC_COOKIE_NAME` | Auth cookie name used by proxy | Choose a stable name (e.g. `ikigaiAuthToken`) |
 | `NEXT_PUBLIC_BASE_URL` | Optional public site URL for metadata / OG | Your production URL |
-| `FIREBASE_SESSION_COOKIE_NAME` / `FIREBASE_SESSION_EXPIRES_DAYS` / `COOKIE_SECURE` | Optional session cookie overrides (used in code) | Tune as needed |
+| `FIREBASE_SESSION_COOKIE_NAME` / `FIREBASE_SESSION_EXPIRES_DAYS` / `COOKIE_SECURE` | Optional server-only session cookie overrides (default `__session`, 5 days, secure on Vercel) | Tune as needed |
+
+`src/envSample.test.ts` fails when code reads a variable `env.sample` doesn't document, or `env.sample` lists one nothing reads.
 
 ## Scripts
 
@@ -98,8 +98,9 @@ Documented in `env.sample` (there is no `.env.example`).
 | `npm start` | Serve production build |
 | `npm run lint` | ESLint |
 | `npm run typecheck` | `tsc --noEmit` |
-| `npm test` | Vitest |
-| `npm run doctor` | React Doctor |
+| `npm test` | Vitest unit and route-handler tests |
+| `npm run test:rules` | Firestore and Storage rules tests on the local emulators (needs Java 21) |
+| `npm run doctor` | React Doctor (pinned version) |
 
 ## Testing and CI
 
