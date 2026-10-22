@@ -131,6 +131,32 @@
  * bar pinned to the bottom of the screen ([data-bottom-bar]) so it never covers
  * the next step.
  */
+@layer base {
+  /*
+   * Keyboard focus scrolls elements clear of the sticky header and of whatever is pinned to the
+   * bottom (phone nav, action bars, cookie banner), so a focused control is never hidden.
+   */
+  html {
+    scroll-padding-top: 5rem;
+  }
+
+  @media (width < 40rem) {
+    html:has(.consent-banner) { scroll-padding-bottom: 6rem; }
+    html:has([data-mobile-nav]) { scroll-padding-bottom: 4.5rem; }
+    html:has([data-bottom-bar]) { scroll-padding-bottom: 5.5rem; }
+    html:has([data-mobile-nav]):has(.consent-banner) { scroll-padding-bottom: 9.5rem; }
+    html:has([data-bottom-bar]):has(.consent-banner) { scroll-padding-bottom: 10.5rem; }
+    html:has([data-mobile-nav]):has([data-bottom-bar]) { scroll-padding-bottom: 9rem; }
+    html:has([data-mobile-nav]):has([data-bottom-bar]):has(.consent-banner) { scroll-padding-bottom: 14.5rem; }
+  }
+
+  @media (width >= 40rem) {
+    html:has(.consent-banner) { scroll-padding-bottom: 6.5rem; }
+    html:has([data-bottom-bar="always"]) { scroll-padding-bottom: 5.5rem; }
+    html:has([data-bottom-bar="always"]):has(.consent-banner) { scroll-padding-bottom: 11rem; }
+  }
+}
+
 @layer components {
   .consent-banner {
     bottom: calc(0.75rem + env(safe-area-inset-bottom, 0px));
