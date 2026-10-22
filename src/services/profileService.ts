@@ -1,5 +1,4 @@
-import { doc, getDoc, setDoc } from "firebase/firestore";
-import { db } from "@/firebase/firebaseClient";
+import { loadFirestore } from "@/firebase/firebaseClient";
 import { ProfileFetchError, ProfileUpdateError } from "@/lib/errors";
 import type { UserProfile } from "@/types";
 import type { AuthState } from "@/zustand/useAuthStore";
@@ -117,6 +116,7 @@ export async function fetchProfileData(
   }
 
   try {
+    const { db, doc, getDoc, setDoc } = await loadFirestore();
     const userRef = doc(db, `ikigaiUsers/${uid}/settings/profile`);
     const docSnap = await getDoc(userRef);
 
@@ -181,29 +181,12 @@ export async function updateProfileData(
       firstName,
     };
 
+    const { db, doc, setDoc } = await loadFirestore();
     const userRef = doc(db, `ikigaiUsers/${uid}/settings/profile`);
     await setDoc(userRef, { profile: updatedProfile }, { merge: true });
 
     return updatedProfile;
   } catch (error) {
     throw new ProfileUpdateError("Failed to update user profile", error);
-  }
-}
-
-/**
- * Delete user profile from Firestore
- *
- * @param uid - User ID
- */
-export async function deleteProfileData(uid: string): Promise<void> {
-  if (!uid) {
-    throw new Error("User ID is required to delete profile");
-  }
-
-  try {
-    const userRef = doc(db, `ikigaiUsers/${uid}/settings/profile`);
-    await setDoc(userRef, { profile: null, deleted: true }, { merge: true });
-  } catch (error) {
-    throw new ProfileUpdateError("Failed to delete user profile", error);
   }
 }

@@ -1,6 +1,5 @@
 import html2canvas from "html2canvas";
-import { getDownloadURL, ref, uploadBytes } from "firebase/storage";
-import { storage } from "@/firebase/firebaseClient";
+import { loadStorage } from "@/firebase/firebaseClient";
 
 // ============================================================================
 // Types
@@ -216,6 +215,7 @@ export async function captureAndUploadImage(
 
         try {
           const fileName = `generated/${uid}/${new Date().toISOString()}.png`;
+          const { storage, ref, uploadBytes, getDownloadURL } = await loadStorage();
           const fileRef = ref(storage, fileName);
 
           await uploadBytes(fileRef, blob);

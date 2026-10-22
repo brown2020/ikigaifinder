@@ -1,8 +1,7 @@
 "use client";
 
 import { useState, ChangeEvent, useEffect, useRef } from "react";
-import { storage } from "@/firebase/firebaseClient";
-import { getDownloadURL, ref, uploadBytesResumable } from "firebase/storage";
+import { loadStorage } from "@/firebase/firebaseClient";
 import { Camera, Loader2, LogOut } from "lucide-react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
@@ -42,6 +41,7 @@ export default function ProfileComponent() {
       if (!files || !files[0]) throw new Error("No file selected");
 
       const resizedBlob = await resizeImage(files[0]);
+      const { storage, ref, uploadBytesResumable, getDownloadURL } = await loadStorage();
       const storageRef = ref(storage, `users/${uid}/profile.png`);
       await uploadBytesResumable(storageRef, resizedBlob);
 

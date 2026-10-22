@@ -1,15 +1,4 @@
-import {
-  collection,
-  doc,
-  getDoc,
-  limit,
-  onSnapshot,
-  orderBy,
-  query,
-  setDoc,
-  Timestamp,
-} from "firebase/firestore";
-import { db } from "@/firebase/firebaseClient";
+import { loadFirestore } from "@/firebase/firebaseClient";
 import { STEPPER_QUESTIONS_JSON } from "@/constants/questions";
 import { IkigaiUpdateError } from "@/lib/errors";
 import type { Ikigai, QuestionStep, ImagePromptData } from "@/types";
@@ -54,6 +43,7 @@ export function withStoredAnswers(stored?: QuestionStep[]): QuestionStep[] {
 export async function fetchIkigaiData(uid: string): Promise<Ikigai> {
   if (!uid) throw new Error("User ID is required to fetch ikigai data");
 
+  const { db, doc, getDoc } = await loadFirestore();
   const snap = await getDoc(doc(db, ikigaiDocPath(uid)));
   if (!snap.exists()) return { ...defaultIkigai, id: "main" };
 
@@ -76,6 +66,7 @@ export async function updateIkigaiData(
 ): Promise<Ikigai> {
   if (!uid) throw new Error("User ID is required to update ikigai data");
 
+  const { db, doc, setDoc, Timestamp } = await loadFirestore();
   const updated: Ikigai = {
     ...currentData,
     ...updateData,
@@ -103,6 +94,7 @@ export async function saveGeneratedImageHistory(
 ): Promise<ImagePromptData> {
   if (!uid) throw new Error("User ID is required to save image history");
 
+  const { db, collection, doc, setDoc, Timestamp } = await loadFirestore();
   const docRef = doc(collection(db, "ikigaiProfiles", uid, "covers"));
   const historyData: ImagePromptData = {
     ...promptData,
@@ -121,19 +113,26 @@ export function subscribeToCoverHistory(
   onChange: (urls: string[]) => void,
   max = 12
 ): () => void {
-  const q = query(
-    collection(db, "ikigaiProfiles", uid, "covers"),
-    orderBy("timestamp", "desc"),
-    limit(max)
-  );
-  return onSnapshot(
-    q,
-    (snapshot) =>
-      onChange(
-        snapshot.docs
-          .map((d) => d.data().downloadUrl as string | undefined)
-          .filter((url): url is string => Boolean(url))
-      ),
-    () => onChange([])
-  );
+  let unsubscribe: (() => void) | null = null;
+  let cancelled = false;
+  loadFirestore()
+    .then(({ db, collection, limit, onSnapshot, orderBy, query }) => {
+      if (cancelled) return;
+      const q = query(collection(db, "ikigaiProfiles", uid, "covers"), orderBy("timestamp", "desc"), limit(max));
+      unsubscribe = onSnapshot(
+        q,
+        (snapshot) =>
+          onChange(
+            snapshot.docs
+              .map((d) => d.data().downloadUrl as string | undefined)
+              .filter((url): url is string => Boolean(url))
+          ),
+        () => onChange([])
+      );
+    })
+    .catch(() => onChange([]));
+  return () => {
+    cancelled = true;
+    unsubscribe?.();
+  };
 }

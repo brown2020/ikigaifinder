@@ -1,5 +1,4 @@
-import { doc, setDoc, serverTimestamp } from "firebase/firestore";
-import { db } from "@/firebase/firebaseClient";
+import { loadFirestore } from "@/firebase/firebaseClient";
 import type { AuthState } from "@/zustand/useAuthStore";
 
 // ============================================================================
@@ -47,6 +46,7 @@ export async function updateUserDetailsInFirestore(
       return;
     }
 
+    const { db, doc, setDoc, serverTimestamp } = await loadFirestore();
     const userRef = doc(db, `ikigaiUsers/${uid}`);
 
     // Make serializable (removes undefined values, converts special types)
@@ -77,62 +77,4 @@ function filterTransientFields(details: Partial<AuthState>): PersistableAuthDeta
   }
 
   return filtered;
-}
-
-/**
- * Mark user as deleted in Firestore
- * 
- * @param uid - User ID
- */
-export async function markUserAsDeleted(uid: string): Promise<void> {
-  if (!uid) {
-    throw new Error("User ID is required to mark user as deleted");
-  }
-
-  try {
-    const userRef = doc(db, `ikigaiUsers/${uid}`);
-    
-    await setDoc(
-      userRef,
-      {
-        deleted: true,
-        deletedAt: serverTimestamp(),
-      },
-      { merge: true }
-    );
-  } catch (error) {
-    console.error("Failed to mark user as deleted:", error);
-    throw new Error("Failed to delete user account");
-  }
-}
-
-/**
- * Update user's premium status
- * 
- * @param uid - User ID
- * @param isPremium - Whether user has premium subscription
- */
-export async function updatePremiumStatus(
-  uid: string,
-  isPremium: boolean
-): Promise<void> {
-  if (!uid) {
-    throw new Error("User ID is required to update premium status");
-  }
-
-  try {
-    const userRef = doc(db, `ikigaiUsers/${uid}`);
-    
-    await setDoc(
-      userRef,
-      {
-        premium: isPremium,
-        updatedAt: serverTimestamp(),
-      },
-      { merge: true }
-    );
-  } catch (error) {
-    console.error("Failed to update premium status:", error);
-    throw new Error("Failed to update subscription status");
-  }
 }

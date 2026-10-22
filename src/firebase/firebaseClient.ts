@@ -1,7 +1,7 @@
 import { getApp, getApps, initializeApp, type FirebaseApp } from "firebase/app";
-import { getFirestore, type Firestore } from "firebase/firestore";
 import { getAuth, type Auth } from "firebase/auth";
-import { getStorage, type FirebaseStorage } from "firebase/storage";
+import type { Firestore } from "firebase/firestore";
+import type { FirebaseStorage } from "firebase/storage";
 
 const firebaseConfig = {
   apiKey: process.env.NEXT_PUBLIC_FIREBASE_APIKEY,
@@ -17,23 +17,52 @@ const firebaseConfig = {
 export const hasClientConfig = Boolean(firebaseConfig.apiKey?.trim());
 
 let app: FirebaseApp | undefined;
-let db: Firestore;
 let auth: Auth;
-let storage: FirebaseStorage;
 
 if (hasClientConfig) {
   app = getApps().length ? getApp() : initializeApp(firebaseConfig);
-  db = getFirestore(app);
   auth = getAuth(app);
-  storage = getStorage(app);
 } else {
   // CI gate / SSG without Actions secrets: skip module-level init.
   console.warn(
     "Firebase client config missing (NEXT_PUBLIC_FIREBASE_APIKEY); deferring init"
   );
-  db = null as unknown as Firestore;
   auth = null as unknown as Auth;
-  storage = null as unknown as FirebaseStorage;
 }
 
-export { auth, db, storage };
+function requireApp(): FirebaseApp {
+  if (!app) throw new Error("Firebase client config is missing");
+  return app;
+}
+
+type FirestoreModule = typeof import("firebase/firestore") & { db: Firestore };
+type StorageModule = typeof import("firebase/storage") & { storage: FirebaseStorage };
+
+let firestoreModule: Promise<FirestoreModule> | null = null;
+let storageModule: Promise<StorageModule> | null = null;
+
+/**
+ * Firestore and Storage load on first use, so pages that never read or write
+ * data (the landing page, quick start for guests) don't ship their SDKs.
+ */
+export function loadFirestore(): Promise<FirestoreModule> {
+  firestoreModule ??= import("firebase/firestore")
+    .then((sdk) => ({ ...sdk, db: sdk.getFirestore(requireApp()) }))
+    .catch((error: unknown) => {
+      firestoreModule = null;
+      throw error;
+    });
+  return firestoreModule;
+}
+
+export function loadStorage(): Promise<StorageModule> {
+  storageModule ??= import("firebase/storage")
+    .then((sdk) => ({ ...sdk, storage: sdk.getStorage(requireApp()) }))
+    .catch((error: unknown) => {
+      storageModule = null;
+      throw error;
+    });
+  return storageModule;
+}
+
+export { auth };
