@@ -1,0 +1,34 @@
+name: Production smoke
+
+# Read-only probes of https://ikigaifinder.ai after each production deploy, daily, and on demand.
+# A failed run is the alert: GitHub notifies the operator by email.
+on:
+  deployment_status:
+  schedule:
+    - cron: "17 14 * * *"
+  workflow_dispatch:
+    inputs:
+      notification_drill:
+        description: "Fail on purpose, without probing, to confirm the failure notification reaches the operator"
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+
+jobs:
+  probe:
+    if: github.event_name != 'deployment_status' || (github.event.deployment_status.state == 'success' && github.event.deployment.environment == 'Production')
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+      - name: Notification drill
+        if: inputs.notification_drill
+        run: |
+          echo "::error::Notification drill: this run fails on purpose and probed nothing."
+          exit 1
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - run: node scripts/smoke-hosted.mjs

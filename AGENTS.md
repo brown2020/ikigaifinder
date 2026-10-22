@@ -168,6 +168,13 @@ npm run lint && npm run build
 - If you add tests, use the existing Vitest runner (`npm test`), keep them non-interactive, and add them alongside the feature they cover rather than as a separate cleanup pass.
 - Until meaningful tests exist, `npm run lint && npm run build` is the regression gate.
 
+## Operations: monitoring and rollback
+
+- **Production smoke** (`.github/workflows/production-smoke.yml`) runs `node scripts/smoke-hosted.mjs` after every successful Vercel Production deployment, daily, and on demand. The probes are read-only (no account, AI call, or write): landing page, `robots.txt`, anonymous `/dashboard` redirect, and 401s from `/api/account` and `/api/ikigai/sharing`. A failed run is the alert; GitHub emails the operator. `src/hostedHealth.test.ts` proves outages and open auth boundaries fail the check.
+- **Notification drill:** `gh workflow run production-smoke.yml --ref dev -f notification_drill=true` fails on purpose before probing; confirm the GitHub failure email arrives.
+- **Website rollback** (Vercel project `ignitechannel/ikigaifinder`): record the failing deployment and evidence, run `vercel ls ikigaifinder --scope ignitechannel --prod`, then `vercel rollback <previous-production-deployment-url> --scope ignitechannel`. Run `node scripts/smoke-hosted.mjs`, then verify sign-in, ideas, card, and sharing. Return with `vercel promote <fixed-deployment-url> --scope ignitechannel`. A website rollback does not revert Firestore/Storage rules or data.
+- Vercel runs Node 24.x; CI runs Node 22 (the supported minimum).
+
 ## Files and systems requiring extra caution
 
 - **`postcss.config.mjs`** — must remain the minimal Tailwind config. This file was previously the target of a malware injection (obfuscated code appended after `export default config;`). Treat any non-trivial content here as suspicious.

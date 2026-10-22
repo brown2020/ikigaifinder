@@ -99,6 +99,7 @@ Documented in `env.sample` (there is no `.env.example`).
 | `npm test` | Vitest unit and route-handler tests |
 | `npm run test:rules` | Firestore and Storage rules tests on the local emulators (needs Java 21) |
 | `npm run doctor` | React Doctor (pinned version) |
+| `node scripts/smoke-hosted.mjs` | Read-only production probes (also run by the Production smoke workflow) |
 
 ## Testing and CI
 
