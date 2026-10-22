@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { Check, Download, Globe, Link2, Lock } from "lucide-react";
 import toast from "react-hot-toast";
 import {
@@ -30,11 +30,14 @@ const socialClass =
 export default function SharePanel({ userId, coverImage, initialSharable, onSharableChange, className }: SharePanelProps) {
   const [sharable, setSharable] = useState(initialSharable);
   const [updating, setUpdating] = useState(false);
+  const toggling = useRef(false);
   const [downloading, setDownloading] = useState(false);
   const [copied, setCopied] = useState(false);
   const url = absoluteUrl(`/ikigai/${userId}`);
 
   const toggle = async () => {
+    if (toggling.current) return;
+    toggling.current = true;
     setUpdating(true);
     const next = !sharable;
     try {
@@ -50,6 +53,7 @@ export default function SharePanel({ userId, coverImage, initialSharable, onShar
     } catch {
       toast.error("We couldn't update sharing. Please try again.");
     } finally {
+      toggling.current = false;
       setUpdating(false);
     }
   };

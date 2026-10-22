@@ -5,7 +5,7 @@ import Link from "next/link";
 import { Eye, EyeOff } from "lucide-react";
 import { Input } from "@/components/ui/Input";
 import type { AuthPageMode } from "./auth-page-utils";
-import { authLinkClasses } from "./AuthCard";
+import { textLinkClasses } from "@/components/ui/styles";
 
 export function PasswordField({
   id,
@@ -55,11 +55,11 @@ export function ConsentNote() {
   return (
     <p className="text-center text-xs leading-relaxed text-muted-foreground">
       By continuing, you agree to the{" "}
-      <Link href="/terms-conditions" className={authLinkClasses} target="_blank">
+      <Link href="/terms-conditions" className={textLinkClasses} target="_blank">
         Terms
       </Link>{" "}
       and{" "}
-      <Link href="/privacy-policy" className={authLinkClasses} target="_blank">
+      <Link href="/privacy-policy" className={textLinkClasses} target="_blank">
         Privacy Policy
       </Link>
       .
@@ -72,7 +72,7 @@ export function FooterLinks({ mode }: { mode: AuthPageMode }) {
     return (
       <p className="text-center text-sm text-muted-foreground">
         New to Ikigai Finder?{" "}
-        <Link href="/signup" className={authLinkClasses}>
+        <Link href="/signup" className={textLinkClasses}>
           Create an account
         </Link>
       </p>
@@ -82,7 +82,7 @@ export function FooterLinks({ mode }: { mode: AuthPageMode }) {
     return (
       <p className="text-center text-sm text-muted-foreground">
         Already have an account?{" "}
-        <Link href="/login" className={authLinkClasses}>
+        <Link href="/login" className={textLinkClasses}>
           Sign in
         </Link>
       </p>
@@ -91,7 +91,7 @@ export function FooterLinks({ mode }: { mode: AuthPageMode }) {
   return (
     <p className="text-center text-sm text-muted-foreground">
       Remembered it?{" "}
-      <Link href="/login" className={authLinkClasses}>
+      <Link href="/login" className={textLinkClasses}>
         Back to sign in
       </Link>
     </p>

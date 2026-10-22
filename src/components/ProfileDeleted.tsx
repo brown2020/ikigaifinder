@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { AlertTriangle } from "lucide-react";
 import toast from "react-hot-toast";
 import { Button } from "@/components/ui/Button";
-import { fieldClasses } from "@/components/ui/Input";
+import { fieldClasses } from "@/components/ui/styles";
 import { useDeleteAccount } from "@/hooks/use-delete-account";
 import { cn } from "@/utils/cn";
 

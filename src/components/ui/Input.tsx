@@ -1,13 +1,7 @@
 import { forwardRef, useId } from "react";
 import { cn } from "@/utils/cn";
+import { fieldClasses } from "./styles";
 
-export const fieldClasses = cn(
-  "w-full rounded-xl border border-input bg-card px-4 text-[15px] text-foreground",
-  "placeholder:text-muted-foreground/70 transition-colors duration-150",
-  "focus:outline-none focus:border-primary focus:ring-4 focus:ring-primary/15",
-  "disabled:cursor-not-allowed disabled:bg-muted",
-  "aria-invalid:border-destructive aria-invalid:focus:ring-destructive/15"
-);
 
 interface FieldShellProps {
   id: string;

@@ -36,11 +36,13 @@ async function requestAccountDeletion(): Promise<void> {
     throw new DeleteAccountError(OFFLINE);
   }
 
-  const body = (await response.json().catch(() => null)) as { deleted?: unknown; error?: unknown } | null;
   if (response.status === 401) throw new DeleteAccountError(SIGN_IN_AGAIN);
-  if (!response.ok || body?.deleted !== true) {
-    throw new DeleteAccountError(typeof body?.error === "string" && body.error ? body.error : GENERIC);
+  if (!response.ok) {
+    const failure = (await response.json().catch(() => null)) as { error?: unknown } | null;
+    throw new DeleteAccountError(typeof failure?.error === "string" && failure.error ? failure.error : GENERIC);
   }
+  const body = (await response.json().catch(() => null)) as { deleted?: unknown } | null;
+  if (body?.deleted !== true) throw new DeleteAccountError(GENERIC);
 }
 
 /** Deletes the signed-in account on the server, then runs the normal sign-out and clears local drafts. */

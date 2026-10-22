@@ -16,12 +16,19 @@ import { CIRCLE_BY_STEP, type CircleId } from "@/constants/ikigai";
 import { useIkigaiStore, useProfileStore } from "@/zustand";
 import { displayStatement } from "@/utils/ikigaiList";
 import { canGenerate, hasCurrentReport, isSectionComplete, isSectionStarted, resumeHref } from "@/utils/journey";
-import type { IkigaiSummary } from "@/types";
+import type { Ikigai, IkigaiSummary } from "@/types";
 
 interface DashboardPageProps {
   userId: string;
   initial: IkigaiSummary;
 }
+
+const CARD_ACTIONS = [
+  { href: "/generate-ikigai/report", label: "My insights", icon: Lightbulb },
+  { href: "/generate-ikigai/card", label: "Redesign card", icon: Palette },
+  { href: "/generate-ikigai", label: "Explore ideas", icon: Sparkles },
+  { href: "/ikigai-finder?step=1", label: "Revisit answers", icon: RefreshCcw },
+];
 
 function Greeting() {
   const firstName = useProfileStore((s) => s.profile.firstName);
@@ -30,103 +37,103 @@ function Greeting() {
 
 export default function DashboardPage({ userId, initial }: DashboardPageProps): React.ReactElement {
   const ikigai = useIkigaiStore((s) => s.ikigaiData);
-  const status = useIkigaiStore((s) => s.status);
-  const ready = status === "ready";
-
+  const ready = useIkigaiStore((s) => s.status) === "ready";
   const coverImage = (ready && ikigai.ikigaiCoverImage) || initial.coverImage;
+
+  if (coverImage) return <CardDashboard userId={userId} initial={initial} coverImage={coverImage} ikigai={ikigai} ready={ready} />;
+  if (!ready) return <DashboardSkeleton />;
+  return <JourneyStage ikigai={ikigai} />;
+}
+
+function CardDashboard({ userId, initial, coverImage, ikigai, ready }: DashboardPageProps & { coverImage: string; ikigai: Ikigai; ready: boolean }) {
   const selected = ready ? ikigai.ikigaiSelected : null;
   const statement = selected ? displayStatement(selected.ikigai) : initial.statement;
 
-  if (coverImage) {
-    return (
-      <div className="mx-auto w-full max-w-6xl px-5 pb-16 pt-10 sm:px-8 sm:pt-14">
-        <div className="grid gap-10 lg:grid-cols-[minmax(0,6fr)_minmax(0,5fr)] lg:gap-14">
-          <div className="lg:sticky lg:top-24 lg:self-start">
-            <div className="relative aspect-square w-full overflow-hidden rounded-2xl bg-muted shadow-[0_24px_60px_-30px_rgba(31,26,23,0.45)]">
-              <Image src={coverImage} alt={statement ? `Ikigai card: ${statement}` : "My ikigai card"} fill sizes="(max-width: 1024px) 100vw, 600px" className="object-cover" priority />
-            </div>
-          </div>
-
-          <div>
-            <Greeting />
-            <h1 className="mt-3 font-display text-2xl font-semibold leading-snug tracking-tight sm:text-[2rem]">
-              {statement ?? "Your ikigai"}
-            </h1>
-            {selected ? (
-              <ScoreBars scores={selected} className="mt-6" />
-            ) : !ready ? (
-              <Skeleton className="mt-6 h-10 w-full" />
-            ) : null}
-
-            <SharePanel className="mt-8" userId={userId} coverImage={coverImage} initialSharable={initial.sharable} />
-            {selected && (
-              <div className="mt-4">
-                <p className="text-sm font-medium">More sizes</p>
-                <CardFormatDownloads
-                  className="mt-2"
-                  statement={selected.ikigai}
-                  name={ikigai.ikigaiCardName}
-                  imageUrl={ikigai.ikigaiImage || undefined}
-                />
-              </div>
-            )}
-
-            <div className="mt-8 flex flex-wrap gap-2">
-              {[
-                { href: "/generate-ikigai/report", label: "My insights", icon: Lightbulb },
-                { href: "/generate-ikigai/card", label: "Redesign card", icon: Palette },
-                { href: "/generate-ikigai", label: "Explore ideas", icon: Sparkles },
-                { href: "/ikigai-finder?step=1", label: "Revisit answers", icon: RefreshCcw },
-              ].map((action) => (
-                <ButtonLink key={action.href} href={action.href} variant="neutral" size="sm">
-                  <action.icon className="size-4" aria-hidden="true" /> {action.label}
-                </ButtonLink>
-              ))}
-            </div>
-
-            {ready && selected && <ExperimentCard className="mt-8" />}
-
-            {ready && selected && <CheckInCard ikigai={ikigai} className="mt-8 p-6" />}
-
-            {ready && hasCurrentReport(ikigai) && ikigai.ikigaiReport && (
-              <Card className="mt-8 p-6">
-                <h2 className="font-display text-xl font-semibold">Your ikigai map</h2>
-                <IkigaiDiagram className="mx-auto mt-4 max-w-[340px]" words={ikigai.ikigaiReport.keywords} />
-              </Card>
-            )}
+  return (
+    <div className="mx-auto w-full max-w-6xl px-5 pb-16 pt-10 sm:px-8 sm:pt-14">
+      <div className="grid gap-10 lg:grid-cols-[minmax(0,6fr)_minmax(0,5fr)] lg:gap-14">
+        <div className="lg:sticky lg:top-24 lg:self-start">
+          <div className="relative aspect-square w-full overflow-hidden rounded-2xl bg-muted shadow-[0_24px_60px_-30px_rgba(31,26,23,0.45)]">
+            <Image src={coverImage} alt={statement ? `Ikigai card: ${statement}` : "My ikigai card"} fill sizes="(max-width: 1024px) 100vw, 600px" className="object-cover" priority />
           </div>
         </div>
-      </div>
-    );
-  }
 
-  if (!ready) {
-    return (
-      <div className="mx-auto w-full max-w-3xl px-5 py-16" role="status" aria-label="Loading">
-        <Skeleton className="h-3 w-32" />
-        <Skeleton className="mt-4 h-10 w-3/4" />
-        <Skeleton className="mt-8 h-48 w-full rounded-2xl" />
-      </div>
-    );
-  }
+        <div>
+          <Greeting />
+          <h1 className="mt-3 font-display text-2xl font-semibold leading-snug tracking-tight sm:text-[2rem]">
+            {statement ?? "Your ikigai"}
+          </h1>
+          {selected ? <ScoreBars scores={selected} className="mt-6" /> : !ready && <Skeleton className="mt-6 h-10 w-full" />}
 
+          <SharePanel className="mt-8" userId={userId} coverImage={coverImage} initialSharable={initial.sharable} />
+          {selected && (
+            <div className="mt-4">
+              <p className="text-sm font-medium">More sizes</p>
+              <CardFormatDownloads className="mt-2" statement={selected.ikigai} name={ikigai.ikigaiCardName} imageUrl={ikigai.ikigaiImage || undefined} />
+            </div>
+          )}
+
+          <div className="mt-8 flex flex-wrap gap-2">
+            {CARD_ACTIONS.map((action) => (
+              <ButtonLink key={action.href} href={action.href} variant="neutral" size="sm">
+                <action.icon className="size-4" aria-hidden="true" /> {action.label}
+              </ButtonLink>
+            ))}
+          </div>
+
+          {selected && (
+            <>
+              <ExperimentCard className="mt-8" />
+              <CheckInCard ikigai={ikigai} className="mt-8 p-6" />
+            </>
+          )}
+
+          {ready && hasCurrentReport(ikigai) && ikigai.ikigaiReport && (
+            <Card className="mt-8 p-6">
+              <h2 className="font-display text-xl font-semibold">Your ikigai map</h2>
+              <IkigaiDiagram className="mx-auto mt-4 max-w-[340px]" words={ikigai.ikigaiReport.keywords} />
+            </Card>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function DashboardSkeleton() {
+  return (
+    <div className="mx-auto w-full max-w-3xl px-5 py-16" role="status" aria-label="Loading">
+      <Skeleton className="h-3 w-32" />
+      <Skeleton className="mt-4 h-10 w-3/4" />
+      <Skeleton className="mt-8 h-48 w-full rounded-2xl" />
+    </div>
+  );
+}
+
+/** The next step for someone who has not made a card yet. */
+function journeyStage(ikigai: Ikigai, doneCount: number) {
+  if (!ikigai.answers.some(isSectionStarted)) {
+    return { title: "Let's find your ikigai", body: "Start with four quick questions, one for each circle: what you love, what you're good at, what the world needs, and what you can be paid for. Your first ideas take about two minutes.", cta: "Begin" };
+  }
+  if (!canGenerate(ikigai.answers)) {
+    return { title: "Pick up where you left off", body: `You've completed ${doneCount} of 4 parts. Your answers are saved as you go.`, cta: "Continue" };
+  }
+  if (!ikigai.ikigaiSelected) {
+    return { title: "Your ideas are ready to explore", body: "Your answers are complete. Choose the ikigai statement that sounds most like you.", cta: "See my ideas" };
+  }
+  if (!hasCurrentReport(ikigai)) {
+    return { title: "See why it fits you", body: "Get a short report on how your statement draws on each circle, your growth edge, and first steps to try this week.", cta: "See my insights" };
+  }
+  return { title: "One last step: your card", body: "Turn your statement into a card you can keep, download, or share.", cta: "Design my card" };
+}
+
+function JourneyStage({ ikigai }: { ikigai: Ikigai }) {
   const active: Partial<Record<CircleId, boolean>> = {};
   ikigai.answers.forEach((step) => {
     const circle = CIRCLE_BY_STEP[step.id as keyof typeof CIRCLE_BY_STEP];
     if (circle) active[circle.id] = isSectionComplete(step);
   });
-  const doneCount = Object.values(active).filter(Boolean).length;
-  const started = ikigai.answers.some(isSectionStarted);
-
-  const stage = !started
-    ? { title: "Let's find your ikigai", body: "Start with four quick questions, one for each circle: what you love, what you're good at, what the world needs, and what you can be paid for. Your first ideas take about two minutes.", cta: "Begin" }
-    : !canGenerate(ikigai.answers)
-      ? { title: "Pick up where you left off", body: `You've completed ${doneCount} of 4 parts. Your answers are saved as you go.`, cta: "Continue" }
-      : !ikigai.ikigaiSelected
-        ? { title: "Your ideas are ready to explore", body: "Your answers are complete. Choose the ikigai statement that sounds most like you.", cta: "See my ideas" }
-        : !hasCurrentReport(ikigai)
-          ? { title: "See why it fits you", body: "Get a short report on how your statement draws on each circle, your growth edge, and first steps to try this week.", cta: "See my insights" }
-          : { title: "One last step: your card", body: "Turn your statement into a card you can keep, download, or share.", cta: "Design my card" };
+  const stage = journeyStage(ikigai, Object.values(active).filter(Boolean).length);
 
   return (
     <div className="mx-auto w-full max-w-5xl px-5 py-12 sm:px-8 sm:py-16">
@@ -144,12 +151,7 @@ export default function DashboardPage({ userId, initial }: DashboardPageProps): 
             {stage.cta} <ArrowRight className="size-4" aria-hidden="true" />
           </ButtonLink>
         </div>
-        <IkigaiDiagram
-          className="mx-auto max-w-[260px]"
-          active={active}
-          centerActive={Boolean(ikigai.ikigaiSelected)}
-          showLabels
-        />
+        <IkigaiDiagram className="mx-auto max-w-[260px]" active={active} centerActive={Boolean(ikigai.ikigaiSelected)} showLabels />
       </Card>
     </div>
   );

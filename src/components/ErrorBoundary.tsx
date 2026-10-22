@@ -3,7 +3,7 @@
 import { Component, ErrorInfo, ReactNode } from "react";
 import Link from "next/link";
 import { AlertTriangle, RefreshCw, Home, Bug } from "lucide-react";
-import { buttonClasses } from "@/components/ui/Button";
+import { buttonClasses } from "@/components/ui/styles";
 
 // ============================================================================
 // Types

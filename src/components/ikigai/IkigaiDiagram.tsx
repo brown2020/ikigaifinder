@@ -57,7 +57,7 @@ export default function IkigaiDiagram({
               strokeOpacity={isActive || isHighlight ? 0.9 : 0.35}
               strokeWidth={isHighlight ? 3 : 1.5}
               strokeDasharray={isActive || isHighlight ? undefined : "4 5"}
-              className="transition-all duration-500"
+              className="transition-[r,fill-opacity,stroke-opacity,stroke-width] duration-500"
             />
           );
         })}

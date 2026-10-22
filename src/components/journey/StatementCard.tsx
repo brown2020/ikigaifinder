@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { Check, Pencil, Shuffle, Star } from "lucide-react";
 import { Button } from "@/components/ui/Button";
-import { fieldClasses } from "@/components/ui/Input";
+import { fieldClasses } from "@/components/ui/styles";
 import ScoreBars, { OverallBadge } from "@/components/ikigai/ScoreBars";
 import { displayStatement } from "@/utils/ikigaiList";
 import { cn } from "@/utils/cn";
@@ -43,7 +43,7 @@ export default function StatementCard({
   return (
     <li
       className={cn(
-        "rounded-2xl border bg-card transition-all duration-200 animate-rise",
+        "rounded-2xl border bg-card transition-[border-color,box-shadow] duration-200 animate-rise",
         selected
           ? "border-primary shadow-[0_0_0_3px_rgba(184,64,26,0.15)]"
           : "border-border hover:border-border-strong"

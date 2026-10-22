@@ -7,7 +7,7 @@ import IkigaiLogo from "@/components/icons/IkigaiLogo";
 import { ButtonLink, IconButton } from "@/components/ui/Button";
 import { useUIStore } from "@/zustand";
 import { selectAuthRedirectPath } from "@/zustand/useUIStore";
-import { authLinkClasses } from "./AuthCard";
+import { textLinkClasses } from "@/components/ui/styles";
 
 /**
  * Lightweight auth entry dialog. Email/password flows live on
@@ -78,7 +78,7 @@ export default function AuthModal(): React.ReactElement | null {
         <Link
           href="/forgot-password"
           onClick={close}
-          className={`${authLinkClasses} mt-2 self-center text-sm`}
+          className={`${textLinkClasses} mt-2 self-center text-sm`}
         >
           Forgot password?
         </Link>

@@ -12,7 +12,8 @@ import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { cn } from "@/utils/cn";
 import { ConsentNote, FooterLinks, PasswordField } from "./AuthPageBits";
-import { AuthCard, AuthErrorAlert, authLinkClasses } from "./AuthCard";
+import { textLinkClasses } from "@/components/ui/styles";
+import { AuthCard, AuthErrorAlert } from "./AuthCard";
 import { sanitizeRedirect } from "./auth-page-utils";
 
 export function LoginForm() {
@@ -72,7 +73,7 @@ export function LoginForm() {
             placeholder="Enter your password"
           />
           <div className="text-right">
-            <Link href="/forgot-password" className={cn(authLinkClasses, "text-sm")}>
+            <Link href="/forgot-password" className={cn(textLinkClasses, "text-sm")}>
               Forgot password?
             </Link>
           </div>

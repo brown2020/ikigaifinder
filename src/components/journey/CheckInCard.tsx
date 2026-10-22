@@ -15,7 +15,7 @@ const DAY_MS = 24 * 60 * 60 * 1000;
 const formatDate = (iso: string | null | undefined) => {
   const date = iso ? new Date(iso) : null;
   return date && !Number.isNaN(date.getTime())
-    ? date.toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" })
+    ? date.toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric", timeZone: "UTC" })
     : null;
 };
 
