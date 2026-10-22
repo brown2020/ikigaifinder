@@ -3,7 +3,7 @@
 import { createStreamableValue } from "@ai-sdk/rsc";
 import { Output, streamText } from "ai";
 import { openai } from "@ai-sdk/openai";
-import { TEXT_MODEL } from "@/constants/ai";
+import { TEXT_MODEL, TEXT_PROVIDER_OPTIONS } from "@/constants/ai";
 import { z } from "zod";
 import { IKIGAI_SYSTEM_PROMPT } from "@/constants/systemPrompt";
 import { requireAuth } from "@/lib/auth/session-server";
@@ -96,7 +96,7 @@ export async function generateIkigai(
         model: openai(TEXT_MODEL),
         system: IKIGAI_SYSTEM_PROMPT,
         prompt,
-        temperature: 0.8,
+        providerOptions: TEXT_PROVIDER_OPTIONS,
         output: Output.array({ element: statementSchema, name: "ikigai_statements" }),
       });
 

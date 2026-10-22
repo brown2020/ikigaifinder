@@ -20,8 +20,8 @@ Turn a short, structured self-reflection survey into a small set of concrete, pe
 - **Styling:** Tailwind CSS v4 (`@tailwindcss/postcss`), utility-first, no CSS-in-JS
 - **State:** Zustand 5 (with `devtools`)
 - **Auth + data:** Firebase Web SDK 12 (client) + Firebase Admin 14 (server)
-- **AI text:** Vercel AI SDK (`ai` v7) + `@ai-sdk/openai` v4 (GPT‑4o), streamed to the client via `@ai-sdk/rsc` v3 (`createStreamableValue` / `readStreamableValue`). OpenAI shuts `gpt-4o` down in the API on 2027-01-14; migrate `TEXT_MODEL` in `src/constants/ai.ts` (the only place model IDs live) before then.
-- **AI images:** Fireworks AI REST API — Stable Diffusion XL 1024 v1.0 (`fetch`-based, no SDK, `IMAGE_ENDPOINT` in `src/constants/ai.ts`). Fireworks deprecated image generation in 2026; replace the provider before it is removed.
+- **AI text:** Vercel AI SDK (`ai` v7) + `@ai-sdk/openai` v4 (`gpt-6.1-sol`, low reasoning effort), streamed to the client via `@ai-sdk/rsc` v3 (`createStreamableValue` / `readStreamableValue`). Model IDs and provider options live only in `src/constants/ai.ts`; reasoning models reject `temperature`, so don't add it back.
+- **AI images:** OpenAI `gpt-image-2.5-flare` through the AI SDK `generateImage` (`IMAGE_MODEL` in `src/constants/ai.ts`), one attempt per request with no retries so a lost response can't bill twice.
 - **Forms:** React Hook Form 7 + Zod 4
 - **Lint:** ESLint 9 + `eslint-config-next`
 - **Package manager:** **npm** (lockfile: `package-lock.json`). Do not switch package managers.
@@ -53,10 +53,10 @@ src/
 │   ├── auth/                 # AuthModal, AuthForm, SocialLogin, SignedInView
 │   └── icons/
 ├── lib/
-│   ├── generateIkigai.ts     # SERVER ACTION: GPT-4o structured ikigai generation (rate-limited, validated)
+│   ├── generateIkigai.ts     # SERVER ACTION: OpenAI structured ikigai generation (rate-limited, validated)
 │   ├── ikigaiServer.ts       # server-only Admin SDK summary read (dashboard + share page)
-│   ├── generateReport.ts     # SERVER ACTION: GPT-4o personal insights report for the chosen statement
-│   ├── generateImage.ts      # SERVER ACTION: Fireworks SDXL → Firebase Storage → signed URL
+│   ├── generateReport.ts     # SERVER ACTION: OpenAI personal insights report for the chosen statement
+│   ├── generateImage.ts      # SERVER ACTION: OpenAI image → Firebase Storage → signed URL
 │   ├── rateLimit.ts          # In-memory rate limiter (NOT distributed)
 │   ├── validation.ts         # Zod schemas + sanitizeInput()
 │   ├── errors.ts             # Custom error classes
@@ -65,7 +65,7 @@ src/
 ├── hooks/                    # use-auth-actions, use-auth-token, use-ikigai-generator
 ├── zustand/                  # useAuthStore, useIkigaiStore, useProfileStore, useUIStore
 ├── constants/                # ikigai.ts (circles/overlaps), questions.ts, systemPrompt.ts, menuItems.ts
-├── utils/                    # ikigaiList, journey, downloadImage, canvasUtils, promptUtils, baseUrl, siteUrl (canonical origin + JSON-LD), …
+├── utils/                    # ikigaiList, journey, downloadImage, canvasUtils, promptUtils, siteUrl (canonical origin for links, metadata, JSON-LD), …
 ├── firebase/                 # firebaseClient.ts, firebaseAdmin.ts
 └── types/                    # Centralized TypeScript types (index.ts)
 
@@ -78,7 +78,7 @@ env.sample                    # Required environment variables (copy to .env.loc
 
 - **App Router + RSC.** Pages default to Server Components; interactive UI is split into `_components/*-page.tsx` client components.
 - **AI text generation** runs as a Next.js **server action** (`src/lib/generateIkigai.ts`) using AI SDK structured output (`Output.array` + Zod schema). It streams the cumulative list of completed statements with `@ai-sdk/rsc`; the client consumes it in `src/hooks/use-ikigai-generator.ts` and dedupes with `src/utils/ikigaiList.ts`, which puts each new batch ahead of the existing list. Score fields map to the classic overlaps: Passion (love+skill), Mission (love+world), Vocation (world+paid), Profession (skill+paid).
-- **AI image generation** is a server action (`src/lib/generateImage.ts`) that calls the Fireworks REST API, uploads the result to Firebase Storage with the Admin SDK, and returns a long-lived signed URL.
+- **AI image generation** is a server action (`src/lib/generateImage.ts`) that calls OpenAI image generation through the AI SDK, uploads the result to Firebase Storage with the Admin SDK, and returns a long-lived signed URL.
 - **Auth flow:** client signs in with the Firebase Web SDK → obtains an ID token → `POST /api/auth/session` verifies it and sets an **httpOnly session cookie** via `adminAuth.createSessionCookie`. `src/proxy.ts` verifies that cookie (with revocation check) for protected route segments only.
 - **Data access is mixed:** most reads/writes use the **client** Firebase SDK from `src/services/*` (guarded by `firestore.rules`); a few server paths (`/api/ikigai/sharing`, `/api/account`, the public share page) use the **Admin SDK**. The client Firestore and Storage SDKs load on first use through `loadFirestore()` / `loadStorage()` in `src/firebase/firebaseClient.ts`; never import `firebase/firestore` or `firebase/storage` statically in client code (type-only imports are fine), or the ~200 KB SDKs return to every page's first load. Budget: ≤300 KB gzip first-load JS on `/` and `/ikigai-finder/quick`.
 - **State:** four small Zustand stores wrapped with `withDevtools` (`src/zustand/middleware.ts`); UID is re-checked after async work to avoid cross-user race conditions. `useIkigaiStore.status` tracks initial hydration; journey pages render through `JourneyGate` so they never act on unloaded data. Stores reset on sign-out.
@@ -89,9 +89,9 @@ env.sample                    # Required environment variables (copy to .env.loc
 - Email/password, Google, and email-link ("magic link") sign-in (Firebase Auth). Google is never offered inside the React Native app (`isReactNativeWebView()` in `src/utils/platform.ts` checks the injected `window.ReactNativeWebView`, which also covers iPad, whose webview reports a Mac user agent).
 - Complete in-app account deletion from `/profile`: `DELETE /api/account` verifies a fresh ID token and deletes both Storage prefixes, both Firestore trees, and the Auth user last; it is never refused and is safe to retry.
 - Four-part ikigai questionnaire (`src/constants/questions.ts`); section/question ids are persisted, and titles/labels always come from code.
-- Streaming GPT‑4o generation of ~10 ikigai statements, each with compatibility scores.
+- Streaming OpenAI generation of ~10 ikigai statements, each with compatibility scores.
 - Selection of a preferred statement, persisted per user in Firestore.
-- AI cover-image generation (Fireworks SDXL) stored in Firebase Storage, with a cover history.
+- AI cover-image generation (OpenAI) stored in Firebase Storage, with a cover history.
 - Public sharing toggle + public `/ikigai/[id]` page + social share buttons + downloadable card (`html2canvas`), with dynamic OG metadata when public.
 - Dashboard and editable profile.
 - Security headers/CSP (`next.config.mjs`), input sanitization, rate limiting, cookie-consent banner.
@@ -144,7 +144,7 @@ npm run lint && npm run build
 
 ## Server/client boundary guidance
 
-- Server actions live in `src/lib/*` and start with `"use server"`. They are the only place secrets (`OPENAI_API_KEY`, `FIREWORKS_API_KEY`, Firebase Admin creds) may be read.
+- Server actions live in `src/lib/*` and start with `"use server"`. They are the only place secrets (`OPENAI_API_KEY`, Firebase Admin creds) may be read.
 - Never import `src/firebase/firebaseAdmin.ts`, server actions' internals, or any secret into a `"use client"` module.
 - Only `NEXT_PUBLIC_*` env vars may be referenced in client code. Everything else is server-only.
 - The client consumes AI output via streamable values from server actions — keep that contract intact when editing generation code.

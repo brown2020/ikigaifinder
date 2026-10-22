@@ -7,9 +7,9 @@ Discover your *ikigai* (生き甲斐 — “a reason for being”) through an AI
 ## Features
 
 - Guided questionnaire (`/ikigai-finder`) with a quick-start path (`/ikigai-finder/quick`); guests can answer before signing up
-- Streamed GPT-4o generation of personalized ikigai statements with compatibility scores
+- Streamed OpenAI generation of personalized ikigai statements with compatibility scores
 - Insights report and card designer (`/generate-ikigai`, `/report`, `/card`)
-- AI cover image via Fireworks Stable Diffusion XL → Firebase Storage
+- AI cover image via OpenAI image generation → Firebase Storage
 - Shareable public page (`/ikigai/[id]`), social share, and image download
 - Dashboard / profile (“My ikigai”) with resume and sharing controls
 - Firebase auth — Google, email/password, passwordless email link
@@ -26,7 +26,7 @@ Discover your *ikigai* (生き甲斐 — “a reason for being”) through an AI
 | Forms | React Hook Form ^7.81 + Zod ^4.4.3 |
 | Backend | Firebase ^12.16.0 + Firebase Admin ^14.1.0 |
 | AI text | Vercel AI SDK (`ai` ^7) + `@ai-sdk/openai` ^4 + `@ai-sdk/rsc` streaming |
-| AI images | Fireworks REST (SDXL) |
+| AI images | OpenAI `gpt-image-2.5-flare` via AI SDK `generateImage` |
 | Tests / quality | Vitest ^5.0.1, ESLint 9, React Doctor |
 
 No Stripe / payments in this app.
@@ -59,7 +59,6 @@ firestore.rules  storage.rules  env.sample
 - npm
 - Firebase project (Auth, Firestore, Storage)
 - OpenAI API key
-- Fireworks API key (for images)
 
 ### Install
 
@@ -82,8 +81,7 @@ Documented in `env.sample` (there is no `.env.example`).
 | --- | --- | --- |
 | `FIREBASE_*` | Admin SDK service account fields | Firebase Console → Service accounts |
 | `NEXT_PUBLIC_FIREBASE_*` | Client Firebase config | Firebase Console → Project settings |
-| `OPENAI_API_KEY` | GPT-4o ikigai + report generation | [platform.openai.com](https://platform.openai.com) |
-| `FIREWORKS_API_KEY` | SDXL image generation | [fireworks.ai](https://fireworks.ai) |
+| `OPENAI_API_KEY` | Ikigai statements, reports, and card backgrounds (models in `src/constants/ai.ts`) | [platform.openai.com](https://platform.openai.com) |
 | `NEXT_PUBLIC_BASE_URL` | Optional public site URL for metadata / OG | Your production URL |
 | `FIREBASE_SESSION_COOKIE_NAME` / `FIREBASE_SESSION_EXPIRES_DAYS` / `COOKIE_SECURE` | Optional server-only session cookie overrides (default `__session`, 5 days, secure on Vercel) | Tune as needed |
 

@@ -1,14 +1,12 @@
 "use server";
 
+import { openai } from "@ai-sdk/openai";
+import { APICallError, generateImage as generateProviderImage } from "ai";
 import { adminBucket } from "@/firebase/firebaseAdmin";
 import { requireAuth } from "@/lib/auth/session-server";
-import { IMAGE_ENDPOINT } from "@/constants/ai";
+import { IMAGE_MODEL } from "@/constants/ai";
 import { rateLimitImageGen } from "./rateLimit";
 import { generateImageSchema, sanitizeInput } from "./validation";
-
-// ============================================================================
-// Types
-// ============================================================================
 
 interface ImageGenerationResult {
   imageUrl?: string;
@@ -17,68 +15,34 @@ interface ImageGenerationResult {
   resetIn?: number;
 }
 
-interface FireworksRequestBody {
-  cfg_scale: number;
-  height: number;
-  width: number;
-  sampler: string | null;
-  samples: number;
-  steps: number;
-  seed: number;
-  style_preset: string | null;
-  safety_check: boolean;
-  prompt: string;
-}
-
-// ============================================================================
-// Constants
-// ============================================================================
-
-
-const IMAGE_CONFIG: Omit<FireworksRequestBody, "prompt"> = {
-  cfg_scale: 7,
-  height: 1024,
-  width: 1024,
-  sampler: null,
-  samples: 1,
-  steps: 30,
-  seed: 0,
-  style_preset: null,
-  safety_check: true, // Enable safety check for production
-};
-
-/** Signed URL expiration: 100 years from now */
+/** Signed URL expiration: effectively permanent, so saved cards keep working. */
 const SIGNED_URL_EXPIRY = "03-17-2125";
 
 /** Maximum prompt length after sanitization */
 const MAX_PROMPT_LENGTH = 1000;
 
-// ============================================================================
-// Server Action
-// ============================================================================
+const PROVIDER_TIMEOUT_MS = 120_000;
+
+/** Maps provider failures to safe messages; provider errors can echo request details and are never forwarded. */
+function providerErrorMessage(error: unknown, timedOut: boolean): ImageGenerationResult {
+  if (timedOut) return { error: "Image generation timed out. Please try again." };
+  if (APICallError.isInstance(error)) {
+    if (error.statusCode === 429) return { error: "Image generation service is busy. Please try again in a moment.", rateLimited: true };
+    if (error.statusCode === 400) return { error: "Unable to generate image with this prompt. Please try a different description." };
+  }
+  return { error: "Failed to generate image. Please try again." };
+}
 
 /**
- * Generate an image using Fireworks AI and upload to Firebase Storage
+ * Generates a card background with OpenAI image generation and uploads it to Firebase Storage.
  *
- * Uses Stable Diffusion XL to generate images based on text prompts,
- * then uploads the result to Firebase Storage for persistent access.
- *
- * Includes:
- * - Rate limiting (5 requests per minute per user)
- * - Input validation and sanitization
- * - Error handling with user-friendly messages
- *
- * The authenticated user is derived from the verified server session cookie,
- * never from a client-supplied value, since this writes to Firebase Storage
- * with the Admin SDK (which bypasses Storage security rules).
- *
- * @param prompt - Text description of the image to generate
- * @returns Object with imageUrl on success, or error message on failure
+ * The user comes from the verified session cookie, never from the client, because the upload
+ * uses the Admin SDK (which bypasses Storage rules). One provider attempt per request: a retry
+ * after a lost response could bill twice.
  */
 export async function generateImage(
   prompt: string
 ): Promise<ImageGenerationResult> {
-  // Doctor-recognized session gate (first statement).
   let uid: string;
   try {
     ({ uid } = await requireAuth());
@@ -86,17 +50,11 @@ export async function generateImage(
     return { error: "You must be signed in to generate images." };
   }
 
-  // Validate required inputs
   const validationResult = generateImageSchema.safeParse({ prompt, uid });
-
   if (!validationResult.success) {
-    const errors = validationResult.error.issues
-      .map((e) => e.message)
-      .join(", ");
-    return { error: `Invalid input: ${errors}` };
+    return { error: `Invalid input: ${validationResult.error.issues.map((e) => e.message).join(", ")}` };
   }
 
-  // Rate limiting check
   const rateLimitResult = rateLimitImageGen(uid);
   if (!rateLimitResult.success) {
     return {
@@ -106,92 +64,53 @@ export async function generateImage(
     };
   }
 
-  // Check API key configuration
-  const apiKey = process.env.FIREWORKS_API_KEY;
-  if (!apiKey) {
-    console.error("FIREWORKS_API_KEY not configured");
+  if (!process.env.OPENAI_API_KEY) {
+    console.error("OPENAI_API_KEY not configured");
     return { error: "Image generation service not configured" };
   }
 
-  // Sanitize the prompt
   const sanitizedPrompt = sanitizeInput(prompt).slice(0, MAX_PROMPT_LENGTH);
-
   if (sanitizedPrompt.length < 10) {
     return { error: "Prompt is too short. Please provide more detail." };
   }
 
+  const signal = AbortSignal.timeout(PROVIDER_TIMEOUT_MS);
+  let image: Uint8Array;
   try {
-    // Generate the image using Fireworks AI
-    const response = await fetch(IMAGE_ENDPOINT, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Accept: "image/jpeg",
-        Authorization: `Bearer ${apiKey}`,
-      },
-      body: JSON.stringify({
-        ...IMAGE_CONFIG,
-        prompt: sanitizedPrompt,
-      }),
+    const result = await generateProviderImage({
+      model: openai.image(IMAGE_MODEL),
+      prompt: sanitizedPrompt,
+      n: 1,
+      size: "1024x1024",
+      providerOptions: { openai: { quality: "medium", outputFormat: "jpeg" } },
+      maxRetries: 0,
+      abortSignal: signal,
     });
+    image = result.image.uint8Array;
+  } catch (error) {
+    const status = APICallError.isInstance(error) ? error.statusCode : undefined;
+    console.error(`Image generation failed (${signal.aborted ? "timeout" : status ?? "unknown"})`);
+    return providerErrorMessage(error, signal.aborted);
+  }
 
-    if (!response.ok) {
-      const errorMessage = `Fireworks API error: ${response.status} ${response.statusText}`;
-      console.error(errorMessage);
+  if (image.byteLength < 1000) {
+    console.error("Generated image is too small, likely an error");
+    return { error: "Failed to generate image. Please try again." };
+  }
 
-      // Return user-friendly error messages
-      if (response.status === 429) {
-        return {
-          error: "Image generation service is busy. Please try again in a moment.",
-          rateLimited: true,
-        };
-      }
-      if (response.status === 400) {
-        return {
-          error: "Unable to generate image with this prompt. Please try a different description.",
-        };
-      }
-      return { error: "Failed to generate image. Please try again." };
-    }
-
-    // Get the image data
-    const imageData = await response.arrayBuffer();
-
-    // Validate image data
-    if (imageData.byteLength < 1000) {
-      console.error("Generated image is too small, likely an error");
-      return { error: "Failed to generate image. Please try again." };
-    }
-
-    // Upload to Firebase Storage
-    const fileName = `generated/${uid}/${Date.now()}.jpg`;
-    const file = adminBucket.file(fileName);
-
-    await file.save(Buffer.from(imageData), {
+  try {
+    const file = adminBucket.file(`generated/${uid}/${Date.now()}.jpg`);
+    await file.save(Buffer.from(image), {
       contentType: "image/jpeg",
       metadata: {
         cacheControl: "public, max-age=31536000",
-        customMetadata: {
-          generatedAt: new Date().toISOString(),
-          uid,
-          promptLength: String(sanitizedPrompt.length),
-        },
+        customMetadata: { generatedAt: new Date().toISOString(), uid, model: IMAGE_MODEL },
       },
     });
-
-    // Get a signed URL for long-term access
-    const [imageUrl] = await file.getSignedUrl({
-      action: "read",
-      expires: SIGNED_URL_EXPIRY,
-    });
-
+    const [imageUrl] = await file.getSignedUrl({ action: "read", expires: SIGNED_URL_EXPIRY });
     return { imageUrl };
   } catch (error) {
-    const errorMessage =
-      error instanceof Error ? error.message : "An unknown error occurred";
-    console.error("Error generating image:", errorMessage);
-
-    // Don't expose internal error details to users
+    console.error("Error saving generated image:", error instanceof Error ? error.message : "unknown");
     return { error: "Failed to generate image. Please try again." };
   }
 }

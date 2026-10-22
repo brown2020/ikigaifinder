@@ -13,9 +13,9 @@
     "test:rules": "npx -y firebase-tools@15.34.1 emulators:exec --only firestore,storage --project demo-ikigaifinder \"vitest run --config vitest.rules.config.mts\""
   },
   "dependencies": {
-    "@ai-sdk/openai": "^4.0.72",
-    "@ai-sdk/rsc": "^3.0.111",
-    "ai": "^7.0.111",
+    "@ai-sdk/openai": "^4.0.99",
+    "@ai-sdk/rsc": "^3.0.148",
+    "ai": "^7.0.148",
     "firebase": "^12.16.0",
     "firebase-admin": "^14.1.0",
     "html2canvas": "^1.4.1",

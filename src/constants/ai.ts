@@ -1,9 +1,12 @@
 /**
- * AI provider identifiers, in one place so a model migration is a one-line change.
- * Check provider deprecation pages before changing: OpenAI retires `gpt-4o` from the API on 2027-01-14.
+ * AI provider identifiers and settings, in one place so a model migration is a one-line change.
+ * Check https://developers.openai.com/api/docs/deprecations before changing.
  */
-export const TEXT_MODEL = "gpt-4o";
+export const TEXT_MODEL = "gpt-6.1-sol";
 
-/** Fireworks deprecated its image generation API in 2026; replace this provider before it is removed. */
-export const IMAGE_ENDPOINT =
-  "https://api.fireworks.ai/inference/v1/image_generation/accounts/fireworks/models/stable-diffusion-xl-1024-v1-0";
+/** Low reasoning keeps statements fast; a null summary stops the SDK from requesting detailed reasoning summaries. */
+export const TEXT_PROVIDER_OPTIONS = {
+  openai: { reasoningEffort: "low", reasoningSummary: null },
+} as const;
+
+export const IMAGE_MODEL = "gpt-image-2.5-flare";

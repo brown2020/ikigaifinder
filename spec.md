@@ -22,9 +22,9 @@ Help a person move from "I don't know what my purpose is" to **a small set of co
 
 1. **Reflect** — answer a multi-step questionnaire about loves, skills, what the world needs, and what one could be paid for. No account is needed to start; answers stay on the device.
 2. **Sign in** — Google, email/password, or email-link ("magic link") via Firebase Auth, asked for when the visitor wants to see ideas. Guest answers carry into the account.
-3. **Generate** — GPT‑4o streams ~10 candidate ikigai statements, each scored on Passion, Profession, Vocation, Mission, and Overall Compatibility.
+3. **Generate** — OpenAI (`gpt-6.1-sol`) streams ~10 candidate ikigai statements, each scored on Passion, Profession, Vocation, Mission, and Overall Compatibility.
 4. **Choose** — the user selects a preferred statement, saved to their profile.
-5. **Illustrate** — generate an AI cover image (Stable Diffusion XL via Fireworks), stored in Firebase Storage.
+5. **Illustrate** — generate an AI cover image (OpenAI `gpt-image-2.5-flare`), stored in Firebase Storage.
 6. **Share** — opt in to a public page (`/ikigai/[id]`), share to social networks, and download a card image.
 7. **Manage** — revisit results from a dashboard and edit profile details.
 
@@ -42,15 +42,15 @@ Help a person move from "I don't know what my purpose is" to **a small set of co
 
 ### What the app currently does
 
-A working end-to-end flow exists: authenticate → questionnaire → streaming GPT‑4o generation of scored ikigai statements → select one → generate and store an AI cover image → toggle public sharing → share/download. Route protection, security headers, input validation/sanitization, and rate limiting are implemented.
+A working end-to-end flow exists: authenticate → questionnaire → streaming OpenAI generation of scored ikigai statements → select one → generate and store an AI cover image → toggle public sharing → share/download. Route protection, security headers, input validation/sanitization, and rate limiting are implemented.
 
 ### Current feature inventory
 
 - **Auth:** Firebase email/password, Google, and email-link sign-in; httpOnly server **session cookie** minted at `POST /api/auth/session` and cleared at `DELETE`.
 - **Questionnaire:** four parts (one per circle) driven by `src/constants/questions.ts`, deep-linkable via `?step=1-4`, saved on every step.
-- **Ikigai generation:** server action `src/lib/generateIkigai.ts` (GPT‑4o, temperature 0.8) using structured output (Zod schema, `Output.array`), streamed per completed statement via `@ai-sdk/rsc`, with validation, sanitization, rate limiting, and an "avoid these" list so "Generate more" returns new angles. Users can steer with guidance and edit the chosen statement's wording.
+- **Ikigai generation:** server action `src/lib/generateIkigai.ts` (`TEXT_MODEL` in `src/constants/ai.ts`, low reasoning effort) using structured output (Zod schema, `Output.array`), streamed per completed statement via `@ai-sdk/rsc`, with validation, sanitization, rate limiting, and an "avoid these" list so "Generate more" returns new angles. Users can steer with guidance and edit the chosen statement's wording.
 - **Selection & persistence:** chosen statement, answers, and guidance saved under `ikigaiUsers/{uid}/ikigai/main` (`src/services/ikigaiService.ts`).
-- **Image generation:** server action `src/lib/generateImage.ts` calls Fireworks SDXL, uploads to Firebase Storage (`generated/{uid}/...`), returns a signed URL, and records a cover in history.
+- **Image generation:** server action `src/lib/generateImage.ts` calls OpenAI image generation through the AI SDK (one attempt, no retries), uploads to Firebase Storage (`generated/{uid}/...`), returns a signed URL, and records a cover in history.
 - **Sharing:** `PATCH /api/ikigai/sharing` toggles `ikigaiSharableUrl`; the public page at `app/ikigai/[id]` reads a minimal summary (cover, statement, map words) through the Admin SDK only when sharable; `firestore.rules` never allows public client reads; social buttons + `html2canvas` download.
 - **Dashboard & profile:** authenticated areas with `loading.tsx`/`error.tsx` boundaries.
 - **Account deletion:** `/profile` → type DELETE ACCOUNT → `DELETE /api/account` (fresh ID token, revocation-checked) deletes `generated/{uid}/` and `users/{uid}/` in Storage, the `ikigaiUsers/{uid}` and `ikigaiProfiles/{uid}` trees, then the Auth user, and clears the session cookie. Success is shown only after the server confirms; the client then signs out and clears local drafts. Retrying after a partial failure finishes the job.
@@ -65,8 +65,8 @@ A working end-to-end flow exists: authenticate → questionnaire → streaming G
 
 ### Existing integrations
 
-- **OpenAI** (GPT‑4o) via Vercel AI SDK — text generation (`OPENAI_API_KEY`).
-- **Fireworks AI** (SDXL) via REST — image generation (`FIREWORKS_API_KEY`).
+- **OpenAI** (`gpt-6.1-sol`) via Vercel AI SDK — text generation (`OPENAI_API_KEY`).
+- **OpenAI** image generation (`gpt-image-2.5-flare`) via the AI SDK — card backgrounds (same `OPENAI_API_KEY`).
 - **Firebase** — Auth, Firestore, Storage (client Web SDK + Admin SDK).
 - **Deployment target:** Vercel (recommended); any Next.js 16 host works. **[inferred from README + config]**
 
@@ -165,7 +165,7 @@ Product-oriented, ordered by impact and dependency. Each item is sized for one c
 
 ### M11 — Personal insights report — DONE
 - **User value:** choosing a statement now pays off with a short report: why it fits (each circle tied to the person's own words), their growth edge, three first steps for this week, and paths to explore.
-- **Implemented:** `generateIkigaiReport` server action (`src/lib/generateReport.ts`, GPT‑4o structured output, session-gated and rate-limited on the same AI limiter). The report is saved on the ikigai doc as `ikigaiReport`, keyed to the statement it explains, so it is written once per selection. New journey step "Insights" at `/generate-ikigai/report`, between Ideas and Card.
+- **Implemented:** `generateIkigaiReport` server action (`src/lib/generateReport.ts`, OpenAI structured output, session-gated and rate-limited on the same AI limiter). The report is saved on the ikigai doc as `ikigaiReport`, keyed to the statement it explains, so it is written once per selection. New journey step "Insights" at `/generate-ikigai/report`, between Ideas and Card.
 
 ### M12 — Personal ikigai map — DONE
 - **User value:** the ikigai diagram shows the person's own words in each circle, a screenshot-worthy artifact that is theirs rather than generic.
@@ -214,7 +214,7 @@ Product-oriented, ordered by impact and dependency. Each item is sized for one c
 ### M23 — Quality pass (app-eval until-100) — DONE
 - **User value:** faster first load, accessible questionnaires, honest share pages, and safer data handling.
 - **Implemented:** Firestore/Storage SDKs load on first use (landing and quick start 236/254 KB gzip first-load JS, budget 300 KB); circle text colors meet 4.5:1 (`ink` shades); public pages show the statement baked into the card (`ikigaiCardStatement`) and owners see when their card is out of date; "Clear ideas" keeps the shortlist and current choice; the image download proxy accepts only the app's bucket; React Doctor 100; production `npm audit` 0. Tests now cover route-handler and server-action authorization, Firestore/Storage rules on the emulators (CI job), account deletion, and `env.sample` drift.
-- **Still open:** migrate `gpt-4o` (API shutdown 2027-01-14) and replace the deprecated Fireworks image API (needs one paid verification call each); add production monitoring; run signed-in end-to-end checks with a test account.
+- **Follow-up (2026-10-22):** text moved from `gpt-4o` (API shutdown 2027-01-14) to `gpt-6.1-sol` and card backgrounds from deprecated Fireworks SDXL to OpenAI `gpt-image-2.5-flare`, both verified with live calls. Still open: production monitoring.
 
 ### Out of scope / non-goals (for now)
 

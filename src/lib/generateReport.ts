@@ -2,7 +2,7 @@
 
 import { generateText, Output } from "ai";
 import { openai } from "@ai-sdk/openai";
-import { TEXT_MODEL } from "@/constants/ai";
+import { TEXT_MODEL, TEXT_PROVIDER_OPTIONS } from "@/constants/ai";
 import { z } from "zod";
 import { IKIGAI_REPORT_PROMPT } from "@/constants/systemPrompt";
 import { requireAuth } from "@/lib/auth/session-server";
@@ -87,7 +87,7 @@ export async function generateIkigaiReport(
       model: openai(TEXT_MODEL),
       system: IKIGAI_REPORT_PROMPT,
       prompt: `Questionnaire answers:\n${JSON.stringify(sections, null, 2)}\n\nChosen statement: ${chosen}`,
-      temperature: 0.6,
+      providerOptions: TEXT_PROVIDER_OPTIONS,
       output: Output.object({ schema: reportSchema, name: "ikigai_report" }),
     });
     return { report: tidy(output, parsed.data.statement) };
