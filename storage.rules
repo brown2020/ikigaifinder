@@ -9,16 +9,18 @@ service firebase.storage {
       return isSignedIn() && request.auth.uid == uid;
     }
 
-    function isImage() {
+    function isRasterImage() {
       return request.resource != null
-        && request.resource.contentType.matches('image/.*');
+        && (request.resource.contentType == 'image/jpeg'
+          || request.resource.contentType == 'image/png'
+          || request.resource.contentType == 'image/webp');
     }
 
     // User-generated AI images (Admin SDK writes server-side; client access owner-only)
     match /generated/{userId}/{fileName} {
       allow read: if isOwner(userId);
       allow write: if isOwner(userId)
-        && isImage()
+        && isRasterImage()
         && request.resource.size < 20 * 1024 * 1024;
     }
 
@@ -26,7 +28,7 @@ service firebase.storage {
     match /users/{userId}/{fileName} {
       allow read: if isOwner(userId);
       allow write: if isOwner(userId)
-        && isImage()
+        && isRasterImage()
         && request.resource.size < 10 * 1024 * 1024;
     }
 

@@ -1,35 +1,127 @@
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
-    
+
     // Helper function to check if the user is authenticated and accessing their own data
     function isOwner(userId) {
       return request.auth != null && request.auth.uid == userId;
     }
 
+    // Firestore rules have no document byte-size property (the 1MB limit is enforced by the
+    // database). These checks cap the fields, strings, and lists the app actually stores.
+    function optString(data, key, max) {
+      return !data.keys().hasAny([key]) || data[key] == null || (data[key] is string && data[key].size() <= max);
+    }
+
+    function sharableFlagIsBool() {
+      return !request.resource.data.keys().hasAny(['ikigaiSharableUrl'])
+        || request.resource.data.ikigaiSharableUrl is bool;
+    }
+
+    function ikigaiDocOk() {
+      let data = request.resource.data;
+      return data.keys().hasOnly([
+          'id', 'answers', 'createdAt', 'updatedAt',
+          'ikigaiOptions', 'ikigaiSelected', 'ikigaiSelectedAt',
+          'ikigaiHistory', 'ikigaiShortlist', 'ikigaiGuidance',
+          'ikigaiImage', 'ikigaiCoverImage', 'ikigaiCardName',
+          'ikigaiCardStatement', 'ikigaiReport', 'ikigaiExperiment',
+          'ikigaiSharableUrl'
+        ])
+        && (!data.keys().hasAny(['answers']) || (data.answers is list && data.answers.size() <= 8))
+        && (!data.keys().hasAny(['ikigaiOptions']) || (data.ikigaiOptions is list && data.ikigaiOptions.size() <= 40))
+        && (!data.keys().hasAny(['ikigaiHistory']) || (data.ikigaiHistory is list && data.ikigaiHistory.size() <= 40))
+        && (!data.keys().hasAny(['ikigaiShortlist']) || (data.ikigaiShortlist is list && data.ikigaiShortlist.size() <= 20))
+        && optString(data, 'id', 64)
+        && optString(data, 'ikigaiGuidance', 2000)
+        && optString(data, 'ikigaiImage', 4096)
+        && optString(data, 'ikigaiCoverImage', 4096)
+        && optString(data, 'ikigaiCardName', 200)
+        && optString(data, 'ikigaiCardStatement', 2000)
+        && optString(data, 'ikigaiSelectedAt', 40)
+        && sharableFlagIsBool();
+    }
+
+    function userDocOk() {
+      let data = request.resource.data;
+      return data.keys().hasOnly([
+          'uid', 'authEmail', 'authDisplayName', 'authPhotoUrl', 'authEmailVerified',
+          'isAllowed', 'lastSignIn', 'offersOptIn', 'selectedName', 'premium',
+          'email', 'displayName', 'photoURL', 'photoUrl'
+        ])
+        && data.keys().size() <= 20
+        && optString(data, 'uid', 128)
+        && optString(data, 'authEmail', 320)
+        && optString(data, 'email', 320)
+        && optString(data, 'authDisplayName', 200)
+        && optString(data, 'displayName', 200)
+        && optString(data, 'selectedName', 200)
+        && optString(data, 'authPhotoUrl', 4096)
+        && optString(data, 'photoURL', 4096)
+        && optString(data, 'photoUrl', 4096);
+    }
+
+    function settingsOk() {
+      let data = request.resource.data;
+      return data.keys().hasOnly(['profile'])
+        && data.profile is map
+        && data.profile.keys().size() <= 30
+        && optString(data.profile, 'bio', 4000)
+        && optString(data.profile, 'firstName', 200)
+        && optString(data.profile, 'lastName', 200)
+        && optString(data.profile, 'contactEmail', 320)
+        && optString(data.profile, 'email', 320)
+        && optString(data.profile, 'displayName', 200)
+        && optString(data.profile, 'photoUrl', 4096)
+        && (!data.profile.keys().hasAny(['answers']) || (data.profile.answers is list && data.profile.answers.size() <= 80));
+    }
+
+    function coverOk() {
+      let data = request.resource.data;
+      return data.keys().hasOnly([
+          'style', 'mindset', 'grandChallenge', 'exponentialTechnology', 'freestyle',
+          'downloadUrl', 'prompt', 'timestamp', 'id'
+        ])
+        && optString(data, 'downloadUrl', 4096)
+        && optString(data, 'prompt', 4000)
+        && optString(data, 'freestyle', 2000)
+        && optString(data, 'style', 200)
+        && optString(data, 'mindset', 200)
+        && optString(data, 'grandChallenge', 500)
+        && optString(data, 'exponentialTechnology', 500)
+        && optString(data, 'id', 128);
+    }
+
     // User Data Collection
     match /ikigaiUsers/{userId} {
-      // Allow owner to read/write their own user document (e.g. auth details)
-      allow read, write: if isOwner(userId);
-      
+      allow read: if isOwner(userId);
+      allow write: if isOwner(userId) && userDocOk();
+
       // Ikigai Subcollection
       match /ikigai/{docId} {
         // Owner only. Shared pages read through the Admin SDK (src/lib/ikigaiServer.ts),
         // which exposes just the card, statement, and map words; a public client read
         // would leak answers, reports, and history.
-        allow read, write: if isOwner(userId);
+        allow read: if isOwner(userId);
+        allow write: if isOwner(userId) && ikigaiDocOk();
       }
-      
+
       // Settings/Profile Subcollection
       match /settings/{document=**} {
-        allow read, write: if isOwner(userId);
+        allow read: if isOwner(userId);
+        allow write: if isOwner(userId) && settingsOk();
       }
     }
 
     // Profiles/Covers Collection (History)
     match /ikigaiProfiles/{userId}/{document=**} {
-      allow read, write: if isOwner(userId);
+      allow read: if isOwner(userId);
+      allow write: if isOwner(userId) && coverOk();
+    }
+
+    // Server-only generation quotas. Clients cannot read or reset them.
+    match /_rateLimits/{docId} {
+      allow read, write: if false;
     }
   }
 }
-

@@ -56,4 +56,13 @@ describe("firestore.rules", () => {
     await assertFails(setDoc(doc(alice(), "admin/config"), { open: true }));
     await assertFails(getDoc(doc(alice(), "ikigaiUsersExtra/alice")));
   });
+
+  it("rejects oversized fields, a non-boolean share flag, and client access to quotas", async () => {
+    await assertFails(setDoc(doc(alice(), "ikigaiUsers/alice/ikigai/main"), { blob: "x".repeat(930_000) }));
+    await assertFails(setDoc(doc(alice(), "ikigaiUsers/alice/ikigai/main"), { ikigaiGuidance: "x".repeat(3000) }, { merge: true }));
+    await assertFails(setDoc(doc(alice(), "ikigaiUsers/alice/ikigai/main"), { ikigaiSharableUrl: "yes" }, { merge: true }));
+    await assertSucceeds(setDoc(doc(alice(), "ikigaiUsers/alice/ikigai/main"), { ikigaiGuidance: "more hands-on" }, { merge: true }));
+    await assertFails(getDoc(doc(alice(), "_rateLimits/ai:alice")));
+    await assertFails(setDoc(doc(alice(), "_rateLimits/ai:alice"), { count: 0 }));
+  });
 });

@@ -46,4 +46,10 @@ describe("storage.rules", () => {
     await assertFails(uploadBytes(ref(alice(), "generated/alice/notes.html"), png, { contentType: "text/html" }));
     await assertFails(uploadBytes(ref(alice(), "public/alice.png"), png, { contentType: "image/png" }));
   });
+
+  it("allows jpeg, png, and webp, and rejects svg", async () => {
+    await assertSucceeds(uploadBytes(ref(alice(), "generated/alice/photo.jpg"), png, { contentType: "image/jpeg" }));
+    await assertSucceeds(uploadBytes(ref(alice(), "generated/alice/photo.webp"), png, { contentType: "image/webp" }));
+    await assertFails(uploadBytes(ref(alice(), "generated/alice/drawing.svg"), png, { contentType: "image/svg+xml" }));
+  });
 });
