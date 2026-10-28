@@ -7,7 +7,6 @@ import {
   EmailShareButton,
   FacebookShareButton,
   LinkedinShareButton,
-  TwitterShareButton,
 } from "react-share";
 import { Button } from "@/components/ui/Button";
 import { absoluteSiteUrl } from "@/utils/siteUrl";
@@ -132,10 +131,7 @@ export default function SharePanel({ userId, coverImage, initialSharable, onShar
             </Button>
           </div>
           <div className="flex flex-wrap gap-2">
-            <TwitterShareButton url={url} title={SHARE_TITLE} resetButtonStyle={false} className={socialClass}>
-              X
-            </TwitterShareButton>
-            <LinkedinShareButton url={url} title={SHARE_TITLE} resetButtonStyle={false} className={socialClass}>
+            <LinkedinShareButton url={url} resetButtonStyle={false} className={socialClass}>
               LinkedIn
             </LinkedinShareButton>
             <FacebookShareButton url={url} hashtag="#ikigai" resetButtonStyle={false} className={socialClass}>
