@@ -8,6 +8,7 @@ import { ButtonLink, IconButton } from "@/components/ui/Button";
 import { useUIStore } from "@/zustand";
 import { selectAuthRedirectPath } from "@/zustand/useUIStore";
 import { textLinkClasses } from "@/components/ui/styles";
+import { safeInternalPath } from "@/components/auth/auth-page-utils";
 
 /**
  * Lightweight auth entry dialog. Email/password flows live on
@@ -20,10 +21,8 @@ export default function AuthModal(): React.ReactElement | null {
   const prompt = useUIStore((state) => state.authPrompt);
   const dialogRef = useRef<HTMLDialogElement>(null);
 
-  const redirectQs =
-    authRedirectPath && authRedirectPath.startsWith("/")
-      ? `?redirect=${encodeURIComponent(authRedirectPath)}`
-      : "";
+  const safeRedirect = safeInternalPath(authRedirectPath);
+  const redirectQs = safeRedirect ? `?redirect=${encodeURIComponent(safeRedirect)}` : "";
 
   useEffect(() => {
     const dialog = dialogRef.current;

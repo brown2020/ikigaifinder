@@ -1,4 +1,5 @@
 import { create } from "zustand";
+import { safeInternalPath } from "@/components/auth/auth-page-utils";
 
 /** Optional copy explaining why the visitor is being asked to sign in. */
 export interface AuthPrompt {
@@ -14,20 +15,17 @@ interface UIStore {
   closeAuthModal: () => void;
 }
 
-function isSafeRedirect(path?: string): path is string {
-  return Boolean(path && path.startsWith("/") && !path.startsWith("//") && !path.includes("://"));
-}
-
 export const useUIStore = create<UIStore>((set) => ({
   isAuthModalOpen: false,
   authRedirectPath: null,
   authPrompt: null,
 
   openAuthModal: (redirectPath, prompt) => {
-    if (typeof window !== "undefined" && isSafeRedirect(redirectPath)) {
-      window.localStorage.setItem("ikigaiFinderRedirectPath", redirectPath);
+    const safe = safeInternalPath(redirectPath);
+    if (typeof window !== "undefined" && safe) {
+      window.localStorage.setItem("ikigaiFinderRedirectPath", safe);
     }
-    set({ isAuthModalOpen: true, authRedirectPath: redirectPath ?? null, authPrompt: prompt ?? null });
+    set({ isAuthModalOpen: true, authRedirectPath: safe, authPrompt: prompt ?? null });
   },
 
   closeAuthModal: () => set({ isAuthModalOpen: false, authRedirectPath: null, authPrompt: null }),

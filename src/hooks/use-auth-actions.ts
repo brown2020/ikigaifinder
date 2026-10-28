@@ -19,6 +19,7 @@ import {
   createServerSession,
 } from "@/lib/auth/session-client";
 import { isReactNativeWebView } from "@/utils/platform";
+import { safeInternalPath } from "@/components/auth/auth-page-utils";
 
 // ============================================================================
 // Types
@@ -300,13 +301,7 @@ export function useAuthActions(): UseAuthActionsReturn {
           typeof window !== "undefined"
             ? window.localStorage.getItem("ikigaiFinderRedirectPath")
             : null;
-        const safeRedirect =
-          redirectPath &&
-          redirectPath.startsWith("/") &&
-          !redirectPath.startsWith("//") &&
-          !redirectPath.includes("://")
-            ? redirectPath
-            : null;
+        const safeRedirect = safeInternalPath(redirectPath);
         const url = `${origin}/loginfinish${
           safeRedirect ? `?redirect=${encodeURIComponent(safeRedirect)}` : ""
         }`;

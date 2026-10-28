@@ -18,14 +18,7 @@ import { AuthCard, AuthPageShell } from "@/components/auth/AuthCard";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { LoadingSpinner } from "@/components/ui/LoadingSpinner";
-
-function sanitizeRedirectPath(value: string | null): string | null {
-  if (!value) return null;
-  if (!value.startsWith("/")) return null;
-  if (value.startsWith("//")) return null;
-  if (value.includes("://")) return null;
-  return value;
-}
+import { safeInternalPath } from "@/components/auth/auth-page-utils";
 
 async function completeSignIn(
   email: string,
@@ -106,10 +99,8 @@ export default function LoginFinishPage() {
     const deps = { setAuthDetails, updateProfile, router };
 
     const url = new URL(window.location.href);
-    const redirectFromUrl = sanitizeRedirectPath(
-      url.searchParams.get("redirect")
-    );
-    const redirectFromStorage = sanitizeRedirectPath(
+    const redirectFromUrl = safeInternalPath(url.searchParams.get("redirect"));
+    const redirectFromStorage = safeInternalPath(
       window.localStorage.getItem("ikigaiFinderRedirectPath")
     );
     const redirectTarget =
