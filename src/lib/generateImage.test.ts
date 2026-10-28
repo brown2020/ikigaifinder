@@ -35,7 +35,8 @@ describe("generateImage server action", () => {
   it("makes exactly one provider attempt with the configured model, then stores the JPEG under the caller's folder", async () => {
     requireAuth.mockResolvedValue({ uid: "alice" });
     const result = await generateImage(prompt);
-    expect(result).toEqual({ imageUrl: "https://storage.googleapis.com/bucket/generated/u/1.jpg" });
+    expect(result.imageUrl).toMatch(/^\/api\/media\?object=generated%2Falice%2F\d+\.jpg$/);
+    expect(getSignedUrl).not.toHaveBeenCalled();
     expect(providerImage).toHaveBeenCalledTimes(1);
     expect(providerImage.mock.calls[0][0]).toMatchObject({ model: { id: IMAGE_MODEL }, maxRetries: 0, n: 1, size: "1024x1024" });
     expect(file.mock.calls[0][0]).toMatch(/^generated\/alice\/\d+\.jpg$/);
@@ -45,6 +46,14 @@ describe("generateImage server action", () => {
   it("maps provider rate limits to a friendly message without storing anything", async () => {
     providerImage.mockRejectedValue(new APICallError({ message: "slow down", url: "https://api.openai.com", requestBodyValues: {}, statusCode: 429 }));
     expect(await generateImage(prompt)).toEqual({ error: "Image generation service is busy. Please try again in a moment.", rateLimited: true });
+    expect(save).not.toHaveBeenCalled();
+  });
+
+  it("rejects a restricted prompt before the quota or the provider", async () => {
+    requireAuth.mockResolvedValue({ uid: "alice" });
+    const result = await generateImage("A nude portrait in a studio with soft light");
+    expect(result).toEqual({ error: "Unable to generate image with this prompt. Please try a different description." });
+    expect(providerImage).not.toHaveBeenCalled();
     expect(save).not.toHaveBeenCalled();
   });
 

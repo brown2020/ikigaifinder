@@ -25,7 +25,7 @@ describe("generateIkigai server action", () => {
 
   it("stops a signed-in user who exceeds the AI rate limit before calling the model", async () => {
     requireAuth.mockResolvedValue({ uid: "busy-user" });
-    while (rateLimitAI("busy-user").success) {
+    while ((await rateLimitAI("busy-user")).success) {
       // exhaust this user's window
     }
     await expect(generateIkigai(questions)).rejects.toThrow(/try again in/i);

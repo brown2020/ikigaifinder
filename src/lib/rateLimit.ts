@@ -1,19 +1,8 @@
 /**
- * Simple in-memory rate limiter for server actions
- *
- * WARNING: This in-memory implementation does NOT work correctly with
- * multiple server instances (e.g., load-balanced deployments). Each instance
- * maintains its own rate limit store, so users can bypass limits by hitting
- * different instances. For production multi-instance deployments, replace
- * this with Redis or a distributed rate limiter.
+ * Per-user AI quotas. Production counts in Firestore so every instance shares
+ * one window. Unit tests keep the in-memory counter.
  */
-
-// Log warning in production if multiple instances might be deployed
-if (process.env.NODE_ENV === "production") {
-  console.warn(
-    "[rate-limit] Using in-memory rate limiter. For multi-instance deployments, consider Redis."
-  );
-}
+import { adminDb } from "@/firebase/firebaseAdmin";
 
 // ============================================================================
 // Types
@@ -53,7 +42,7 @@ const CLEANUP_INTERVAL = 5 * 60 * 1000;
 // Store interval ID for cleanup (allows proper shutdown)
 let cleanupIntervalId: ReturnType<typeof setInterval> | null = null;
 
-if (typeof setInterval !== "undefined" && !cleanupIntervalId) {
+if (process.env.NODE_ENV === "test" && typeof setInterval !== "undefined" && !cleanupIntervalId) {
   cleanupIntervalId = setInterval(() => {
     const now = Date.now();
     for (const [key, record] of rateLimitStore.entries()) {
@@ -123,26 +112,67 @@ export function rateLimit(
   };
 }
 
-/**
- * Rate limit for AI generation endpoints
- * More restrictive limits to prevent abuse
- */
-export function rateLimitAI(userId: string): RateLimitResult {
-  return rateLimit(`ai:${userId}`, {
-    limit: 20, // 20 AI generations per minute
-    windowMs: 60 * 1000,
-  });
+const AI_LIMIT = { limit: 20, windowMs: 60 * 1000 };
+const IMAGE_LIMIT = { limit: 5, windowMs: 60 * 1000 };
+
+export interface RateLimitDb {
+  doc(path: string): unknown;
+  runTransaction<T>(update: (tx: RateLimitTransaction) => Promise<T>): Promise<T>;
 }
 
-/**
- * Rate limit for image generation endpoints
- * Very restrictive as image generation is expensive
- */
-export function rateLimitImageGen(userId: string): RateLimitResult {
-  return rateLimit(`img:${userId}`, {
-    limit: 5, // 5 image generations per minute
-    windowMs: 60 * 1000,
-  });
+interface RateLimitTransaction {
+  get(ref: unknown): Promise<{ exists: boolean; data(): { count?: unknown; windowStart?: unknown } | undefined }>;
+  set(ref: unknown, data: { count: number; windowStart: number }): void;
+}
+
+const KEY = /^[\w:.-]{1,200}$/;
+
+/** Shared window across processes. Fails closed so a store outage cannot skip the quota. */
+export async function firestoreRateLimit(
+  db: RateLimitDb,
+  identifier: string,
+  options: RateLimitOptions = {}
+): Promise<RateLimitResult> {
+  const limit = options.limit ?? DEFAULT_LIMIT;
+  const windowMs = options.windowMs ?? DEFAULT_WINDOW_MS;
+  const denied = { success: false, remaining: 0, resetIn: windowMs };
+  if (!KEY.test(identifier)) return denied;
+  try {
+    return await db.runTransaction(async (tx) => {
+      const ref = db.doc(`_rateLimits/${identifier}`);
+      const snap = await tx.get(ref);
+      const now = Date.now();
+      const data = snap.exists ? snap.data() : undefined;
+      const windowStart = typeof data?.windowStart === "number" ? data.windowStart : 0;
+      const open = windowStart > 0 && now - windowStart <= windowMs;
+      const nextWindow = open ? windowStart : now;
+      const count = (open && typeof data?.count === "number" ? data.count : 0) + 1;
+      tx.set(ref, { count, windowStart: nextWindow });
+      return {
+        success: count <= limit,
+        remaining: Math.max(0, limit - count),
+        resetIn: Math.max(0, windowMs - (now - nextWindow)),
+      };
+    });
+  } catch (error) {
+    console.error("Rate limit check failed:", error instanceof Error ? error.name : "unknown");
+    return denied;
+  }
+}
+
+async function enforce(identifier: string, options: RateLimitOptions): Promise<RateLimitResult> {
+  if (process.env.NODE_ENV === "test") return rateLimit(identifier, options);
+  return firestoreRateLimit(adminDb as unknown as RateLimitDb, identifier, options);
+}
+
+/** Rate limit for AI text generation. */
+export async function rateLimitAI(userId: string): Promise<RateLimitResult> {
+  return enforce(`ai:${userId}`, AI_LIMIT);
+}
+
+/** Rate limit for image generation. */
+export async function rateLimitImageGen(userId: string): Promise<RateLimitResult> {
+  return enforce(`img:${userId}`, IMAGE_LIMIT);
 }
 
 /**

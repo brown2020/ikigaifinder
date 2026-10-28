@@ -36,7 +36,12 @@ describe("deleteAccountData", () => {
       "auth:user123",
     ]);
     expect(userStoragePrefixes("user123")).toEqual(["generated/user123/", "users/user123/"]);
-    expect(userDocumentPaths("user123")).toEqual(["ikigaiUsers/user123", "ikigaiProfiles/user123"]);
+    expect(userDocumentPaths("user123")).toEqual([
+      "ikigaiUsers/user123",
+      "ikigaiProfiles/user123",
+      "_rateLimits/ai:user123",
+      "_rateLimits/img:user123",
+    ]);
   });
 
   it("treats an already-deleted Auth user as done, so retries finish", async () => {

@@ -56,7 +56,7 @@ export async function generateIkigai(
     throw new Error("You must be signed in to generate ikigai statements.");
   }
 
-  const rateLimit = rateLimitAI(uid);
+  const rateLimit = await rateLimitAI(uid);
   if (!rateLimit.success) {
     throw new Error(
       `You're generating quickly. Try again in ${Math.ceil(rateLimit.resetIn / 1000)} seconds.`

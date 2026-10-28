@@ -3,7 +3,12 @@ import type { Auth } from "firebase-admin/auth";
 import type { Firestore } from "firebase-admin/firestore";
 
 /** Every Firestore document tree and Storage prefix that holds one person's data. Add new per-user paths here. */
-export const userDocumentPaths = (uid: string) => [`ikigaiUsers/${uid}`, `ikigaiProfiles/${uid}`];
+export const userDocumentPaths = (uid: string) => [
+  `ikigaiUsers/${uid}`,
+  `ikigaiProfiles/${uid}`,
+  `_rateLimits/ai:${uid}`,
+  `_rateLimits/img:${uid}`,
+];
 export const userStoragePrefixes = (uid: string) => [`generated/${uid}/`, `users/${uid}/`];
 
 export type AccountDeletionStep = "storage" | "firestore" | "auth";

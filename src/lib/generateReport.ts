@@ -63,7 +63,7 @@ export async function generateIkigaiReport(
     return { error: "You must be signed in to see your report." };
   }
 
-  const rateLimit = rateLimitAI(uid);
+  const rateLimit = await rateLimitAI(uid);
   if (!rateLimit.success) {
     return { error: `You're moving quickly. Try again in ${Math.ceil(rateLimit.resetIn / 1000)} seconds.` };
   }
