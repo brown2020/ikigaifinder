@@ -50,7 +50,7 @@ A working end-to-end flow exists: authenticate → questionnaire → streaming O
 - **Questionnaire:** four parts (one per circle) driven by `src/constants/questions.ts`, deep-linkable via `?step=1-4`, saved on every step.
 - **Ikigai generation:** server action `src/lib/generateIkigai.ts` (`TEXT_MODEL` in `src/constants/ai.ts`, low reasoning effort) using structured output (Zod schema, `Output.array`), streamed per completed statement via `@ai-sdk/rsc`, with validation, sanitization, rate limiting, and an "avoid these" list so "Generate more" returns new angles. Users can steer with guidance and edit the chosen statement's wording.
 - **Selection & persistence:** chosen statement, answers, and guidance saved under `ikigaiUsers/{uid}/ikigai/main` (`src/services/ikigaiService.ts`).
-- **Image generation:** server action `src/lib/generateImage.ts` calls OpenAI image generation through the AI SDK (one attempt, no retries), uploads to Firebase Storage (`generated/{uid}/...`), returns a signed URL, and records a cover in history.
+- **Image generation:** server action `src/lib/generateImage.ts` calls OpenAI image generation through the AI SDK (one attempt, no retries), uploads to Firebase Storage (`generated/{uid}/...`), returns a same-origin `/api/media` URL, and records a cover in history.
 - **Sharing:** `PATCH /api/ikigai/sharing` toggles `ikigaiSharableUrl`; the public page at `app/ikigai/[id]` reads a minimal summary (cover, statement, map words) through the Admin SDK only when sharable; `firestore.rules` never allows public client reads; social buttons + `html2canvas` download.
 - **Dashboard & profile:** authenticated areas with `loading.tsx`/`error.tsx` boundaries.
 - **Account deletion:** `/profile` → type DELETE ACCOUNT → `DELETE /api/account` (fresh ID token, revocation-checked) deletes `generated/{uid}/` and `users/{uid}/` in Storage, the `ikigaiUsers/{uid}` and `ikigaiProfiles/{uid}` trees, then the Auth user, and clears the session cookie. Success is shown only after the server confirms; the client then signs out and clears local drafts. Retrying after a partial failure finishes the job.
@@ -84,15 +84,14 @@ A working end-to-end flow exists: authenticate → questionnaire → streaming O
 - Node.js 22+ is required by the current AI SDK 7 and Firebase Admin 14 releases.
 - TypeScript remains on the latest 6.x release because the current `typescript-eslint` parser used by `eslint-config-next` supports TypeScript `<6.1`; TypeScript 7 causes the lint toolchain to crash.
 - ESLint remains on the latest 9.x release because the React/import/accessibility plugins bundled by the current `eslint-config-next` release do not yet declare ESLint 10 compatibility.
-- In-memory rate limiter — correct only for single-instance deployments.
+- Firestore-backed generation quotas, shared across instances and denied to client SDKs.
 - Firebase project required (Auth + Firestore + Storage) with rules deployed manually (no `firebase.json`/`.firebaserc` committed). **[inferred]**
 - Secrets are server-only; only `NEXT_PUBLIC_*` values reach the client.
 
 ### Known limitations
 
-- **Rate limiting identity is now derived server-side:** `generateIkigai` and `generateImage` resolve the user from the verified session cookie (`getOptionalServerUid`) rather than a client-supplied value, so limits apply per authenticated user. The underlying store is still in-memory (see below).
-- **Not horizontally scalable for limits:** the in-memory store resets per instance/cold start.
-- **Signed image URLs are effectively permanent** (`03-17-2125` expiry) — no rotation/expiry strategy.
+- **Rate limiting identity is derived server-side:** `generateIkigai`, `generateReport`, and `generateImage` resolve the user from the verified session cookie and count the window in Firestore (`_rateLimits`). A store error fails closed.
+- **New images are not bearer URLs.** Covers and profile photos are served from `/api/media` after an owner or public-cover check. Signed URLs minted before this change remain valid until the object is deleted or the signing key is rotated.
 - **Generation errors are low-visibility:** failures are logged and set in state but lack a clear in-product retry/empty-state. **[inferred]**
 - **Abandoned/partial code removed:** the divergent second AI text path (`src/lib/actions.ts` → `generatePurpose`, which used `gpt-4.1`) and its `src/lib/ai/stream.ts` helpers, unused legacy generation/questionnaire exports, and unused `GenerateImage`/`SurveyQuestion` components have been removed. A single GPT‑4o path (`generateIkigai`) remains.
 - **Minimal automated-test setup:** `npm test` runs Vitest and currently covers route-protection helpers plus ikigai parsing; no CI is configured. The practical regression gate remains `npm run lint && npm run build`.
@@ -106,7 +105,7 @@ Product-oriented, ordered by impact and dependency. Each item is sized for one c
 
 ### M1 — Per-user generation limits that actually protect the product — DONE
 - **User value:** one user (or a bot) can no longer exhaust generation capacity for everyone; authenticated users get fair, predictable access.
-- **Implemented:** both `generateIkigai` and `generateImage` now derive the user from the verified session cookie (`getOptionalServerUid`) server-side and key rate limiting on that uid (stronger than trusting a client-passed value). `generateImage` also rejects unauthenticated calls before any Admin-SDK write. Remaining future work: replace the in-memory limiter with a distributed store before multi-instance scale.
+- **Implemented:** `generateIkigai`, `generateReport`, and `generateImage` derive the user from the verified session cookie and share one Firestore quota across instances. `generateImage` rejects unauthenticated calls and restricted prompts before any provider call or Admin-SDK write.
 
 ### M2 — Resilient generation UX (error + retry + empty states) — DONE
 - **User value:** a failed or empty AI response no longer dead-ends the core workflow; users can recover in place.
@@ -218,6 +217,6 @@ Product-oriented, ordered by impact and dependency. Each item is sized for one c
 
 ### Out of scope / non-goals (for now)
 
-- Distributed rate limiting (Redis) — only needed once multi-instance scale is real; revisit after M1.
+- Distributed rate limiting is implemented with Firestore (`_rateLimits`), so a Redis store is not required for the current quotas.
 - New major product directions unsupported by the current app (teams, payments, coaching marketplace, etc.).
 - Large structural refactors or test-suite build-outs as standalone initiatives — add tests with the features they cover.
