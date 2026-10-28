@@ -10,9 +10,10 @@ export async function downloadImage(
   imageUrl: string,
   filename?: string
 ): Promise<void> {
-  const response = await fetch(
-    `/api/downloadImage?url=${encodeURIComponent(imageUrl)}`
-  );
+  const endpoint = imageUrl.startsWith("/") && !imageUrl.startsWith("//")
+    ? imageUrl
+    : `/api/downloadImage?url=${encodeURIComponent(imageUrl)}`;
+  const response = await fetch(endpoint, { credentials: "same-origin" });
 
   if (!response.ok) {
     throw new Error(`Download failed (${response.status})`);

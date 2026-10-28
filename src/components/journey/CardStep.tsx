@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import Image from "next/image";
+import SafeImage from "@/components/ui/SafeImage";
 import { useRouter } from "next/navigation";
 import { ArrowLeft, Check, ImagePlus, Wand2 } from "lucide-react";
 import toast from "react-hot-toast";
@@ -197,7 +197,7 @@ export default function CardStep(): React.ReactElement {
                           on ? "ring-primary" : "ring-transparent hover:ring-border-strong"
                         )}
                       >
-                        <Image src={url} alt="" fill sizes="64px" className="object-cover" />
+                        <SafeImage src={url} alt="" fill sizes="64px" className="object-cover" />
                         {on && (
                           <span className="absolute inset-0 grid place-items-center bg-black/30 text-white">
                             <Check className="size-5" aria-hidden="true" />

@@ -2,6 +2,7 @@ import "server-only";
 import { cache } from "react";
 import { adminDb } from "@/firebase/firebaseAdmin";
 import { displayStatement, shownStatement } from "@/utils/ikigaiList";
+import { canonicalStoredImage } from "@/utils/mediaSrc";
 import { IKIGAI_CIRCLES } from "@/constants/ikigai";
 import type { IkigaiReport, IkigaiSummary } from "@/types";
 
@@ -26,7 +27,8 @@ export const getIkigaiSummary = cache(async (uid: string): Promise<IkigaiSummary
     if (!snap.exists) return EMPTY;
     const data = snap.data() ?? {};
     const selected = data.ikigaiSelected as { ikigai?: unknown } | null | undefined;
-    const coverImage = typeof data.ikigaiCoverImage === "string" && data.ikigaiCoverImage ? data.ikigaiCoverImage : null;
+    const storedCover = typeof data.ikigaiCoverImage === "string" ? data.ikigaiCoverImage : "";
+    const coverImage = canonicalStoredImage(storedCover, process.env.NEXT_PUBLIC_FIREBASE_STORAGEBUCKET) || null;
     const raw = shownStatement(coverImage, data.ikigaiCardStatement, selected?.ikigai);
     return {
       coverImage,
@@ -35,7 +37,7 @@ export const getIkigaiSummary = cache(async (uid: string): Promise<IkigaiSummary
       keywords: readKeywords(data.ikigaiReport, raw),
     };
   } catch (error) {
-    console.error("Failed to read ikigai summary:", error);
-    return EMPTY;
+    console.error("Failed to read ikigai summary:", error instanceof Error ? error.name : "unknown");
+    throw new Error("Failed to read ikigai summary");
   }
 });

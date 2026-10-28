@@ -3,7 +3,8 @@
 import { useState, ChangeEvent, useEffect, useRef } from "react";
 import { loadStorage } from "@/firebase/firebaseClient";
 import { Camera, Loader2, LogOut } from "lucide-react";
-import Image from "next/image";
+import SafeImage from "@/components/ui/SafeImage";
+import { mediaUrlForPath } from "@/utils/storageUrl";
 import { useRouter } from "next/navigation";
 import toast from "react-hot-toast";
 import { useAuthStore } from "@/zustand/useAuthStore";
@@ -40,14 +41,13 @@ export default function ProfileComponent() {
       const files = e.target.files;
       if (!files || !files[0]) throw new Error("No file selected");
 
+      if (!uid) throw new Error("No user found");
       const resizedBlob = await resizeImage(files[0]);
-      const { storage, ref, uploadBytesResumable, getDownloadURL } = await loadStorage();
-      const storageRef = ref(storage, `users/${uid}/profile.png`);
+      const objectPath = `users/${uid}/profile.png`;
+      const { storage, ref, uploadBytesResumable } = await loadStorage();
+      const storageRef = ref(storage, objectPath);
       await uploadBytesResumable(storageRef, resizedBlob);
-
-      if (!storageRef) throw new Error("Error uploading file");
-
-      const updatedUrl = await getDownloadURL(storageRef);
+      const updatedUrl = mediaUrlForPath(objectPath);
       setNewProfile({ ...newProfile, photoUrl: updatedUrl });
     } catch (error: unknown) {
       const message =
@@ -103,7 +103,7 @@ export default function ProfileComponent() {
         <div className="flex flex-col items-start gap-5 sm:flex-row sm:items-center">
           <div className="relative size-24 shrink-0 overflow-hidden rounded-full border border-border bg-muted">
             {newProfile.photoUrl ? (
-              <Image
+              <SafeImage
                 fill
                 sizes="96px"
                 src={newProfile.photoUrl}

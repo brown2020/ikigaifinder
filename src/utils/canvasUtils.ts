@@ -1,5 +1,6 @@
 import html2canvas from "html2canvas";
 import { loadStorage } from "@/firebase/firebaseClient";
+import { mediaUrlForPath } from "@/utils/storageUrl";
 
 // ============================================================================
 // Types
@@ -214,14 +215,12 @@ export async function captureAndUploadImage(
         }
 
         try {
-          const fileName = `generated/${uid}/${new Date().toISOString()}.png`;
-          const { storage, ref, uploadBytes, getDownloadURL } = await loadStorage();
+          const fileName = `generated/${uid}/${Date.now()}.png`;
+          const { storage, ref, uploadBytes } = await loadStorage();
           const fileRef = ref(storage, fileName);
 
           await uploadBytes(fileRef, blob);
-          const downloadUrl = await getDownloadURL(fileRef);
-
-          resolve(downloadUrl);
+          resolve(mediaUrlForPath(fileName));
         } catch (uploadError) {
           console.error("Error uploading image:", uploadError);
           resolve(null);

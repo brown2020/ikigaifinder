@@ -1,4 +1,5 @@
 import { loadFirestore } from "@/firebase/firebaseClient";
+import { canonicalStoredImage } from "@/utils/mediaSrc";
 import { STEPPER_QUESTIONS_JSON } from "@/constants/questions";
 import { IkigaiUpdateError } from "@/lib/errors";
 import type { Ikigai, QuestionStep, ImagePromptData } from "@/types";
@@ -55,6 +56,8 @@ export async function fetchIkigaiData(uid: string): Promise<Ikigai> {
     ikigaiOptions: data.ikigaiOptions ?? [],
     ikigaiShortlist: data.ikigaiShortlist ?? [],
     ikigaiHistory: data.ikigaiHistory ?? [],
+    ikigaiImage: canonicalStoredImage(data.ikigaiImage, process.env.NEXT_PUBLIC_FIREBASE_STORAGEBUCKET),
+    ikigaiCoverImage: canonicalStoredImage(data.ikigaiCoverImage, process.env.NEXT_PUBLIC_FIREBASE_STORAGEBUCKET),
     answers: withStoredAnswers(data.answers),
   };
 }
@@ -124,8 +127,8 @@ export function subscribeToCoverHistory(
         (snapshot) =>
           onChange(
             snapshot.docs
-              .map((d) => d.data().downloadUrl as string | undefined)
-              .filter((url): url is string => Boolean(url))
+              .map((d) => canonicalStoredImage(d.data().downloadUrl as string | undefined, process.env.NEXT_PUBLIC_FIREBASE_STORAGEBUCKET))
+              .filter((url) => url.length > 0)
           ),
         () => onChange([])
       );

@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import Image from "next/image";
+import SafeImage from "@/components/ui/SafeImage";
 import Link from "next/link";
 import { LogOut, UserRound } from "lucide-react";
 import { useProfileStore, selectFormattedName } from "@/zustand";
@@ -39,7 +39,7 @@ export default function UserMenu(): React.ReactElement {
         className="flex size-10 items-center justify-center overflow-hidden rounded-full border border-border bg-card text-sm font-semibold text-foreground transition hover:border-border-strong focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
       >
         {photoUrl ? (
-          <Image src={photoUrl} alt="" width={40} height={40} className="size-full object-cover" />
+          <SafeImage src={photoUrl} alt="" width={40} height={40} className="size-full object-cover" />
         ) : (
           initial
         )}

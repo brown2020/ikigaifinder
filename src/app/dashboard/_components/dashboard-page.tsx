@@ -1,6 +1,6 @@
 "use client";
 
-import Image from "next/image";
+import SafeImage from "@/components/ui/SafeImage";
 import { ArrowRight, Lightbulb, Palette, RefreshCcw, Sparkles } from "lucide-react";
 import { ButtonLink } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
@@ -54,7 +54,7 @@ function CardDashboard({ userId, initial, coverImage, ikigai, ready }: Dashboard
       <div className="grid grid-cols-1 gap-10 lg:grid-cols-[minmax(0,6fr)_minmax(0,5fr)] lg:gap-14">
         <div className="lg:sticky lg:top-24 lg:self-start">
           <div className="relative aspect-square w-full overflow-hidden rounded-2xl bg-muted shadow-[0_24px_60px_-30px_rgba(31,26,23,0.45)]">
-            <Image src={coverImage} alt={statement ? `Ikigai card: ${statement}` : "My ikigai card"} fill sizes="(max-width: 1024px) 100vw, 600px" className="object-cover" priority />
+            <SafeImage src={coverImage} alt={statement ? `Ikigai card: ${statement}` : "My ikigai card"} fill sizes="(max-width: 1024px) 100vw, 600px" className="object-cover" priority />
           </div>
         </div>
 

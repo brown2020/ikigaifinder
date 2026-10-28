@@ -1,5 +1,5 @@
-import Image from "next/image";
 import { DEFAULT_COVER } from "@/constants/ikigai";
+import SafeImage from "@/components/ui/SafeImage";
 import { displayStatement } from "@/utils/ikigaiList";
 
 export type CardFormat = "square" | "story" | "wide";
@@ -37,7 +37,7 @@ export default function IkigaiCard({ id, format = "square", statement, name, dat
       className={`relative ${ASPECT[format]} w-full overflow-hidden rounded-2xl`}
       style={{ containerType: "size", backgroundColor: "#1f1a17" }}
     >
-      <Image
+      <SafeImage
         src={imageUrl || DEFAULT_COVER}
         alt=""
         fill

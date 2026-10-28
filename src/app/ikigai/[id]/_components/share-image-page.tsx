@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import Image from "next/image";
+import SafeImage from "@/components/ui/SafeImage";
 import { Lock } from "lucide-react";
 import { ButtonLink } from "@/components/ui/Button";
 import { Eyebrow } from "@/components/ui/Eyebrow";
@@ -25,7 +25,7 @@ export default function ShareImagePage({ userId, isOwner, imageUrl, statement, s
     <div className="mx-auto w-full max-w-6xl px-5 pb-16 pt-10 sm:px-8 sm:pt-14">
       <div className="grid grid-cols-1 gap-10 lg:grid-cols-[minmax(0,6fr)_minmax(0,5fr)] lg:items-center lg:gap-14">
         <div className="relative aspect-square w-full overflow-hidden rounded-2xl bg-muted shadow-[0_24px_60px_-30px_rgba(31,26,23,0.45)]">
-          <Image src={imageUrl} alt={statement ? `Ikigai card: ${statement}` : "Ikigai card"} fill sizes="(max-width: 1024px) 100vw, 600px" className="object-cover" priority />
+          <SafeImage src={imageUrl} alt={statement ? `Ikigai card: ${statement}` : "Ikigai card"} fill sizes="(max-width: 1024px) 100vw, 600px" className="object-cover" priority />
         </div>
         <div>
           {isOwner ? (

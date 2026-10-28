@@ -1,109 +1,19 @@
-import { NextRequest, NextResponse } from "next/server";
-import { isOwnBucketUrl } from "@/utils/storageUrl";
+import { NextRequest } from "next/server";
+import { serveStoredMedia } from "@/lib/serveMedia";
+import { objectPathFromStored } from "@/utils/storageUrl";
 
-// ============================================================================
-// Types
-// ============================================================================
-
-interface ErrorResponse {
-  error: string;
-}
-
-// ============================================================================
-// Configuration
-// ============================================================================
-
-/** Maximum file size (10MB) */
-const MAX_FILE_SIZE = 10 * 1024 * 1024;
-
-// ============================================================================
-// Utilities
-// ============================================================================
+export const dynamic = "force-dynamic";
 
 /**
- * Create a JSON error response
+ * GET /api/downloadImage?url=
+ * Downloads an object from this app's bucket. The URL is only a path hint:
+ * the bytes are read with the Admin SDK after an ownership or public-cover check.
  */
-function errorResponse(message: string, status: number): NextResponse<ErrorResponse> {
-  return NextResponse.json({ error: message }, { status });
-}
-
-// ============================================================================
-// Route Handler
-// ============================================================================
-
-/**
- * GET /api/downloadImage
- * 
- * Proxies image downloads from allowed domains (Firebase Storage)
- * to avoid CORS issues when downloading user-generated images.
- * 
- * Query Parameters:
- * - url: The image URL to download
- */
-export async function GET(request: NextRequest): Promise<NextResponse> {
-  const { searchParams } = new URL(request.url);
-  const imageUrl = searchParams.get("url");
-
-  // Validate URL parameter
+export async function GET(request: NextRequest) {
+  const imageUrl = request.nextUrl.searchParams.get("url");
   if (!imageUrl) {
-    return errorResponse("URL parameter is required", 400);
+    return Response.json({ error: "URL parameter is required" }, { status: 400, headers: { "Cache-Control": "private, no-store" } });
   }
-
-  // Validate domain
-  if (!isOwnBucketUrl(imageUrl, process.env.NEXT_PUBLIC_FIREBASE_STORAGEBUCKET)) {
-    return errorResponse("Image URL not allowed", 403);
-  }
-
-  try {
-    // Fetch the image
-    const response = await fetch(imageUrl, {
-      redirect: "manual",
-      headers: {
-        // Add cache control for better performance
-        "Cache-Control": "public, max-age=31536000",
-      },
-    });
-    // Do not follow redirects for caller-shaped URLs (SSRF bypass).
-    if (response.status >= 300 && response.status < 400) {
-      return errorResponse("Redirects are not allowed for image downloads", 400);
-    }
-
-    if (!response.ok) {
-      return errorResponse(
-        `Failed to fetch image: ${response.statusText}`,
-        response.status
-      );
-    }
-
-    // Check content length
-    const contentLength = response.headers.get("content-length");
-    if (contentLength && parseInt(contentLength, 10) > MAX_FILE_SIZE) {
-      return errorResponse("Image file too large", 413);
-    }
-
-    // Get the image data
-    const arrayBuffer = await response.arrayBuffer();
-
-    // Determine content type
-    const contentType =
-      response.headers.get("content-type") ?? "application/octet-stream";
-
-    // Validate content type is an image
-    if (!contentType.startsWith("image/")) {
-      return errorResponse("URL does not point to an image", 400);
-    }
-
-    // Return the image with appropriate headers
-    return new NextResponse(arrayBuffer, {
-      status: 200,
-      headers: {
-        "Content-Type": contentType,
-        "Content-Disposition": 'attachment; filename="ikigai-image.png"',
-        "Cache-Control": "public, max-age=31536000, immutable",
-      },
-    });
-  } catch (error) {
-    console.error("Error downloading image:", error);
-    return errorResponse("Internal server error", 500);
-  }
+  const objectPath = objectPathFromStored(imageUrl, process.env.NEXT_PUBLIC_FIREBASE_STORAGEBUCKET);
+  return serveStoredMedia(objectPath, true);
 }
