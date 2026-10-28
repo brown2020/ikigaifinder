@@ -51,8 +51,11 @@ try {
     adminDb = {} as Firestore;
     adminAuth = {} as Auth;
   }
-} catch (e) {
-  console.warn("Firebase admin init failed:", e);
+} catch {
+  console.error("Firebase admin init failed");
+  if (hasAdminCreds) {
+    throw new Error("Firebase admin init failed");
+  }
   adminBucket = {} as Bucket;
   adminDb = {} as Firestore;
   adminAuth = {} as Auth;
