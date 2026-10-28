@@ -7,6 +7,7 @@ import { auth } from "@/firebase/firebaseClient";
 import { updateUserDetailsInFirestore } from "@/services/userService";
 import { isReactNativeWebView } from "@/utils/platform";
 import { clearServerSession, createServerSession } from "@/lib/auth/session-client";
+import { shouldClearSessionAfterRefreshError } from "@/lib/auth/session-refresh";
 
 // ============================================================================
 // Constants
@@ -79,31 +80,43 @@ export function useAuthToken(
   const clearAuthDetails = useAuthStore((state) => state.clearAuthDetails);
 
   const refreshIntervalRef = useRef<NodeJS.Timeout | null>(null);
+  const epoch = useRef(0);
+  const chain = useRef(Promise.resolve());
 
   /**
    * Create/refresh the server session cookie using the current Firebase ID token.
+   * Calls are serialized so a refresh that started before sign-out cannot restore the cookie.
    */
-  const refreshServerSession = useCallback(async (): Promise<void> => {
-    const currentUser = auth.currentUser;
-    // Signed out before this ran (sign-out, account deletion): the sign-out path clears the session.
-    if (!currentUser) return;
-    try {
-      const idToken = await getIdToken(currentUser, true);
-      await createServerSession(idToken);
-    } catch (err) {
-      const code = (err as { code?: unknown } | null)?.code;
-      console.warn(`Failed to refresh server session (${typeof code === "string" ? code : "unknown"})`);
-      // If we can't refresh the session, ensure we clear it so proxy blocks protected routes.
+  const refreshServerSession = useCallback(async (generation = epoch.current): Promise<void> => {
+    const run = chain.current.then(async () => {
+      const started = auth.currentUser;
+      if (!started || generation !== epoch.current) return;
+      const uid = started.uid;
       try {
-        await clearServerSession();
-      } catch {
-        // ignore
+        const idToken = await getIdToken(started, true);
+        if (generation !== epoch.current || auth.currentUser?.uid !== uid) return;
+        await createServerSession(idToken);
+        if (generation !== epoch.current || auth.currentUser?.uid !== uid) {
+          await clearServerSession().catch(() => {});
+        }
+      } catch (err) {
+        if (generation !== epoch.current || auth.currentUser?.uid !== uid) return;
+        if (shouldClearSessionAfterRefreshError(err)) {
+          await clearServerSession().catch(() => {});
+          return;
+        }
+        const code = (err as { code?: unknown } | null)?.code;
+        console.warn(`Failed to refresh server session (${typeof code === "string" ? code : "unknown"})`);
       }
-    }
+    });
+    chain.current = run.then(() => {}, () => {});
+    return run;
   }, []);
 
   // Sync user state to Zustand and Firestore
   useEffect(() => {
+    epoch.current += 1;
+    const generation = epoch.current;
     if (user?.uid) {
       const authDetails = {
         uid: user.uid,
@@ -121,14 +134,17 @@ export function useAuthToken(
       updateUserDetailsInFirestore(authDetails, user.uid);
 
       // IMPORTANT: Create/refresh the server session cookie when user signs in.
-      refreshServerSession();
+      void refreshServerSession(generation);
     } else if (!isLoading) {
       clearAuthDetails();
-      // Clear any existing server session cookie on sign-out.
-      clearServerSession().catch((err) => {
-        // Log the error - if session clear fails, user may still have valid cookie
-        console.error("Failed to clear server session on logout:", err);
+      // Clear any existing server session cookie on sign-out, after in-flight refreshes.
+      const run = chain.current.then(async () => {
+        if (epoch.current !== generation) return;
+        await clearServerSession().catch((err) => {
+          console.error("Failed to clear server session on logout:", err instanceof Error ? err.name : "unknown");
+        });
       });
+      chain.current = run.then(() => {}, () => {});
     }
   }, [
     user,
