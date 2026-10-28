@@ -1,10 +1,12 @@
 import type { Metadata, Viewport } from "next";
+import { connection } from "next/server";
 import { Fraunces, Geist } from "next/font/google";
 import { ClientProvider } from "@/components/ClientProvider";
 import SiteHeader from "@/components/layout/SiteHeader";
 import SiteFooter from "@/components/layout/SiteFooter";
 import MobileNav from "@/components/layout/MobileNav";
-import { absoluteSiteUrl, jsonLdScript, siteUrl } from "@/utils/siteUrl";
+import JsonLd from "@/components/seo/JsonLd";
+import { absoluteSiteUrl, siteUrl } from "@/utils/siteUrl";
 import "./globals.css";
 
 const fraunces = Fraunces({
@@ -144,18 +146,16 @@ const jsonLd = {
   ],
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  await connection();
   return (
     <html lang="en" className={`${fraunces.variable} ${geist.variable}`}>
       <head>
-        <script
-          type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: jsonLdScript(jsonLd) }}
-        />
+        <JsonLd data={jsonLd} />
       </head>
       <body className="flex min-h-dvh flex-col overflow-x-hidden">
         <ClientProvider>

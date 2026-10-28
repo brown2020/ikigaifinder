@@ -1,30 +1,33 @@
 /** @type {import('next').NextConfig} */
+function storageRemotePatterns() {
+  const bucket = process.env.NEXT_PUBLIC_FIREBASE_STORAGEBUCKET?.trim();
+  if (!bucket || /[\\/]/.test(bucket)) return [];
+  return [
+    {
+      protocol: "https",
+      hostname: "firebasestorage.googleapis.com",
+      pathname: `/v0/b/${bucket}/o/**`,
+    },
+    {
+      protocol: "https",
+      hostname: "storage.googleapis.com",
+      pathname: `/${bucket}/**`,
+    },
+    {
+      protocol: "https",
+      hostname: `${bucket}.storage.googleapis.com`,
+      pathname: "/**",
+    },
+  ];
+}
+
 const nextConfig = {
   // Disable React strict mode for compatibility with some libraries
   reactStrictMode: false,
 
-  // Image optimization configuration
+  // Image optimization configuration. User media is served same-origin and does not use these.
   images: {
-    remotePatterns: [
-      {
-        protocol: "https",
-        hostname: "firebasestorage.googleapis.com",
-        port: "",
-        pathname: "/**",
-      },
-      {
-        protocol: "https",
-        hostname: "storage.googleapis.com",
-        port: "",
-        pathname: "/**",
-      },
-      {
-        protocol: "https",
-        hostname: "*.googleusercontent.com",
-        port: "",
-        pathname: "/**",
-      },
-    ],
+    remotePatterns: storageRemotePatterns(),
     // Optimize image formats (SVGs served as static files via <img>, not executable)
     formats: ["image/avif", "image/webp"],
   },
@@ -63,32 +66,9 @@ const nextConfig = {
             key: "Permissions-Policy",
             value: "camera=(), microphone=(self), geolocation=()",
           },
-          {
-            key: "Content-Security-Policy",
-            value: [
-              "default-src 'self'",
-              "script-src 'self' 'unsafe-eval' 'unsafe-inline' https://apis.google.com",
-              "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
-              "font-src 'self' https://fonts.gstatic.com data:",
-              "img-src 'self' data: blob: https: http:",
-              "connect-src 'self' https://api.openai.com https://*.firebaseio.com https://*.googleapis.com wss://*.firebaseio.com",
-              "frame-src 'self' https://accounts.google.com https://*.firebaseapp.com",
-              "object-src 'none'",
-              "base-uri 'self'",
-              "form-action 'self'",
-              "frame-ancestors 'none'",
-            ].join("; "),
-          },
         ],
       },
     ];
-  },
-
-  // Logging configuration
-  logging: {
-    fetches: {
-      fullUrl: true,
-    },
   },
 };
 

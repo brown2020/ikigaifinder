@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import IkigaiDiagram from "@/components/ikigai/IkigaiDiagram";
 import { ButtonLink } from "@/components/ui/Button";
 import { Eyebrow } from "@/components/ui/Eyebrow";
-import { jsonLdScript } from "@/utils/siteUrl";
+import JsonLd from "@/components/seo/JsonLd";
 
 const DESCRIPTION =
   "What ikigai means, the four circles behind it, how Ikigai Finder helps you put yours into words, and answers to common questions.";
@@ -226,7 +226,7 @@ export default function About() {
             </details>
           ))}
         </div>
-        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: jsonLdScript(faqJsonLd) }} />
+        <JsonLd data={faqJsonLd} />
       </section>
 
       <div className="mt-16 flex flex-col items-start gap-4 rounded-2xl bg-primary-soft p-8 sm:flex-row sm:items-center sm:justify-between">

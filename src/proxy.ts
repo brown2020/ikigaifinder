@@ -2,6 +2,7 @@ import type { NextRequest } from "next/server";
 import { NextResponse } from "next/server";
 import { adminAuth } from "@/firebase/firebaseAdmin";
 import { getSessionCookieName } from "@/lib/auth/session";
+import { contentSecurityPolicy } from "@/lib/contentSecurityPolicy";
 
 /**
  * Protected routes that require authentication
@@ -86,8 +87,18 @@ export default async function proxy(
     }
   }
 
-  // Allow the request to continue
-  return NextResponse.next();
+  return continueWithCsp(request);
+}
+
+function continueWithCsp(request: NextRequest): NextResponse {
+  const nonce = crypto.randomUUID().replace(/-/g, "");
+  const csp = contentSecurityPolicy(nonce, process.env.NODE_ENV === "development");
+  const requestHeaders = new Headers(request.headers);
+  requestHeaders.set("x-nonce", nonce);
+  requestHeaders.set("Content-Security-Policy", csp);
+  const response = NextResponse.next({ request: { headers: requestHeaders } });
+  response.headers.set("Content-Security-Policy", csp);
+  return response;
 }
 
 /**
@@ -95,9 +106,14 @@ export default async function proxy(
  */
 export const config = {
   matcher: [
-    // Run proxy only for private route segments to avoid extra Node work on public pages.
-    "/dashboard/:path*",
-    "/generate-ikigai/:path*",
-    "/profile/:path*",
+    {
+      // HTML documents, including public pages, so they receive the nonce CSP.
+      // Auth is still checked only for protected routes inside the function.
+      source: "/((?!api|_next/static|_next/image|favicon.ico|assets).*)",
+      missing: [
+        { type: "header", key: "next-router-prefetch" },
+        { type: "header", key: "purpose", value: "prefetch" },
+      ],
+    },
   ],
 };

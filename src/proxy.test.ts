@@ -87,4 +87,14 @@ describe("proxy auth enforcement", () => {
     await proxy(makeRequest("/dashboard", "good-cookie"));
     expect(verifySessionCookie).toHaveBeenCalledWith("good-cookie", true);
   });
+
+  it("sets a nonce CSP on public pages without verifying a session", async () => {
+    const res = await proxy(makeRequest("/"));
+    expect(verifySessionCookie).not.toHaveBeenCalled();
+    const csp = res?.headers.get("Content-Security-Policy") ?? "";
+    expect(csp).toContain("'nonce-");
+    expect(csp).not.toContain("unsafe-eval");
+    expect(csp).not.toContain("script-src 'self' 'unsafe-inline'");
+    expect(res?.headers.get("x-middleware-next")).toBe("1");
+  });
 });
