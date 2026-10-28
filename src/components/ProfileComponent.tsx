@@ -8,7 +8,8 @@ import { mediaUrlForPath } from "@/utils/storageUrl";
 import { useRouter } from "next/navigation";
 import toast from "react-hot-toast";
 import { useAuthStore } from "@/zustand/useAuthStore";
-import { useProfileStore } from "@/zustand/useProfileStore";
+import { useProfileStore, selectFormattedName } from "@/zustand/useProfileStore";
+import { usablePersonName } from "@/utils/personName";
 import { resizeImage } from "@/utils/resizeImage";
 import { Button } from "@/components/ui/Button";
 import {
@@ -25,6 +26,7 @@ export default function ProfileComponent() {
   const uid = useAuthStore((s) => s.uid);
   const authEmail = useAuthStore((s) => s.authEmail);
   const profile = useProfileStore((s) => s.profile);
+  const displayName = useProfileStore(selectFormattedName);
   const updateProfile = useProfileStore((s) => s.updateProfile);
   const [newProfile, setNewProfile] = useState(profile);
   const [loading, setLoading] = useState(false);
@@ -32,7 +34,11 @@ export default function ProfileComponent() {
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-    setNewProfile(profile);
+    setNewProfile({
+      ...profile,
+      firstName: usablePersonName(profile.firstName),
+      lastName: usablePersonName(profile.lastName),
+    });
   }, [profile]);
 
   const handlePhotoChange = async (e: ChangeEvent<HTMLInputElement>) => {
@@ -59,8 +65,8 @@ export default function ProfileComponent() {
   };
 
   const hasChanges =
-    newProfile.firstName !== profile.firstName ||
-    newProfile.lastName !== profile.lastName ||
+    newProfile.firstName !== usablePersonName(profile.firstName) ||
+    newProfile.lastName !== usablePersonName(profile.lastName) ||
     newProfile.contactEmail !== profile.contactEmail ||
     newProfile.photoUrl !== profile.photoUrl;
 
@@ -95,6 +101,9 @@ export default function ProfileComponent() {
     <Card>
       <CardHeader className="pb-6 sm:pb-6">
         <h2 className="font-display text-xl font-semibold">Personal details</h2>
+        {displayName !== "You" && (
+          <p className="font-display text-lg text-foreground">{displayName}</p>
+        )}
         <CardDescription>
           How you appear on your ikigai card and in the app.
         </CardDescription>

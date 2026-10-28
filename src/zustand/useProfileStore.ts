@@ -3,6 +3,7 @@ import { useAuthStore } from "./useAuthStore";
 import { withDevtools } from "./middleware";
 import { fetchProfileData, updateProfileData } from "@/services/profileService";
 import type { UserProfile } from "@/types";
+import { formatPersonName } from "@/utils/personName";
 
 interface ProfileStore {
   profile: UserProfile;
@@ -78,9 +79,4 @@ export const useProfileStore = create<ProfileStore>()(
   }))
 );
 
-export const selectFormattedName = (state: ProfileStore): string => {
-  const { firstName, lastName, displayName, email } = state.profile;
-  if (firstName) return lastName ? `${firstName} ${lastName}` : firstName;
-  if (displayName) return displayName;
-  return email?.split("@")[0] || "You";
-};
+export const selectFormattedName = (state: ProfileStore): string => formatPersonName(state.profile);

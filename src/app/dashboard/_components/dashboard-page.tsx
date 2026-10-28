@@ -13,7 +13,8 @@ import CardFormatDownloads from "@/components/share/CardFormatDownloads";
 import CheckInCard from "@/components/journey/CheckInCard";
 import ExperimentCard from "@/components/journey/ExperimentCard";
 import { CIRCLE_BY_STEP, type CircleId } from "@/constants/ikigai";
-import { useIkigaiStore, useProfileStore } from "@/zustand";
+import { useIkigaiStore, useProfileStore, selectFormattedName } from "@/zustand";
+import { usablePersonName } from "@/utils/personName";
 import { displayStatement, normalizeStatement } from "@/utils/ikigaiList";
 import { canGenerate, hasCurrentReport, isSectionComplete, isSectionStarted, resumeHref } from "@/utils/journey";
 import type { Ikigai, IkigaiSummary } from "@/types";
@@ -48,6 +49,8 @@ export default function DashboardPage({ userId, initial }: DashboardPageProps): 
 function CardDashboard({ userId, initial, coverImage, ikigai, ready }: DashboardPageProps & { coverImage: string; ikigai: Ikigai; ready: boolean }) {
   const selected = ready ? ikigai.ikigaiSelected : null;
   const statement = selected ? displayStatement(selected.ikigai) : initial.statement;
+  const person = useProfileStore(selectFormattedName);
+  const cardName = usablePersonName(ikigai.ikigaiCardName) || (person === "You" ? "" : person);
 
   return (
     <div className="mx-auto w-full max-w-6xl px-5 pb-16 pt-10 sm:px-8 sm:pt-14">
@@ -70,7 +73,7 @@ function CardDashboard({ userId, initial, coverImage, ikigai, ready }: Dashboard
           {selected && (
             <div className="mt-4">
               <p className="text-sm font-medium">More sizes</p>
-              <CardFormatDownloads className="mt-2" statement={selected.ikigai} name={ikigai.ikigaiCardName} imageUrl={ikigai.ikigaiImage || undefined} />
+              <CardFormatDownloads className="mt-2" statement={selected.ikigai} name={cardName} imageUrl={ikigai.ikigaiImage || undefined} />
             </div>
           )}
           <CardActions />

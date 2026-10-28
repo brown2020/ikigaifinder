@@ -1,6 +1,6 @@
 # AGENTS.md
 
-Authoritative operating guide for autonomous coding agents (Codex, Claude, etc.) working in this repository. Read this file in full before making any change. For product scope and roadmap, read [`spec.md`](./spec.md).
+Authoritative operating guide for autonomous coding agents (Codex, Claude, etc.) working in this repository. Read this file in full before making any change. For the product as built, read [`spec.md`](./spec.md). For what to do next, read [`roadmap.md`](./roadmap.md).
 
 ---
 
@@ -15,11 +15,11 @@ Turn a short, structured self-reflection survey into a small set of concrete, pe
 ## Current tech stack
 
 - **Runtime:** Node.js 22+
-- **Framework:** Next.js 16 (App Router) — `next` `^16.2.10`
-- **Language:** TypeScript `^6.x` (strict), React `19.2`
+- **Framework:** Next.js 16 (App Router) — `next` `^16.4.3`
+- **Language:** TypeScript `^6.0.3` (strict; not 7 until `typescript-eslint` allows it), React `19.3`
 - **Styling:** Tailwind CSS v4 (`@tailwindcss/postcss`), utility-first, no CSS-in-JS
 - **State:** Zustand 5 (with `devtools`)
-- **Auth + data:** Firebase Web SDK 12 (client) + Firebase Admin 14 (server)
+- **Auth + data:** Firebase Web SDK 13 (client) + Firebase Admin 14 (server)
 - **AI text:** Vercel AI SDK (`ai` v7) + `@ai-sdk/openai` v4 (`gpt-6.1-sol`, low reasoning effort), streamed to the client via `@ai-sdk/rsc` v3 (`createStreamableValue` / `readStreamableValue`). Model IDs and provider options live only in `src/constants/ai.ts`; reasoning models reject `temperature`, so don't add it back.
 - **AI images:** OpenAI `gpt-image-2.5-flare` through the AI SDK `generateImage` (`IMAGE_MODEL` in `src/constants/ai.ts`), one attempt per request with no retries so a lost response can't bill twice.
 - **Forms:** React Hook Form 7 + Zod 4

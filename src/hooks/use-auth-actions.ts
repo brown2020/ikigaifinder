@@ -9,10 +9,12 @@ import {
   signOut as firebaseSignOut,
   sendSignInLinkToEmail,
   sendPasswordResetEmail,
+  updateProfile as updateAuthProfile,
   AuthError,
 } from "firebase/auth";
 import { auth, hasClientConfig } from "@/firebase/firebaseClient";
-import { useAuthStore } from "@/zustand";
+import { useAuthStore, useIkigaiStore, useProfileStore } from "@/zustand";
+import { splitPersonName } from "@/utils/personName";
 import { getIdToken } from "firebase/auth";
 import {
   clearServerSession,
@@ -219,20 +221,37 @@ export function useAuthActions(): UseAuthActionsReturn {
       if (!ensureClient()) return;
 
       try {
-        await createUserWithEmailAndPassword(auth, email, password);
-        const currentUser = auth.currentUser;
-        if (currentUser) {
-          const idToken = await getIdToken(currentUser, true);
-          await createServerSession(idToken);
+        const credential = await createUserWithEmailAndPassword(auth, email, password);
+        const currentUser = credential.user;
+        const { firstName, lastName } = splitPersonName(name);
+        if (name) {
+          await updateAuthProfile(currentUser, { displayName: name });
         }
+        useAuthStore.getState().setAuthDetails({
+          uid: currentUser.uid,
+          authEmail: currentUser.email ?? email,
+          authDisplayName: name,
+          selectedName: name,
+          authPhotoUrl: currentUser.photoURL ?? "",
+          authEmailVerified: currentUser.emailVerified,
+          authReady: true,
+          authPending: false,
+        });
+        if (name) {
+          await useProfileStore.getState().updateProfile({
+            firstName,
+            lastName,
+            displayName: name,
+            email,
+            contactEmail: email,
+          });
+        }
+        const idToken = await getIdToken(currentUser, true);
+        await createServerSession(idToken);
 
-        // Store for form pre-fill
         if (typeof window !== "undefined") {
           window.localStorage.setItem("generateEmail", email);
-          window.localStorage.setItem(
-            "generateName",
-            name || email.split("@")[0]
-          );
+          window.localStorage.setItem("generateName", name);
         }
 
         onSuccess?.();
@@ -254,10 +273,7 @@ export function useAuthActions(): UseAuthActionsReturn {
       setError("");
 
       try {
-        // 1. Delete the server-managed httpOnly session cookie
-        await clearServerSession().catch(() => {});
-
-        // 2. Expire the legacy client-readable auth cookie (the session cookie is httpOnly and cleared above)
+        // Expire the legacy client-readable auth cookie (the session cookie is httpOnly and cleared below).
         document.cookie = "authToken=; Max-Age=0; path=/";
 
         // 3. Clear localStorage auth artifacts
@@ -269,11 +285,13 @@ export function useAuthActions(): UseAuthActionsReturn {
           window.localStorage.removeItem("generateName");
         }
 
-        // 4. Sign out from Firebase
+        // Sign out of Firebase before dropping the cookie, so a refresh cannot mint a new one.
         await firebaseSignOut(auth);
+        await clearServerSession().catch(() => {});
 
-        // 5. Clear all Zustand stores
         clearAuthDetails();
+        useProfileStore.getState().resetProfile();
+        useIkigaiStore.getState().resetIkigai();
 
         onSuccess?.();
       } catch {

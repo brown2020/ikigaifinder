@@ -81,14 +81,14 @@ export function useAuthToken(
 
   const refreshIntervalRef = useRef<NodeJS.Timeout | null>(null);
   const epoch = useRef(0);
-  const chain = useRef(Promise.resolve());
+  const chain = useRef<Promise<unknown> | null>(null);
 
   /**
    * Create/refresh the server session cookie using the current Firebase ID token.
    * Calls are serialized so a refresh that started before sign-out cannot restore the cookie.
    */
   const refreshServerSession = useCallback(async (generation = epoch.current): Promise<void> => {
-    const run = chain.current.then(async () => {
+    const run = (chain.current ?? Promise.resolve()).then(async () => {
       const started = auth.currentUser;
       if (!started || generation !== epoch.current) return;
       const uid = started.uid;
@@ -137,9 +137,9 @@ export function useAuthToken(
       void refreshServerSession(generation);
     } else if (!isLoading) {
       clearAuthDetails();
-      // Clear any existing server session cookie on sign-out, after in-flight refreshes.
-      const run = chain.current.then(async () => {
-        if (epoch.current !== generation) return;
+      // Clear the cookie after in-flight refreshes. A newer signed-in user skips this.
+      const run = (chain.current ?? Promise.resolve()).then(async () => {
+        if (auth.currentUser) return;
         await clearServerSession().catch((err) => {
           console.error("Failed to clear server session on logout:", err instanceof Error ? err.name : "unknown");
         });

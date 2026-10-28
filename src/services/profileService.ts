@@ -1,6 +1,7 @@
 import { loadFirestore } from "@/firebase/firebaseClient";
 import { ProfileFetchError, ProfileUpdateError } from "@/lib/errors";
 import type { UserProfile } from "@/types";
+import { splitPersonName, usablePersonName } from "@/utils/personName";
 import type { AuthState } from "@/zustand/useAuthStore";
 
 // ============================================================================
@@ -18,21 +19,13 @@ interface ProfileDocument {
 /**
  * Extract first name from display name or email
  */
-function extractFirstName(authState: AuthState): string {
-  const { selectedName, authDisplayName, authEmail } = authState;
-
-  if (selectedName) return selectedName;
-  if (authDisplayName) return authDisplayName.split(" ")[0];
-  if (authEmail) return authEmail.split("@")[0];
-  return "";
+function nameFromAuth(authState: AuthState): { firstName: string; lastName: string } {
+  return splitPersonName(usablePersonName(authState.selectedName) || usablePersonName(authState.authDisplayName));
 }
 
-/**
- * Extract last name from display name
- */
-function extractLastName(authDisplayName: string): string {
-  const parts = authDisplayName?.split(" ") ?? [];
-  return parts.length > 1 ? parts.slice(1).join(" ") : "";
+/** Keep a saved name. An email address stored in the name field is not a name. */
+function keptName(stored: string | undefined, fallback: string): string {
+  return usablePersonName(stored) || usablePersonName(fallback);
 }
 
 /**
@@ -45,8 +38,8 @@ function createDefaultProfile(authState: AuthState): UserProfile {
     displayName: authState.authDisplayName ?? "",
     photoUrl: authState.authPhotoUrl ?? "",
     emailVerified: authState.authEmailVerified ?? false,
-    firstName: extractFirstName(authState),
-    lastName: extractLastName(authState.authDisplayName),
+    firstName: nameFromAuth(authState).firstName,
+    lastName: nameFromAuth(authState).lastName,
     headerUrl: "",
     organization: "",
     title: "",
@@ -76,9 +69,8 @@ function mergeProfileWithAuth(
     displayName: storedProfile.displayName ?? authState.authDisplayName ?? "",
     photoUrl: storedProfile.photoUrl ?? authState.authPhotoUrl ?? "",
     emailVerified: authState.authEmailVerified ?? false,
-    firstName: storedProfile.firstName ?? extractFirstName(authState),
-    lastName:
-      storedProfile.lastName ?? extractLastName(authState.authDisplayName),
+    firstName: keptName(storedProfile.firstName, nameFromAuth(authState).firstName),
+    lastName: keptName(storedProfile.lastName, nameFromAuth(authState).lastName),
     headerUrl: storedProfile.headerUrl ?? "",
     organization: storedProfile.organization ?? "",
     title: storedProfile.title ?? "",
@@ -169,11 +161,10 @@ export async function updateProfileData(
 
   try {
     // Ensure firstName is set
-    const firstName =
-      updates.firstName ??
-      authState.selectedName ??
-      currentProfile.firstName ??
-      extractFirstName(authState);
+    const firstName = keptName(
+      updates.firstName ?? currentProfile.firstName,
+      nameFromAuth(authState).firstName
+    );
 
     const updatedProfile: UserProfile = {
       ...currentProfile,

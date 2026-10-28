@@ -1,6 +1,6 @@
 # Ikigai Finder AI — Product Spec
 
-> Single authoritative product/spec/roadmap document. For engineering conventions and autonomous-agent rules, see [`AGENTS.md`](./AGENTS.md). For setup/deploy instructions, see [`README.md`](./README.md).
+> What the product is and what it does today. Next steps and open issues are in [`roadmap.md`](./roadmap.md). Engineering rules are in [`AGENTS.md`](./AGENTS.md). Setup is in [`README.md`](./README.md).
 >
 > Conclusions inferred from the codebase (rather than stated in prior docs) are marked **[inferred]**.
 
@@ -53,9 +53,10 @@ A working end-to-end flow exists: authenticate → questionnaire → streaming O
 - **Image generation:** server action `src/lib/generateImage.ts` calls OpenAI image generation through the AI SDK (one attempt, no retries), uploads to Firebase Storage (`generated/{uid}/...`), returns a same-origin `/api/media` URL, and records a cover in history.
 - **Sharing:** `PATCH /api/ikigai/sharing` toggles `ikigaiSharableUrl`; the public page at `app/ikigai/[id]` reads a minimal summary (cover, statement, map words) through the Admin SDK only when sharable; `firestore.rules` never allows public client reads; social buttons + `html2canvas` download.
 - **Dashboard & profile:** authenticated areas with `loading.tsx`/`error.tsx` boundaries.
-- **Account deletion:** `/profile` → type DELETE ACCOUNT → `DELETE /api/account` (fresh ID token, revocation-checked) deletes `generated/{uid}/` and `users/{uid}/` in Storage, the `ikigaiUsers/{uid}` and `ikigaiProfiles/{uid}` trees, then the Auth user, and clears the session cookie. Success is shown only after the server confirms; the client then signs out and clears local drafts. Retrying after a partial failure finishes the job.
+- **Account deletion:** `/profile` → type DELETE ACCOUNT → `DELETE /api/account` (fresh ID token, revocation-checked) deletes `generated/{uid}/` and `users/{uid}/` in Storage, the `ikigaiUsers/{uid}` and `ikigaiProfiles/{uid}` trees, the caller's `_rateLimits` documents, then the Auth user, and clears the session cookie. Success is shown only after the server confirms; the client then signs out and clears local drafts. Retrying after a partial failure finishes the job.
 - **Native app:** inside the React Native webview, Google sign-in is hidden on iPhone and iPad; email/password and email-link sign-in remain.
-- **Cross-cutting:** CSP/security headers (`next.config.mjs`), cookie-consent banner, four-circle ikigai diagram and overlap score bars, mobile-first responsive UI.
+- **Profile:** name, photo, and contact email. The name on the card and in the account menu comes from the person's name, not their email address. Sign-out (from the profile page or the account menu) clears Firebase Auth, the httpOnly session cookie, and the in-memory stores before leaving.
+- **Cross-cutting:** nonce CSP from `src/proxy.ts` plus the other security headers in `next.config.mjs`, cookie-consent banner, four-circle ikigai diagram and overlap score bars, mobile-first responsive UI.
 
 ### Current user flows
 
@@ -85,16 +86,15 @@ A working end-to-end flow exists: authenticate → questionnaire → streaming O
 - TypeScript remains on the latest 6.x release because the current `typescript-eslint` parser used by `eslint-config-next` supports TypeScript `<6.1`; TypeScript 7 causes the lint toolchain to crash.
 - ESLint remains on the latest 9.x release because the React/import/accessibility plugins bundled by the current `eslint-config-next` release do not yet declare ESLint 10 compatibility.
 - Firestore-backed generation quotas, shared across instances and denied to client SDKs.
-- Firebase project required (Auth + Firestore + Storage) with rules deployed manually (no `firebase.json`/`.firebaserc` committed). **[inferred]**
+- Firebase project required (Auth + Firestore + Storage). `firebase.json` points at `firestore.rules` and `storage.rules`; those rules are deployed separately from the website.
 - Secrets are server-only; only `NEXT_PUBLIC_*` values reach the client.
 
 ### Known limitations
 
 - **Rate limiting identity is derived server-side:** `generateIkigai`, `generateReport`, and `generateImage` resolve the user from the verified session cookie and count the window in Firestore (`_rateLimits`). A store error fails closed.
 - **New images are not bearer URLs.** Covers and profile photos are served from `/api/media` after an owner or public-cover check. Signed URLs minted before this change remain valid until the object is deleted or the signing key is rotated.
-- **Generation errors are low-visibility:** failures are logged and set in state but lack a clear in-product retry/empty-state. **[inferred]**
-- **Abandoned/partial code removed:** the divergent second AI text path (`src/lib/actions.ts` → `generatePurpose`, which used `gpt-4.1`) and its `src/lib/ai/stream.ts` helpers, unused legacy generation/questionnaire exports, and unused `GenerateImage`/`SurveyQuestion` components have been removed. A single GPT‑4o path (`generateIkigai`) remains.
-- **Minimal automated-test setup:** `npm test` runs Vitest and currently covers route-protection helpers plus ikigai parsing; no CI is configured. The practical regression gate remains `npm run lint && npm run build`.
+- **One text path:** statements come from `generateIkigai` (`gpt-6.1-sol`). There is no second provider.
+- **Tests and CI:** `npm test` covers route protection, generation, media authorization, account deletion, and env drift. GitHub Actions on `dev` and `main` runs lint, typecheck, tests, React Doctor, the production build, and the Firestore/Storage rules emulators.
 - **Legal pages** (privacy policy, terms) were last dated 2022 per prior planning notes.
 
 ---
@@ -210,10 +210,12 @@ Product-oriented, ordered by impact and dependency. Each item is sized for one c
 - **User value:** fewer dead ends and less friction: a lost link lands somewhere helpful, signing up has no pre-ticked box, and the next step in the questionnaire is always in reach on a phone.
 - **Implemented:** a branded `app/not-found.tsx` (noindex) with links home and to the quick start. Sign-in and sign-up show one consent line (`ConsentNote`) covering every method, including Google, instead of a pre-checked terms checkbox. `JourneyActions` pins the questionnaire and quick-start actions above the bottom nav on phones (or the screen edge for guests) and leaves desktop unchanged. The cookie banner positions itself above the phone nav and any pinned action bar (`data-mobile-nav`, `data-bottom-bar` rules in `globals.css`) so it never covers the next step.
 
+Future work is listed in [`roadmap.md`](./roadmap.md). The milestones below are already shipped.
+
 ### M23 — Quality pass (app-eval until-100) — DONE
 - **User value:** faster first load, accessible questionnaires, honest share pages, and safer data handling.
 - **Implemented:** Firestore/Storage SDKs load on first use (landing and quick start 236/254 KB gzip first-load JS, budget 300 KB); circle text colors meet 4.5:1 (`ink` shades); public pages show the statement baked into the card (`ikigaiCardStatement`) and owners see when their card is out of date; "Clear ideas" keeps the shortlist and current choice; the image download proxy accepts only the app's bucket; React Doctor 100; production `npm audit` 0. Tests now cover route-handler and server-action authorization, Firestore/Storage rules on the emulators (CI job), account deletion, and `env.sample` drift.
-- **Follow-up (2026-10-22):** text moved from `gpt-4o` (API shutdown 2027-01-14) to `gpt-6.1-sol` and card backgrounds from deprecated Fireworks SDXL to OpenAI `gpt-image-2.5-flare`, both verified with live calls. Signed-in end-to-end checks on a test account then found and fixed a share-link overflow on phones, a hydration mismatch in share links, late writes after sign-out, edits lost between two open tabs (saves now merge per question onto the latest answers), and focused controls hidden behind pinned bars (scroll padding). Still open: production monitoring.
+- **Follow-up (2026-10-22):** text moved from `gpt-4o` (API shutdown 2027-01-14) to `gpt-6.1-sol` and card backgrounds from deprecated Fireworks SDXL to OpenAI `gpt-image-2.5-flare`. Signed-in checks then fixed share-link overflow on phones, a hydration mismatch in share links, late writes after sign-out, edits lost between two open tabs, and focused controls hidden behind pinned bars. Production smoke probes run after each production deploy.
 
 ### Out of scope / non-goals (for now)
 

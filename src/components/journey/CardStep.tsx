@@ -19,6 +19,7 @@ import { captureAndUploadImage } from "@/utils/canvasUtils";
 import { containsRestrictedContent } from "@/utils/platform";
 import { buildCoverPrompt } from "@/utils/promptUtils";
 import { useAuthStore, useIkigaiStore, useProfileStore } from "@/zustand";
+import { formatPersonName, usablePersonName } from "@/utils/personName";
 import { cn } from "@/utils/cn";
 import JourneyProgress from "./JourneyProgress";
 
@@ -29,11 +30,12 @@ export default function CardStep(): React.ReactElement {
   const uid = useAuthStore((s) => s.uid);
   const ikigai = useIkigaiStore((s) => s.ikigaiData);
   const updateIkigai = useIkigaiStore((s) => s.updateIkigai);
-  const firstName = useProfileStore((s) => s.profile.firstName ?? "");
+  const personName = useProfileStore((s) => formatPersonName(s.profile));
 
   const [scene, setScene] = useState("");
   const [style, setStyle] = useState<string>("");
-  const [name, setName] = useState(ikigai.ikigaiCardName ?? firstName);
+  const [name, setName] = useState(() => usablePersonName(ikigai.ikigaiCardName));
+  const [nameEdited, setNameEdited] = useState(false);
   const [history, setHistory] = useState<string[]>([]);
   const [isGenerating, setIsGenerating] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
@@ -46,6 +48,16 @@ export default function CardStep(): React.ReactElement {
     if (!uid) return;
     return subscribeToCoverHistory(uid, setHistory);
   }, [uid]);
+
+  useEffect(() => {
+    if (nameEdited) return;
+    const saved = usablePersonName(ikigai.ikigaiCardName);
+    if (saved) {
+      setName(saved);
+      return;
+    }
+    if (personName !== "You") setName(personName);
+  }, [ikigai.ikigaiCardName, nameEdited, personName]);
 
   if (!ikigai.ikigaiSelected) {
     return (
@@ -216,7 +228,10 @@ export default function CardStep(): React.ReactElement {
               placeholder="Leave blank for “My ikigai”"
               value={name}
               maxLength={40}
-              onChange={(e) => setName(e.target.value)}
+              onChange={(e) => {
+                setNameEdited(true);
+                setName(e.target.value);
+              }}
             />
           </Card>
 
