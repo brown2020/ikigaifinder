@@ -39,22 +39,39 @@ export function useAnswerAutosave<T extends FieldValues>(
 
   useEffect(() => {
     let timer: ReturnType<typeof setTimeout> | undefined;
+    let alive = true;
+
+    const persist = async () => {
+      const { ikigaiData, updateIkigai } = useIkigaiStore.getState();
+      const answers = toAnswersRef.current(getValues(), ikigaiData.answers);
+      const base = baseRef.current ?? ikigaiData.answers;
+      if (sameAnswers(answers, base)) return;
+      if (alive) setState("saving");
+      const ok = await updateIkigai({ answers }, { quiet: true, base });
+      if (ok) baseRef.current = answers;
+      if (alive) setState(ok ? "saved" : "error");
+    };
+
+    const flush = () => {
+      if (!timer) return;
+      clearTimeout(timer);
+      timer = undefined;
+      void persist();
+    };
+
     const subscription = watch(() => {
       clearTimeout(timer);
-      timer = setTimeout(async () => {
-        const { ikigaiData, updateIkigai } = useIkigaiStore.getState();
-        const answers = toAnswersRef.current(getValues(), ikigaiData.answers);
-        const base = baseRef.current ?? ikigaiData.answers;
-        if (sameAnswers(answers, base)) return;
-        setState("saving");
-        const ok = await updateIkigai({ answers }, { quiet: true, base });
-        if (ok) baseRef.current = answers;
-        setState(ok ? "saved" : "error");
+      timer = setTimeout(() => {
+        timer = undefined;
+        void persist();
       }, delay);
     });
+    window.addEventListener("pagehide", flush);
     return () => {
-      clearTimeout(timer);
+      alive = false;
       subscription.unsubscribe();
+      window.removeEventListener("pagehide", flush);
+      flush();
     };
   }, [watch, getValues, delay]);
 
