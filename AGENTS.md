@@ -14,7 +14,7 @@ Turn a short, structured self-reflection survey into a small set of concrete, pe
 
 ## Current tech stack
 
-- **Runtime:** Node.js 22+
+- **Runtime:** Node.js 24 (CI and Vercel; `@firebase/*` declares `>=24.12.0`)
 - **Framework:** Next.js 16 (App Router) — `next` `^16.4.3`
 - **Language:** TypeScript `^6.0.3` (strict; not 7 until `typescript-eslint` allows it), React `19.3`
 - **Styling:** Tailwind CSS v4 (`@tailwindcss/postcss`), utility-first, no CSS-in-JS
@@ -173,7 +173,7 @@ npm run lint && npm run build
 - **Production smoke** (`.github/workflows/production-smoke.yml`) runs `node scripts/smoke-hosted.mjs` after every successful Vercel Production deployment, daily, and on demand. The probes are read-only (no account, AI call, or write): landing page, `robots.txt`, anonymous `/dashboard` redirect, and 401s from `/api/account` and `/api/ikigai/sharing`. A failed run is the alert; GitHub emails the operator. `src/hostedHealth.test.ts` proves outages and open auth boundaries fail the check.
 - **Notification drill:** `gh workflow run production-smoke.yml --ref dev -f notification_drill=true` fails on purpose before probing; confirm the GitHub failure email arrives.
 - **Website rollback** (Vercel project `ignitechannel/ikigaifinder`): record the failing deployment and evidence, run `vercel ls ikigaifinder --scope ignitechannel --prod`, then `vercel rollback <previous-production-deployment-url> --scope ignitechannel`. Run `node scripts/smoke-hosted.mjs`, then verify sign-in, ideas, card, and sharing. Return with `vercel promote <fixed-deployment-url> --scope ignitechannel`. A website rollback does not revert Firestore/Storage rules or data.
-- Vercel runs Node 24.x; CI runs Node 22 (the supported minimum).
+- Vercel and CI both run Node 24. There is no `engines` field yet, so Node 22 still installs and warns `EBADENGINE`.
 
 ## Files and systems requiring extra caution
 
@@ -186,10 +186,10 @@ npm run lint && npm run build
 - **`src/lib/generateImage.ts`** — returns `/api/media` paths, not signed URLs. Objects already issued with a long-lived signed URL stay reachable until deleted or the signing key is rotated.
 - **`service_key.json`** and **`.env*.local`** — secrets, gitignored. Never read, print, or commit them.
 - **Generated/derived files** — `package-lock.json`, `tsconfig.tsbuildinfo`, `.next/`, `next-env.d.ts`. Don't hand-edit; change the source and regenerate.
-- **Dependency policy** — `package.json` intentionally pins reviewed install scripts with `allowScripts` and uses overrides to keep Next/Firebase transitive dependencies on patched compatible releases. Review changed lifecycle scripts before re-approving them, and require a clean audit plus full validation before removing overrides. Current overrides include `sharp` 0.35.5, `@grpc/grpc-js` 1.14.6 under `@firebase/firestore` (the SDK uses it only as a Node client), `@fastify/busboy` and `source-map-js`; drop each once its parent ships the patched version. `npm audit --omit=dev` must stay at 0. The remaining dev-only advisory is `braces` (via `eslint-config-next` → `fast-glob`), which has no patched release and only processes this repo's own lint globs; revisit when a fixed `braces` or `fast-glob` ships.
-- **Node types** — keep `@types/node` on the latest 22.x release while Node 22 is the minimum supported runtime; newer type majors can expose APIs unavailable in production.
-- **TypeScript 7** — currently incompatible with the latest `typescript-eslint` parser used by `eslint-config-next` (which supports TypeScript `<6.1`); keep TypeScript on the latest 6.x release until that peer range advances.
-- **ESLint 10** — `eslint-config-next` still installs React/import/accessibility plugins whose peer ranges stop at ESLint 9; keep ESLint on the latest 9.x release until those peers add ESLint 10 support.
+- **Dependency policy** — `package.json` intentionally pins reviewed install scripts with `allowScripts` and uses overrides to keep Next/Firebase transitive dependencies on patched compatible releases. Review changed lifecycle scripts before re-approving them, and require a clean audit plus full validation before removing overrides. Current overrides include `sharp` 0.35.5, `@grpc/grpc-js` 1.14.7 under `@firebase/firestore` (the SDK uses it only as a Node client), `minimatch` ^11.0.4, `glob` ^14.0.3, `@fastify/busboy`, and `source-map-js`. `jwks-rsa` still pins `jose` 5.10.0 because `jose` 6 is ESM-only and breaks `require('firebase-admin/auth')` on Vercel. Drop each override once its parent ships the patched version. `npm audit --omit=dev` must stay at 0.
+- **Node types** — `@types/node` tracks the latest release (26.x). CI and Vercel run Node 24, so do not call APIs that exist only in newer Node type definitions.
+- **TypeScript 7** — `typescript-eslint` 8.72.1 (used by `eslint-config-next`) throws on TypeScript 7.0 even though `tsc` itself accepts this repo. Keep TypeScript on the latest 6.x release until that parser accepts 7.
+- **ESLint 10** — ESLint 10.14.0 can lint this config, but `eslint-plugin-react`, `eslint-plugin-import`, and `eslint-plugin-jsx-a11y` still peer-cap at ESLint 9, so `npm ls` reports an invalid tree. Keep ESLint on the latest 9.x release until those peers add ESLint 10 support.
 
 ## Git workflow expectations (main and dev)
 

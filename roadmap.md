@@ -6,8 +6,8 @@ What is next after the product described in [`spec.md`](./spec.md). Shipped mile
 
 1. **Cover long image generations on the host plan.** `generateImage` waits up to 120 seconds for the provider and does not set `maxDuration`. Next.js uses the platform default, which depends on the Vercel plan. Confirm the production function can outlive that wait, and set `maxDuration` only if the plan allows it.
 2. **Decide what to do with covers minted before media URLs.** New images are served from `/api/media`. Signed URLs already issued stay valid until the object is deleted or the signing key is rotated. Rotation is a Steve decision; this repo does not rotate keys.
-3. **Node 24 when we leave Node 22.** `@firebase/*` packages declare `node: >=24.12.0`. CI and production builds still run on Node 22, where those packages load and warn `EBADENGINE`. Do not bump engines until that move is intentional.
-4. **ESLint 10 and TypeScript 7 when peers allow them.** `eslint-plugin-react`, `eslint-plugin-import`, and `eslint-plugin-jsx-a11y` still stop at ESLint 9. `typescript-eslint` still requires TypeScript `<6.1`. Stay on ESLint ^9.39.5 and TypeScript ^6.0.3 until those ranges move.
+3. **Engines field for Node 24.** CI and Vercel already run Node 24, and `@firebase/*` declares `node: >=24.12.0`. This repo still has no `engines` field, so a Node 22 install only warns `EBADENGINE`. Add `engines` when we want that warning to become a hard refusal.
+4. **ESLint 10 and TypeScript 7 when peers allow them.** ESLint 10.14.0 loads this config, but `eslint-plugin-react` 7.37.5, `eslint-plugin-import` 2.32.0, and `eslint-plugin-jsx-a11y` 6.10.2 still peer-cap at ESLint 9, so `npm ls` is invalid. TypeScript 7.0.2 typechecks the app, but `typescript-eslint` 8.72.1 (pulled by `eslint-config-next` 16.4.3) throws "does not support TS 7.0" and crashes lint. Stay on ESLint ^9.39.5 and TypeScript ^6.0.3.
 5. **Browser coverage for sign-in, the nonce CSP, and image upload.** Unit tests cover redirects, session clearing, media authorization, and names. A signed-in browser pass still needs Firebase credentials that are not in this environment.
 
 ## Known limits
@@ -16,7 +16,7 @@ What is next after the product described in [`spec.md`](./spec.md). Shipped mile
 - The in-memory rate-limit helper remains for unit tests only.
 - Account deletion removes `_rateLimits/ai:{uid}` and `_rateLimits/img:{uid}` along with the user's other documents. Rules for those paths are owner-denied and must be deployed with `firestore.rules` when that file changes.
 - Google sign-in is hidden inside the React Native webview. Email and email-link sign-in stay available.
-- `npm audit` (including production-only) is clean as of this pass. Re-check after the next dependency update.
+- `npm audit` and `npm audit --omit=dev` are clean as of this pass (Node 24.22). `minimatch` is overridden to ^11.0.4 and `glob` to ^14.0.3. The `jwks-rsa` → `jose` 5.10.0 pin stays, because `jose` 6 is ESM-only and `firebase-admin/auth` fails to load it on Vercel. Re-check after the next dependency update.
 
 ## Open issues
 
