@@ -15,7 +15,7 @@ Turn a short, structured self-reflection survey into a small set of concrete, pe
 ## Current tech stack
 
 - **Runtime:** Node.js 24 (CI and Vercel; `@firebase/*` declares `>=24.12.0`)
-- **Framework:** Next.js 16 (App Router) — `next` `^16.4.3`
+- **Framework:** Next.js 16 (App Router) — `next` `^16.4.5`
 - **Language:** TypeScript `^6.0.3` (strict; not 7 until `typescript-eslint` allows it), React `19.3`
 - **Styling:** Tailwind CSS v4 (`@tailwindcss/postcss`), utility-first, no CSS-in-JS
 - **State:** Zustand 5 (with `devtools`)
@@ -187,9 +187,9 @@ npm run lint && npm run build
 - **`service_key.json`** and **`.env*.local`** — secrets, gitignored. Never read, print, or commit them.
 - **Generated/derived files** — `package-lock.json`, `tsconfig.tsbuildinfo`, `.next/`, `next-env.d.ts`. Don't hand-edit; change the source and regenerate.
 - **Dependency policy** — `package.json` intentionally pins reviewed install scripts with `allowScripts` and uses overrides to keep Next/Firebase transitive dependencies on patched compatible releases. Review changed lifecycle scripts before re-approving them, and require a clean audit plus full validation before removing overrides. Current overrides include `sharp` 0.35.5, `@grpc/grpc-js` 1.14.7 under `@firebase/firestore` (the SDK uses it only as a Node client), `minimatch` ^11.0.4, `glob` ^14.0.3, `@fastify/busboy`, and `source-map-js`. `jwks-rsa` still pins `jose` 5.10.0 because `jose` 6 is ESM-only and breaks `require('firebase-admin/auth')` on Vercel. Drop each override once its parent ships the patched version. `npm audit --omit=dev` must stay at 0.
-- **Node types** — `@types/node` tracks the latest release (26.x). CI and Vercel run Node 24, so do not call APIs that exist only in newer Node type definitions.
-- **TypeScript 7** — `typescript-eslint` 8.72.1 (used by `eslint-config-next`) throws on TypeScript 7.0 even though `tsc` itself accepts this repo. Keep TypeScript on the latest 6.x release until that parser accepts 7.
-- **ESLint 10** — ESLint 10.14.0 can lint this config, but `eslint-plugin-react`, `eslint-plugin-import`, and `eslint-plugin-jsx-a11y` still peer-cap at ESLint 9, so `npm ls` reports an invalid tree. Keep ESLint on the latest 9.x release until those peers add ESLint 10 support.
+- **Node types** — keep `@types/node` on the latest 24.x release so types match the Node 24 runtime. Do not move to 26.x.
+- **TypeScript 7** — TypeScript 7.0.2 has no compiler API that `typescript-eslint` can use. The parser throws on 7.0 and crashes lint. Keep TypeScript on 6.0.3.
+- **ESLint** — ESLint is on ^10.14.0. `eslint-plugin-react`, `eslint-plugin-import`, and `eslint-plugin-jsx-a11y` still peer-cap at ESLint 9; `.npmrc` sets `legacy-peer-deps=true`. Lint, typecheck, tests, and the production build pass on 10.14.0.
 
 ## Git workflow expectations (main and dev)
 

@@ -21,15 +21,15 @@ Discover your *ikigai* (生き甲斐 — “a reason for being”) through an AI
 | Layer | Tech |
 | --- | --- |
 | Runtime | Node.js 24 (CI and Vercel; `@firebase/*` asks for `>=24.12.0`) |
-| Framework | Next.js ^16.4.3 (App Router) |
-| UI | React ^19.3.1, Tailwind CSS ^4.3.3, Lucide ^1.66.0, html2canvas, react-share |
+| Framework | Next.js ^16.4.5 (App Router) |
+| UI | React ^19.3.1, Tailwind CSS ^4.3.4, Lucide ^1.68.0, html2canvas, react-share |
 | Language | TypeScript ^6.0.3 |
 | State | Zustand ^5.0.16 |
 | Forms | React Hook Form ^7.91 + Zod ^4.6 |
-| Backend | Firebase ^13.1.0 + Firebase Admin ^14.5.0 |
-| AI text | Vercel AI SDK (`ai` ^7.0.159) + `@ai-sdk/openai` ^4.0.106 + `@ai-sdk/rsc` ^3.0.159 streaming |
+| Backend | Firebase ^13.2.0 + Firebase Admin ^14.5.0 |
+| AI text | Vercel AI SDK (`ai` ^7.0.162) + `@ai-sdk/openai` ^4.0.108 + `@ai-sdk/rsc` ^3.0.162 streaming |
 | AI images | OpenAI image generation through the AI SDK (`IMAGE_MODEL` in `src/constants/ai.ts`) |
-| Tests / quality | Vitest ^5.0.5, ESLint ^9.39.5, React Doctor |
+| Tests / quality | Vitest ^5.1.0, ESLint ^10.14.0, React Doctor |
 
 No Stripe or other payments in this app. Model IDs live only in `src/constants/ai.ts`.
 

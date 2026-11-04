@@ -83,8 +83,8 @@ A working end-to-end flow exists: authenticate → questionnaire → streaming O
 ### Existing technical constraints
 
 - Node.js 24 is what CI and Vercel run. `@firebase/*` declares `node: >=24.12.0`. The AI SDK 7 and Firebase Admin 14 releases are installed on that line.
-- TypeScript remains on the latest 6.x release (^6.0.3). TypeScript 7.0.2 typechecks the app, but `typescript-eslint` 8.72.1 (via `eslint-config-next`) refuses TypeScript 7 and crashes lint.
-- ESLint remains on the latest 9.x release (^9.39.5). ESLint 10.14.0 can run the current config, but `eslint-plugin-react`, `eslint-plugin-import`, and `eslint-plugin-jsx-a11y` still peer-cap at ESLint 9, which makes `npm ls` invalid.
+- TypeScript stays on 6.0.3. TypeScript 7.0.2 has no compiler API that `typescript-eslint` can use, and the parser crashes lint.
+- ESLint is on ^10.14.0. The React, import, and jsx-a11y plugins still peer-cap at ESLint 9; install uses `legacy-peer-deps`. Lint, typecheck, tests, and the production build pass.
 - Firestore-backed generation quotas, shared across instances and denied to client SDKs.
 - Firebase project required (Auth + Firestore + Storage). `firebase.json` points at `firestore.rules` and `storage.rules`; those rules are deployed separately from the website.
 - Secrets are server-only; only `NEXT_PUBLIC_*` values reach the client.
