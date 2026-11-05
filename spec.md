@@ -56,7 +56,7 @@ A working end-to-end flow exists: authenticate → questionnaire → streaming O
 - **Account deletion:** `/profile` → type DELETE ACCOUNT → `DELETE /api/account` (fresh ID token, revocation-checked) deletes `generated/{uid}/` and `users/{uid}/` in Storage, the `ikigaiUsers/{uid}` and `ikigaiProfiles/{uid}` trees, the caller's `_rateLimits` documents, then the Auth user, and clears the session cookie. Success is shown only after the server confirms; the client then signs out and clears local drafts. Retrying after a partial failure finishes the job.
 - **Native app:** inside the React Native webview, Google sign-in is hidden on iPhone and iPad; email/password and email-link sign-in remain.
 - **Profile:** name, photo, and contact email. The name on the card and in the account menu comes from the person's name, not their email address. Sign-out (from the profile page or the account menu) clears Firebase Auth, the httpOnly session cookie, and the in-memory stores before leaving.
-- **Cross-cutting:** nonce CSP from `src/proxy.ts` plus the other security headers in `next.config.mjs`, cookie-consent banner, four-circle ikigai diagram and overlap score bars, mobile-first responsive UI.
+- **Cross-cutting:** nonce CSP from `src/proxy.ts` plus the other security headers in `next.config.mjs`, cookie-consent banner, four-circle ikigai diagram and overlap score bars, mobile-first responsive UI. Firebase Analytics loads only after the visitor accepts that banner.
 
 ### Current user flows
 
@@ -69,6 +69,7 @@ A working end-to-end flow exists: authenticate → questionnaire → streaming O
 - **OpenAI** (`gpt-6.1-sol`) via Vercel AI SDK — text generation (`OPENAI_API_KEY`).
 - **OpenAI** image generation (`gpt-image-2.5-flare`) via the AI SDK — card backgrounds (same `OPENAI_API_KEY`).
 - **Firebase** — Auth, Firestore, Storage (client Web SDK + Admin SDK).
+- **Firebase Analytics** — after cookie consent, `isSupported` and `getAnalytics` use the measurement id already on the Firebase web config (`NEXT_PUBLIC_FIREBASE_MEASUREMENTID`, live property `G-42WK03G34Y`). Each client route change, including the query string, logs `page_view`. The automatic first hit is disabled so App Router navigations are not counted twice.
 - **Deployment target:** Vercel (recommended); any Next.js 16 host works. **[inferred from README + config]**
 
 ### Current architecture summary

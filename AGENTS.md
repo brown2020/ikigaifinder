@@ -66,7 +66,7 @@ src/
 ├── zustand/                  # useAuthStore, useIkigaiStore, useProfileStore, useUIStore
 ├── constants/                # ikigai.ts (circles/overlaps), questions.ts, systemPrompt.ts, menuItems.ts
 ├── utils/                    # ikigaiList, journey, downloadImage, canvasUtils, promptUtils, siteUrl (canonical origin for links, metadata, JSON-LD), …
-├── firebase/                 # firebaseClient.ts, firebaseAdmin.ts
+├── firebase/                 # firebaseClient.ts, analytics.ts (consent-gated), firebaseAdmin.ts
 └── types/                    # Centralized TypeScript types (index.ts)
 
 firestore.rules               # Owner-only access; shared pages read via the Admin SDK, never public client reads
@@ -80,7 +80,7 @@ env.sample                    # Required environment variables (copy to .env.loc
 - **AI text generation** runs as a Next.js **server action** (`src/lib/generateIkigai.ts`) using AI SDK structured output (`Output.array` + Zod schema). It streams the cumulative list of completed statements with `@ai-sdk/rsc`; the client consumes it in `src/hooks/use-ikigai-generator.ts` and dedupes with `src/utils/ikigaiList.ts`, which puts each new batch ahead of the existing list. Score fields map to the classic overlaps: Passion (love+skill), Mission (love+world), Vocation (world+paid), Profession (skill+paid).
 - **AI image generation** is a server action (`src/lib/generateImage.ts`) that calls OpenAI image generation through the AI SDK, uploads the result to Firebase Storage with the Admin SDK, and returns a same-origin `/api/media` URL. The media and download routes read bytes with the Admin SDK only for the owner or the current public cover.
 - **Auth flow:** client signs in with the Firebase Web SDK → obtains an ID token → `POST /api/auth/session` verifies it and sets an **httpOnly session cookie** via `adminAuth.createSessionCookie`. `src/proxy.ts` verifies that cookie (with revocation check) for protected route segments only.
-- **Data access is mixed:** most reads/writes use the **client** Firebase SDK from `src/services/*` (guarded by `firestore.rules`); a few server paths (`/api/ikigai/sharing`, `/api/account`, the public share page) use the **Admin SDK**. The client Firestore and Storage SDKs load on first use through `loadFirestore()` / `loadStorage()` in `src/firebase/firebaseClient.ts`; never import `firebase/firestore` or `firebase/storage` statically in client code (type-only imports are fine), or the ~200 KB SDKs return to every page's first load. Budget: ≤300 KB gzip first-load JS on `/` and `/ikigai-finder/quick`.
+- **Data access is mixed:** most reads/writes use the **client** Firebase SDK from `src/services/*` (guarded by `firestore.rules`); a few server paths (`/api/ikigai/sharing`, `/api/account`, the public share page) use the **Admin SDK**. The client Firestore and Storage SDKs load on first use through `loadFirestore()` / `loadStorage()` in `src/firebase/firebaseClient.ts`; never import `firebase/firestore` or `firebase/storage` statically in client code (type-only imports are fine), or the ~200 KB SDKs return to every page's first load. Firebase Analytics (`src/firebase/analytics.ts`) is the same kind of dynamic import: it calls `isSupported` / `getAnalytics` only after the existing cookie consent, using `NEXT_PUBLIC_FIREBASE_MEASUREMENTID` (live property `G-42WK03G34Y`). Budget: ≤300 KB gzip first-load JS on `/` and `/ikigai-finder/quick`.
 - **State:** four small Zustand stores wrapped with `withDevtools` (`src/zustand/middleware.ts`); UID is re-checked after async work to avoid cross-user race conditions. `useIkigaiStore.status` tracks initial hydration; journey pages render through `JourneyGate` so they never act on unloaded data. Stores reset on sign-out.
 - **Design system:** tokens live in `src/app/globals.css` as hex values (html2canvas cannot read oklch). Use semantic Tailwind classes (`bg-card`, `text-muted-foreground`, `text-primary`, `border-border`, domain colors `love/skill/world/paid`), never Tailwind's default palette. Fonts: Fraunces (`font-display`) and Geist (sans) via `next/font`.
 
@@ -94,7 +94,7 @@ env.sample                    # Required environment variables (copy to .env.loc
 - AI cover-image generation (OpenAI) stored in Firebase Storage, with a cover history.
 - Public sharing toggle + public `/ikigai/[id]` page + social share buttons + downloadable card (`html2canvas`), with dynamic OG metadata when public.
 - Dashboard and editable profile.
-- Security headers (`next.config.mjs`) and a per-request nonce CSP (`src/proxy.ts`), input sanitization, Firestore rate limiting, cookie-consent banner.
+- Security headers (`next.config.mjs`) and a per-request nonce CSP (`src/proxy.ts`), input sanitization, Firestore rate limiting, cookie-consent banner. Firebase Analytics starts after that consent and logs `page_view` on client route changes. The CSP allows the Tag Manager and Google Analytics hosts that `gtag.js` needs, and does not allow Ads or doubleclick.
 
 ## Important commands
 

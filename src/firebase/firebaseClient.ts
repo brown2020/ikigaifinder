@@ -30,9 +30,14 @@ if (hasClientConfig) {
   auth = null as unknown as Auth;
 }
 
+export function getFirebaseApp(): FirebaseApp | null {
+  return app ?? null;
+}
+
 function requireApp(): FirebaseApp {
-  if (!app) throw new Error("Firebase client config is missing");
-  return app;
+  const firebaseApp = getFirebaseApp();
+  if (!firebaseApp) throw new Error("Firebase client config is missing");
+  return firebaseApp;
 }
 
 type FirestoreModule = typeof import("firebase/firestore") & { db: Firestore };

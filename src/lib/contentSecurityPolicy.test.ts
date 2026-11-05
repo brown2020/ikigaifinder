@@ -8,6 +8,11 @@ describe("contentSecurityPolicy", () => {
     expect(csp).not.toContain("unsafe-eval");
     expect(csp).not.toMatch(/script-src[^;]*unsafe-inline/);
     expect(csp).toContain("style-src 'self' 'unsafe-inline'");
+    expect(csp).toContain("https://www.googletagmanager.com");
+    expect(csp).toContain("https://*.google-analytics.com");
+    expect(csp).toContain("https://analytics.google.com");
+    expect(csp).toContain("https://*.analytics.google.com");
+    expect(csp).not.toContain("doubleclick");
     expect(contentSecurityPolicy("abc123nonce", true)).toContain("'unsafe-eval'");
   });
 });

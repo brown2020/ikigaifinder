@@ -14,7 +14,7 @@ Discover your *ikigai* (生き甲斐 — “a reason for being”) through an AI
 - Profile: photo, name, and contact email. Sign-out clears the session
 - Account deletion from the profile page
 - Firebase auth — Google (hidden inside the React Native app), email/password, and passwordless email link
-- Cookie consent and legal pages (privacy, terms, about, support)
+- Cookie consent and legal pages (privacy, terms, about, support). Firebase Analytics starts after the visitor accepts and records a page view on each client route change
 
 ## Tech stack
 

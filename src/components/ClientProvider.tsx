@@ -1,12 +1,17 @@
 "use client";
 
-import { useSyncExternalStore } from "react";
+import { Suspense, useSyncExternalStore } from "react";
 import dynamic from "next/dynamic";
 import { Toaster } from "react-hot-toast";
 import CookieConsent from "react-cookie-consent";
+import { AnalyticsPageViews } from "@/components/analytics/AnalyticsPageViews";
 import { useInitializeStores } from "@/zustand";
 import { useAuthToken } from "@/hooks/use-auth-token";
 import { hasClientConfig } from "@/firebase/firebaseClient";
+import {
+  COOKIE_CONSENT_NAME,
+  notifyAnalyticsConsent,
+} from "@/utils/analyticsConsent";
 import { isReactNativeWebView } from "@/utils/platform";
 import ErrorBoundary from "./ErrorBoundary";
 
@@ -39,7 +44,8 @@ export function ClientProvider({
           <CookieConsent
             buttonText="Got it"
             ariaAcceptLabel="Got it, accept cookies"
-            cookieName="ikigai-cookie-consent"
+            cookieName={COOKIE_CONSENT_NAME}
+            onAccept={notifyAnalyticsConsent}
             expires={365}
             disableStyles
             location="none"
@@ -51,6 +57,10 @@ export function ClientProvider({
           </CookieConsent>
         </div>
       )}
+
+      <Suspense fallback={null}>
+        <AnalyticsPageViews />
+      </Suspense>
 
       <Toaster
         position="top-center"
